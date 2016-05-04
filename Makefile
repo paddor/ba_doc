@@ -1,14 +1,14 @@
 all:	task_description.pdf ziele.pdf
 
 task_description.pdf: task_description.tex goals.bib
-	pdflatex $^
-	bibtex task_description.aux
-	pdflatex $^
+	pdflatex $<
+	bibtex $(basename $@ .pdf)
+	pdflatex $<
 
 ziele.pdf: ziele.tex goals.bib
-	pdflatex $^
-	bibtex ziele.aux
-	pdflatex $^
+	pdflatex $<
+	bibtex $(basename $@ .pdf)
+	pdflatex $<
 
 .PHONY: all clean
 

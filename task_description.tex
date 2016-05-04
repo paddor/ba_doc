@@ -13,7 +13,7 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows,decorations.pathmorphing,backgrounds,fit,positioning,shapes.symbols,chains,shapes.geometric,shapes.arrows,calc}
 \usepackage[
-backend=bibtex,
+backend=biber,
 hyperref=true,
 url=false,
 isbn=false,
@@ -31,7 +31,7 @@ block=none]{biblatex}
 	pdfauthor={Patrik Wenger},
 	pdfkeywords={Ruby} {port} {high-availability} {bachelor thesis},
 }
-
+\usepackage{csquotes}
 \usepackage{pdfpages}
 \title{Task Description --- Bachelor Thesis: Roadster}
 \author{Andy Rohr, Patrik Wenger, Manuel Schuler}
@@ -61,7 +61,7 @@ block=none]{biblatex}
 \cfoot{\thepage\ of \pageref{LastPage} }
 \setlength{\headheight}{50pt}
 \maketitle
-\fancyhead[EL,OL]{\includegraphics[trim=10 10 10 10, clip=true, width=0.3\textwidth]{img/hsr_logo.pdf}}
+\fancyhead[L]{\includegraphics[trim=10 10 10 10, clip=true, width=0.3\textwidth]{img/hsr_logo.pdf}}
 
 \section{Client and Supervisor}
 \begin{description}

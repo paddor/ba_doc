@@ -2,7 +2,7 @@ all:	task_description.pdf ziele.pdf
 
 task_description.pdf: task_description.tex goals.bib
 	pdflatex $<
-	bibtex $(basename $@ .pdf)
+	biber $(basename $@ .pdf)
 	pdflatex $<
 
 ziele.pdf: ziele.tex goals.bib

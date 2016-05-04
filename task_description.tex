@@ -1,0 +1,238 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper]{geometry}
+\geometry{verbose, marginparwidth=15mm, marginparsep=3mm, tmargin=25mm}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage[hyphens]{url}
+\usepackage[flushmargin,hang]{footmisc}
+\usepackage{hyperref}
+\usepackage[parfill]{parskip} % no idented first line of each paragraph
+\usepackage{amssymb} % for \checkmark
+\usepackage{enumitem} % for \begin{itemize}[label={...}]
+\usepackage{tikz}
+\usetikzlibrary{arrows,decorations.pathmorphing,backgrounds,fit,positioning,shapes.symbols,chains,shapes.geometric,shapes.arrows,calc}
+\usepackage[
+backend=bibtex,
+hyperref=true,
+url=false,
+isbn=false,
+backref=false,
+% style=custom-numeric-comp,
+%citereset=chapter,
+maxcitenames=3,
+maxbibnames=100,
+block=none]{biblatex}
+\bibliography{goals}
+\hypersetup{
+	unicode=true,
+	pdftitle={Task Description of Bachelor Thesis "Roadster"},
+	pdfsubject={Porting and HA extension of Roadster},
+	pdfauthor={Patrik Wenger},
+	pdfkeywords={Ruby} {port} {high-availability} {bachelor thesis},
+}
+
+\usepackage{pdfpages}
+\title{Task Description --- Bachelor Thesis: Roadster}
+\author{Andy Rohr, Patrik Wenger, Manuel Schuler}
+
+\usepackage{listings}
+\lstdefinestyle{customruby}{ % custom style for Ruby listings
+  belowcaptionskip=1\baselineskip,
+  breaklines=true,
+  frame=single,
+  xleftmargin=\parindent,
+  language=C,
+  showstringspaces=false,
+  basicstyle=\ttfamily,
+  keywordstyle=\bfseries\color{green!40!black},
+  commentstyle=\itshape\color{purple!40!black},
+  identifierstyle=\color{blue},
+  stringstyle=\color{orange},
+}
+\newcommand{\rb}[1]{\lstinline[style=customruby]{#1}} % inline Ruby
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+\begin{document}
+\lstset{language=ruby}
+\pagestyle{fancyplain}
+\fancyhf{}
+\cfoot{\thepage\ of \pageref{LastPage} }
+\setlength{\headheight}{50pt}
+\maketitle
+\fancyhead[EL,OL]{\includegraphics[trim=10 10 10 10, clip=true, width=0.3\textwidth]{img/hsr_logo.pdf}}
+
+\section{Client and Supervisor}
+\begin{description}
+	\item [Client:] mindclue GmbH
+	\item [Client Contact:] Andy Rohr, andy.rohr@mindclue.ch
+	\item [Supervisor:] Prof. Dr. Farhad Mehta, HSR Rapperswil
+\end{description}
+
+
+\section{Students}
+\begin{itemize}
+	\item Patrik Wenger, pwenger@hsr.ch
+	\item Manuel Schuler, mschuler@hsr.ch
+\end{itemize}
+
+\section{Setting}
+The company mindclue GmbH, located in Ziegelbrücke, develops
+SCADA\footnote{Supervisory Control And Data Acquisition, see
+https://en.wikipedia.org/wiki/SCADA} applications for controlling systems used
+in traffic systems, energy, and water supply. For that purpose, the company
+developed the \emph{Roadster} framework, which provides the basis for project
+specific applications.\\
+
+\emph{Roadster} is implemented in Ruby and is architecturally based on the
+Actor model \cite{wiki:actor-model}, which means that multiple parallel running,
+single-threaded processes (actors) are coupled via messaging (shared-nothing
+architecture). The messaging layer is based on ZeroMQ (ZMQ \cite{zeromq}) and
+has an asynchrone/non-blocking nature. Several different messaging
+patterns/messaging protocols are used. Additionally, the system includes a web
+UI which is based on ember.js and connected to the messaging via WebSocket.
+Fundamentally, the system follows the Reactive Manifesto
+\cite{reactivemanifesto}.\\
+
+
+\emph{Roadster} currently lacks the following features:
+
+\begin{enumerate}
+	\item A \emph{Roadster} application is currently limited to one node
+		(one instance). The goal is to be able to build systems which
+		consist of multiple nodes. Example: A master node forms
+		together with multiple subordinate nodes a system (basically a
+		distributed system). The subordinate nodes are responsible for
+		their respective subtask of a facility and communicate with
+		their components (e.g. SPS). The subsystems are integrated into
+		the master node to form an overall view of the facility, which
+		is visualized in the web UI.
+
+This requirement implies:
+
+\begin{itemize}
+	\item Extension of the messsaging protocols to allow the communication
+		between nodes across levels in the hierarchy.
+
+	\item Encryption of the communication.
+\end{itemize}
+
+\item A \emph{Roadster} application has to have the ability to be run as a
+	highly available active/passive cluster. Two nodes (primary and backup)
+	of the same level in the hierarchy form a hot-standby cluster, where
+	the two nodes stay in constant connection with each other. In case the
+	active node fails, the passive node immediately takes over and becomes
+	the new active node.
+
+This requirement implies:
+
+\begin{itemize}
+	\item Extension of the messaging protocols to allow the communication
+		between nodes within the same level in the hierarchy.
+
+	\item Implementation of resilient failover mechanisms.
+
+	\item Encryption of the communication.
+\end{itemize}
+
+
+\item With (2), it is possible to implement a highly available OPC UA server.
+	OPC UA \cite{opc-ua} includes a concept for redundant UA servers.
+	\emph{Roadster} already implements a OPC UA server, although not highly
+	available.
+
+This requirement implies:
+
+\begin{itemize}
+	\item Extension of the OPC UA implementation to support OPC UA HA
+		mechanisms.
+\end{itemize}
+\end{enumerate}
+
+\section{Goals}
+The client essentially wants \emph{Roadster} to be extended by the three
+features described above, whereas the \textbf{third one is optional} and is
+only to be approached in case there is time for it. The \textbf{same applies
+to the encrypted communication requirement}.
+
+The problem can be summarized as follows:
+
+\begin{enumerate}
+	\item Getting familiar with the concepts and implementation of
+		\emph{Roadster}, particularly the messaging layer. For that,
+		Andy Rohr (mindclue GmbH) will provide an extensive
+		introduction.
+
+	\item Elaboration of a subnode concept. This includes the design,
+		implementation, and testing of extensions of the existing
+		messaging protocols for the communication between nodes of
+		different levels in the hierarchy.
+
+		One of the most important \emph{Roadster} messaging protocols
+		is called \emph{Clone State Protocol} and is based on the
+		\emph{Clone Pattern} described in the zguide
+		\cite{zguide:clone-pattern}. It provides means to replicate the
+		current state of the domain model into the different actors
+		within an application, as those actors behave according to the
+		following principle \cite{golang:sharemem}:
+
+		\begin{quote}
+		``Don't communicate by sharing state, share state by communicating.''
+		\end{quote}
+
+		For the communication between nodes, the protocol has to be
+		extended accordingly. The messages are basically Ruby objects
+		serialized using \rb{Marshal.dump} and transported over ZMQ
+		sockets.
+
+	\item Elaboration of a HA concept. This includes the design,
+		implementation, and testing of extensions of the existing
+		messaging protocols for the communication betwen nodes within
+		the same level in the hieararchy, including resilient failover
+		mechanisms.
+
+		The \emph{Binary Star Pattern}
+		\cite{zguide:binary-star}\cite{zguide:adding-binary-star} forms
+		the basis of the HA concept. However, the concept will have to
+		be adapted to fit \emph{Roadster}'s needs. Availability has to
+		be ensured under the following scenarios:
+
+		\begin{itemize}
+			\item hardware or software failure of the primary node
+			\item network failure
+		\end{itemize}
+
+		A more detailed definition will have to be worked out during
+		the elaboration phase of the thesis.
+
+	\item Implementation of encrypted communication. The current
+		implementation is based on ZMQ 3 and the Ruby binding ffi-rzmq
+		\cite{github:ffi-rzmq}. However, encryption has been introduced
+		in ZMQ 4, which isn't supported by ffi-rzmq. On top of that,
+		ffi-rzmq is not being maintained anymore. A possible solution
+		is CZTop \cite{github:cztop}, which is based on CZMQ
+		\cite{czmq} and authored by Patrik Wenger.
+
+		In case CZTop is used, it would have to be extended to allow
+		the watching of ZMQ sockets by EventMachine
+		\cite{gem:eventmachine}, e.g.
+		\rb{EM.watch(socket_file_descriptor)}. \emph{Roadster} uses
+		EventMachine as a reactor implementation
+		\cite{wiki:reactor-pattern}.
+
+	\item Extensions of the \emph{Roadster} OPC UA server implementation to
+		support HA mechanisms. This part of \emph{Roadster} is a Ruby
+		extension, which is implemented based on the Unified Automation
+		C++ SDK \cite{ua-server-sdk}. The extension is written in C++
+		and uses rbplusplus \cite{github:rbplusplus}.
+\end{enumerate}
+
+\section{Permission}
+To grant mindclue GmbH unrestricted usage of the student's contributions, the
+student's code changes and additions shall be protected under the ISC License
+\cite{wiki:isc-license}, which is functionally equivalent to the MIT license
+and the Simplified BSD license, but uses simpler language.
+
+\printbibliography
+\end{document}

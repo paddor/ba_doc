@@ -1,0 +1,211 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper]{geometry}
+\geometry{verbose, marginparwidth=15mm, marginparsep=3mm, tmargin=25mm}
+\usepackage[ngerman]{babel}
+\usepackage{graphicx}
+\usepackage[hyphens]{url}
+\usepackage[flushmargin,hang]{footmisc}
+\usepackage{hyperref}
+\usepackage[parfill]{parskip} % no idented first line of each paragraph
+\usepackage{amssymb} % for \checkmark
+\usepackage{enumitem} % for \begin{itemize}[label={...}]
+\usepackage{tikz}
+\usetikzlibrary{arrows,decorations.pathmorphing,backgrounds,fit,positioning,shapes.symbols,chains,shapes.geometric,shapes.arrows,calc}
+\usepackage[
+backend=bibtex,
+hyperref=true,
+url=false,
+isbn=false,
+backref=false,
+% style=custom-numeric-comp,
+%citereset=chapter,
+maxcitenames=3,
+maxbibnames=100,
+block=none]{biblatex}
+\bibliography{goals}
+\hypersetup{
+	unicode=true,
+	pdftitle={BA Roadster: Ziele},
+	pdfsubject={Portierung und HA-Erweiterung von Roadster},
+	pdfauthor={Patrik Wenger},
+	pdfkeywords={Ruby} {port} {high-availability},
+}
+
+\usepackage{pdfpages}
+\title{Bachelorarbeit: Roadster}
+\author{Andy Rohr, Patrik Wenger, Manuel Schuler}
+
+\usepackage{listings}
+\lstdefinestyle{customruby}{ % custom style for C++ listings
+  belowcaptionskip=1\baselineskip,
+  breaklines=true,
+  frame=single,
+  xleftmargin=\parindent,
+  language=C,
+  showstringspaces=false,
+  basicstyle=\ttfamily,
+  keywordstyle=\bfseries\color{green!40!black},
+  commentstyle=\itshape\color{purple!40!black},
+  identifierstyle=\color{blue},
+  stringstyle=\color{orange},
+}
+\newcommand{\rb}[1]{\lstinline[style=customruby]{#1}} % inline Ruby
+
+\begin{document}
+\lstset{language=ruby}
+\thispagestyle{empty}
+\maketitle
+
+\section{Ausgangslage}
+
+Die mindclue GmbH mit Sitz in Ziegelbrücke entwickelt SCADA-Applikationen für
+Leitsysteme in den Bereichen Verkehr, Energie- und Wasserversorgungen. Dazu hat
+sie das Framework \emph{Roadster} entwickelt, das als Basis für projektspezifische
+Applikationen dient.\\
+
+\emph{Roadster} ist in Ruby implementiert und basiert architektonisch auf dem Actor
+Pattern: Mehrere parallel laufende single-threaded-Prozesse (Actors) sind via
+ein Messaging miteinander gekoppelt (Shared-Nothing-Architektur). Der
+Messaging-Layer basiert auf ZeroMQ (ZMQ \cite{zeromq}) und hat eine
+asynchrone/non-blocking Natur. Darin kommen verschiedene Messaging-Patterns
+bzw. Messaging-Protokolle zum Einsatz. Das System verfügt zudem über ein WebUI,
+welches auf ember.js basiert und ebenfalls via WebSocket in das Messaging
+eingebunden ist. Grundsätzlich orientiert sich das System am sogenannten
+Reactive Manifesto \cite{reactivemanifesto}.\\
+
+
+\emph{Roadster} fehlen momentan jedoch noch folgende Fähigkeiten:
+
+\begin{enumerate}
+	\item Eine \emph{Roadster}-Applikation ist momentan auf einen Node
+		(eine Instanz) beschränkt. Ziel ist es aber, Systeme bauen zu
+		können, welche aus mehreren Nodes bestehen. Beispiel: Ein
+		\emph{Master-Node} bildet mit mehreren untergeordneten Nodes
+		ein Gesamtsystem (im Prinzip ein verteiltes System). Die
+		untergeordneten Nodes sind für einen Teilbereich einer Anlage
+		zuständig und kommunizieren mit deren Komponenten (z. B. SPS).
+		Auf dem Master-Node werden die Teilanlagen integriert und es
+		ensteht im Endeffekt ein Gesamtbild der ganzen Anlage, welches
+		im WebUI visualisiert wird.
+
+Diese Anforderung impliziert:
+
+\begin{itemize}
+	\item Erweiterung der Messaging-Protokolle für die Kommunikation
+		zwischen Nodes der verschiedenen Hierachiestufen.
+
+	\item Verschlüsselung dieser Kommunikation.
+\end{itemize}
+
+\item Eine \emph{Roadster}-Applikation soll auch als hochverfügbarer
+	active/passive-Cluster betrieben werden können. Zwei Nodes (Primary und
+	Backup) auf der gleichen Hierarchiestufe bilden einen Hot Standby
+	Cluster mit einem active Node und einem passive Node, welche dauernd
+	miteinander in Kommunikation stehen. Fällt der active Node aus,
+	übernimmt der passive Node unverzüglich dessen Rolle und wird zum
+	active Node.
+
+Diese Anforderung impliziert:
+
+\begin{itemize}
+	\item Erweiterung der Messaging-Protokolle für die Kommunikation
+		zwischen Nodes der selben Hierachiestufe.
+
+	\item Implementation von robusten Failover-Meachnismen.
+
+	\item Verschlüsselung dieser Kommunikation.
+\end{itemize}
+
+
+\item Basierend auf (2) ist die Grundlage geschaffen um einen hochverfügbaren
+	OPC UA Server zu implementieren. OPC UA \cite{opc-ua} sieht ein Konzept
+	für redundante UA Server vor. \emph{Roadster} implementiert bereits
+	einen OPC UA Server, jedoch nicht in einem HA-Setup.
+
+Diese Anforderung impliziert:
+
+\begin{itemize}
+	\item Erweiterung der OPC UA Implementation zur Unterstützung der OPC
+		UA HA-Mechanismen.
+\end{itemize}
+\end{enumerate}
+
+\section{Beschreibung der Aufgabe}
+
+Grundsätzlich möchte der Auftraggeber \emph{Roadster} um die drei obenstehenden
+Fähigkeiten erweitern, wobei die dritte als optional gelten kann und angepackt
+wird, falls dazu noch genügend Zeit bleibt. Selbes kann auch für die
+Anforderung \emph{verschlüsselte Kommunikation} gelten.\\
+
+Die Aufgaben lassen sich wie folgt zusammenfassen:
+
+\begin{enumerate}
+	\item Einarbeit in die Konzepte und Implementation von \emph{Roadster},
+		insbesondere des Messaging-Layers. Dazu wird Andy Rohr von der
+		mindclue GmbH eine umfassende Einführung geben.
+
+	\item Ausarbeitung eines Subnode-Konzeptes. Design, Implementation und
+		Test von Erweiterungen der bestehenden Messaging-Protokolle zur
+		Kommunikation zwischen Nodes verschiedener Hierarchiestufen.
+
+		Eines der wichtigsten \emph{Roadster}-Messaging-Prokolle heisst
+		\emph{Clone State Protocol} und basiert auf dem \emph{Clone
+		Pattern} aus dem zguide \cite{zguide:clone-pattern}. Es dient
+		dem Replizieren des aktuellen Zustandes des Domain Models in
+		die verschiedenen Actors der Applikation, denn diese arbeiten
+		nach dem Prinzip:
+
+		\begin{quote}
+		``don't communicate by sharing state, share state by communicating''
+		\end{quote}
+
+		Für die Kommunikation zwischen den Nodes muss dieses
+		entsprechend ausgeweitet werden. Die Messages sind im
+		Wesentlichen mittels \rb{Marshal.dump} serialisierte Ruby-Objekte,
+		über ZMQ-Sockets transportiert.
+
+	\item Ausarbeitung eines HA-Konzeptes. Design, Implementation und Test
+		von Erweiterungen der bestehenden Messaging-Protokolle zur
+		Kommunikation zwischen Nodes gleicher Hierarchiestufen inkl.
+		robuster Failover-Mechanismen.
+
+		Ansatz für das HA-Konzept ist das \emph{Binary Star Pattern}
+		\cite{zguide:binary-star}\cite{zguide:adding-binary-star}. Das
+		Konzept wird sich jedoch in den Details den Eigenheiten von
+		\emph{Roadster} anpassen müssen. Die Verfügbarkeit soll gegeben
+		sein bei folgenden Fehlerszenarien:
+
+		\begin{itemize}
+			\item Hardware- oder Softwareausfall des Primary Nodes
+			\item Netzwerkausfall
+		\end{itemize}
+
+		Eine genauere Definition muss im Rahmen der detaillierten
+		Aufgabenstellung definiert werden.
+
+
+	\item Implementation von verschlüsselter Kommunikation. Die aktuelle
+		Implementation basiert auf ZMQ 3 und den Ruby-Binding ffi-rzmq
+		\cite{github:ffi-rzmq}.  Verschlüsselung ist jedoch erst in ZMQ
+		4 implementiert. Das Binding ffi-rzmq unterstüzt diese Version
+		jedoch nicht und wird auch ansonsten nicht weiter gepflegt.
+		Eine mögliche Lösung wäre CZTop \cite{github:cztop}, welches
+		auf CZMQ aufsetzt und dessen Autor Patrik Wenger ist.
+
+		Falls CZTop eingesetzt würde, müsste es derart erweitert
+		werden, sodass Sockets in EventMachine \cite{gem:eventmachine}
+		eingebunden werden können:
+		\rb{EM.watch(socket_file_descriptor)}. \emph{Roadster}
+		verwendet EventMachine als Reactor-Implementation.
+
+
+	\item Erweiterung \emph{Roadster} OPC UA Server zur Unterstützung der
+		OPC UA HA-Mechanismen. Es handelt sich dabei um eine
+		Ruby-Extension, welche basierend auf dem C++ SDK von Unified
+		Automation \cite{ua-server-sdk} implementiert wurde. Die
+		Extension ist in C++ geschrieben und verwendet rbplusplus
+		\cite{github:rbplusplus}.
+\end{enumerate}
+\printbibliography
+\end{document}

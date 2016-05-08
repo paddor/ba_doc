@@ -21,14 +21,14 @@ block=none]{biblatex}
 \bibliography{goals}
 \hypersetup{
 	unicode=true,
-	pdftitle={Task Description of Bachelor Thesis "Roadster"},
-	pdfsubject={Porting and HA extension of Roadster},
+	pdftitle={Bachelor Thesis "Roadster"},
+	pdfsubject={Extending a SCADA framework to support high availability},
 	pdfauthor={Patrik Wenger},
 	pdfkeywords={Ruby} {port} {high-availability} {bachelor thesis},
 }
 \usepackage{csquotes}
 \usepackage{pdfpages}
-\title{Task Description --- Bachelor Thesis: Roadster}
+\title{Extending a SCADA framework to support high availability --- Bachelor Thesis: Roadster}
 \author{Andy Rohr, Patrik Wenger, Manuel Schuler}
 
 \usepackage{listings}
@@ -84,12 +84,16 @@ specific applications.\\
 Actor model \cite{wiki:actor-model}, which means that multiple parallel running,
 single-threaded processes (actors) are coupled via messaging (shared-nothing
 architecture). The messaging layer is based on ZeroMQ (ZMQ \cite{zeromq}) and
-has an asynchrone/non-blocking nature. Several different messaging
+has an asynchronous/non-blocking nature. Several different messaging
 patterns/messaging protocols are used. Additionally, the system includes a web
 UI which is based on ember.js and connected to the messaging via WebSocket.
 Fundamentally, the system follows the Reactive Manifesto
 \cite{reactivemanifesto}.\\
 
+\clearpage
+\section{Goals}
+The main aim of this thesis is to extend the \emph{Roadster} framework to
+support high availability.\\
 
 \emph{Roadster} currently lacks the following features:
 
@@ -145,13 +149,13 @@ This requirement implies:
 \end{itemize}
 \end{enumerate}
 
-\section{Goals}
 The client essentially wants \emph{Roadster} to be extended by the three
 features described above, whereas the \textbf{third one is optional} and is
 only to be approached in case there is time for it. The \textbf{same applies
 to the encrypted communication requirement}.
 
-The problem can be summarized as follows:
+\section{Tasks}
+Here is an overview of the currently planned tasks that need to be performed:
 
 \begin{enumerate}
 	\item Getting familiar with the concepts and implementation of
@@ -223,7 +227,7 @@ The problem can be summarized as follows:
 		and uses rbplusplus \cite{github:rbplusplus}.
 \end{enumerate}
 
-\section{Permission}
+\section{License}
 To grant mindclue GmbH unrestricted usage of the student's contributions, the
 student's code changes and additions shall be protected under the ISC License
 \cite{wiki:isc-license}, which is functionally equivalent to the MIT license

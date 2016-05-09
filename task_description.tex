@@ -104,7 +104,7 @@ support high availability.\\
 		together with multiple subordinate nodes a system (basically a
 		distributed system). The subordinate nodes are responsible for
 		their respective subtask of a facility and communicate with
-		their components (e.g. SPS). The subsystems are integrated into
+		their components (e.g. PLCs). The subsystems are integrated into
 		the master node to form an overall view of the facility, which
 		is visualized in the web UI.
 
@@ -119,7 +119,7 @@ This requirement implies:
 
 \item A \emph{Roadster} application has to have the ability to be run as a
 	highly available active/passive cluster. Two nodes (primary and backup)
-	of the same level in the hierarchy form a hot-standby cluster, where
+	at the same level in the hierarchy form a hot-standby cluster, where
 	the two nodes stay in constant connection with each other. In case the
 	active node fails, the passive node immediately takes over and becomes
 	the new active node.
@@ -174,10 +174,10 @@ Here is an overview of the currently planned tasks that need to be performed:
 		\cite{zguide:clone-pattern}. It provides means to replicate the
 		current state of the domain model into the different actors
 		within an application, as those actors behave according to the
-		following principle \cite{golang:sharemem}:
+		following principle \cite{igvita:concurrency}:
 
 		\begin{quote}
-		``Don't communicate by sharing state, share state by communicating.''
+		``Don't communicate by sharing state; share state by communicating.''
 		\end{quote}
 
 		For the communication between nodes, the protocol has to be

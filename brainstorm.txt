@@ -1,0 +1,80 @@
+Documentation
+-------------
+* CERN paper on MOMs
+* iterative design
+* crash course in ZMQ
+  - intelligent sockets with simple interface (create, bind/connect, send/recv)
+  - abstraction of low-level stuff (connection handling, buffering, client addresses, heartbeating (ZMQ 4.2+), encryption, ...)
+  - socket types
+  - message envelopes
+  - divide & conquer
+  - multi threading made easy (don't share anything, communicate through messages) => CZMQ actor
+  - the CZMQ layer
+* a few words about ZMQ RFCs
+  - ZMTP
+  - ZMTP-CURVE/ZAP (encryption+authentication, inclusively NaCl/libsodium/Daniel J. Bernstein's algorithms)
+* a few words about CZTop
+  - thin Ruby binding for CZMQ
+  - why it makes working with the lower level binding (czmq-ffi-gen) more Ruby-like
+  - how it handles errors/interrupts (shit that's important and painful in C)
+* explain Binary Star pattern
+  - state diagram (FSM)
+* explain Clone pattern
+  - state diagram of client
+* use this syntax for multi-part messages: [foo][bar][blob]
+* define reliability
+  - what failures do we want to handle
+* burn down charts, gantt charts, ...
+
+Project Management
+------------------
+* github project
+  - pro: github is single source of truth, cards and issues
+  - it has columns, milestones, drag&drop, ...
+  - con: no gantt, only one repo per project
+  - with Everhour for time tracking and reporting
+  - HuBoard/Waffle.io/ZeHub/Zube ???
+    - all the same, probably just older than github's own board software
+  - or Overv.io + Harvest
+
+* trello
+  - pro: battle tested, many integrations
+  - attach commit/issue/branch/PR from github
+  - time tracking: Harvest (integrated into trello) or Punchtime (as webapp, browser ext, or mobile app)
+  - gantt charts: Elegantt
+
+* => use a combo of github and trello
+
+
+General Plan
+------------
+* read and understand existing Roadster code
+* add specs if needed
+* port to CZTop
+* figure out what exact functionality we need
+  - either we need exactly what Zguide describes as Clustered Hashmap Protocol (CHP)
+  - or our own protocol derived from that
+    - "isn't only about serialization strategies, it's also about synchronous versus asynchronous, error handling and the cost of change."
+  - we need to at least add security, which should be easy
+  - maybe we can implement our protocol on top of CHP
+  - describe test scenarios
+* create new ruby gem: cztop-patterns
+  * implement Binary Star pattern as reusable reactor called CZTop::BStar
+  * implement Clone (CHP) pattern as reusable actor/reactor (client/server)
+    - client supports talking to 1 or 2 Clone servers
+    - CZTop::CHP::Server and CZTop::CHP::Client
+  * one difference from zguide: use ZMTP 3.1 heartbeats instead of "HUGZ" commands
+* integrate new gem into Roadster
+  - run test scenarios, log and interpret results
+  - also measure & document performance
+* enable encryption
+  - think of a way to distribute/store key files (if needed)
+* ... whatever requierements are left
+
+
+* I don't think we need:
+  - reliable request-reply patterns (* Pirate patterns)
+  - service-oriented broker (Majordomo pattern)
+  - disconnected reliability (messages stored on disk) (Titanic pattern)
+  - brokerless name resolution service (Freelance pattern)
+    - use zconfig files instead?

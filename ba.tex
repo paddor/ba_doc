@@ -169,6 +169,7 @@ mindclue GmbH
 supervised by\par
 Prof. Farhad Mehta
 
+% TODO: add name of proof reader
 \vfill
 
 % Bottom of the page
@@ -177,7 +178,6 @@ Prof. Farhad Mehta
 
 %-----------------------------------------------------------------------------
 \begin{abstract}
-\setcounter{page}{1}
 \pagenumbering{roman}
 
 % Introduction
@@ -190,59 +190,64 @@ TODO approach and technologies
 TODO result
 
 \end{abstract}
+%-----------------------------------------------------------------------------
+
+\chapter*{Declaration of Originality}
+We hereby confirm that we are the sole authors of this document and the
+described changes to the Roadster framework and libraries developed.
+
+TODO any usage agreements or license
+%\includepdf[width=\textwidth,pages=1,pagecommand=\section{Permissions},trim=1.9cm 3cm 2cm 2cm,clip]{vereinbarung.pdf}
+
+\chapter*{Thank You}
+TODO anyone we'd like to thank
 
 %-----------------------------------------------------------------------------
+\part*{Management Summary}\label{part:mgmtsummary}
+\setcounter{secnumdepth}{0} % avoid section numbering here
+
+\section*{Initial Situation}
+TODO describe initial situation, not too technical
+
+\section*{Software Development Process}
+TODO describe decision to use RUP/Scrum
+TODO maybe describe what project management tools we'll be using
+
+\section*{Project Phases}
+TODO describe this phase in retrospection
+
+\subsection*{Inception}
+TODO describe this phase in retrospection
+
+\subsection*{Elaboration}
+TODO describe this phase in retrospection
+
+\subsection*{Construction}
+TODO describe this phase in retrospection
+
+\subsection*{Transition}
+TODO describe this phase in retrospection
+
+\section*{Results}
+TODO describe results
+
+
+%-----------------------------------------------------------------------------
+% TOC, LOF, LOT, LOL
 \tableofcontents
 \listoffigures
 \listoftables
 \lstlistoflistings
 
 %-----------------------------------------------------------------------------
-\chapter{Scope}
-\setcounter{page}{1}
+\pagebreak
 \pagenumbering{arabic}
-\setcounter{secnumdepth}{0} % avoid section numbering here
-
-TODO what's this scope about
-
-\section{Goals}
-TODO mandatory goals
-
-\section{Optional Goals}
-TODO optional goals
-
-%-----------------------------------------------------------------------------
-\part{Management Summary}\label{part:mgmtsummary}
-\setcounter{secnumdepth}{3} % reset to default
-
-\section{Initial Situation}
-TODO describe initial situation, not too technical
-
-\section{Software Development Process}
-TODO describe decision to use RUP/Scrum
-TODO maybe describe what project management tools we'll be using
-
-\section{Project Phases}
-TODO describe this phase in retrospection
-
-\subsection{Inception}
-TODO describe this phase in retrospection
-
-\subsection{Elaboration}
-TODO describe this phase in retrospection
-
-\subsection{Construction}
-TODO describe this phase in retrospection
-
-\subsection{Transition}
-TODO describe this phase in retrospection
-
-\section{Results}
-TODO describe results
-
-%-----------------------------------------------------------------------------
+\setcounter{page}{1}
 \part{Technical Report}
+
+%-----------------------------------------------------------------------------
 \chapter{Context}
+TODO what's this thesis about (general scope)
 
 \section{Initial Situation}
 TODO What's Roadster and its goals
@@ -252,24 +257,40 @@ TODO Roadster architecture\\
 
 \includegraphics[trim=4cm 2cm 3.5cm 2.8cm, clip=true, width=\textwidth]{img/roadster_arch.pdf}
 
-\section{Problem Description}
+\section{Goals}
+TODO mandatory goals
 
+\subsection*{Optional Goals}
+TODO optional goals
+
+\section{Problem Description}
 TODO our tasks
 
-\subsection{Non-Functional Requirements}
-
+\section{Non-Functional Requirements}
 TODO the NFRs
 
 \chapter{About ZMQ}
 
-TODO crash course in ZMQ/CZMQ/CZTop
+TODO crash course in ZMQ/CZMQ/CZTop\\
+TODO strong abstraction (one socket for many connections, connection handling transparent, transport and encryption transparent, no concept of peer addresses)\\
+TODO brokerless/with broker, up to you\\
+TODO basic patterns\\
+TODO extended patterns\\
+TODO not only a "MOM", but a multi threading library (Actor pattern)\\
 
 \chapter{Port}\label{ch:port}
 \section{Concept}
-TODO explain concept
+TODO explain binding options out there, why CZTop\\
+TODO explain concept of exchanging ffi-rzmq with CZTop\\
+
+\section{Implementation}
+TODO show certain excerpts how it was done
 
 \chapter{Cluster}\label{ch:cluster}
-TODO explain Clustered Hashmap Protocol (I guess)
+\section{Concept}
+TODO explain planned multi node setup\\
+TODO election/design of appropriate protocol\\
+TODO explain Clustered Hashmap Protocol (I guess)\\
 
 \section{Implementation}
 TODO explain how to implement/integrate CHP
@@ -282,8 +303,8 @@ TODO explain binary star pattern and how to implement/integrate it
 \section{Implementation}
 TODO explain how to implement/integrate Binary Star
 
-\chapter{Optional Goal: Highly Available OPC UA Server}\label{ch:opc-ua-server}
-
+\chapter{Highly Available OPC UA Server}\label{ch:opc-ua-server}
+TODO This is the optional goal.\\
 TODO explain new opportunity for OPC UA HA server
 
 \section{Concept}
@@ -303,17 +324,6 @@ TODO write conclusion, we're the best and everything is awesome
 \chapter{Self Reflection}
 TODO how did we perform, completion of goals, accuracy of estimated efforts, efficiency, resourcefulness
 
-\section{Thank You}
-TODO anyone we'd like to thank
-
-\chapter{Formalities}
-\section{Declaration of Originality}
-We hereby confirm that we are the sole authors of this document and the
-described changes to the Roadster framework and libraries developed.
-
-TODO any usage agreements or license
-%\includepdf[width=\textwidth,pages=1,pagecommand=\section{Permissions},trim=1.9cm 3cm 2cm 2cm,clip]{vereinbarung.pdf}
-
 \chapter{Project Plan}
 
 \section{Organization}
@@ -322,6 +332,9 @@ TODO roles, how we organize ourselves and how we communicate with each other
 \chapter{Infrastructural Problems}\label{ch:problems}
 TODO describe serious problems here, if any
 
-TODO add any other appendix chapters here, like detailed ZMQ stuff, usage manuals, ...
+\section{Project Management Software}
+TODO Github/Trello/Harvest/Everhour/Elegantt/Ganttify/Redmine\\
+
+TODO add any other appendix chapters here, like detailed ZMQ stuff, usage manuals, ...\\
 
 \end{document}

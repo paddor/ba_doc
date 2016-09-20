@@ -1,0 +1,50 @@
++ = pro
+- = con
+
+
+
+Trello & Github:
++ kanban cards
++ multi repo support
++ Harvest time tracking (expensive)
++ labels to differentiate different kinds of work (documentation/concept/hacking)
++ Gantt charts through elegantt.io or gantiffy)
++ no Burndown charts
+- no access to private repo (reported to Trello Support)
+- no milestones (KILLER)
+
+
+
+Github only:
++ milestones
++ labels to differentiate different kinds of work (documentation/concept/hacking)
++ kanban cards through Projects
+- one Project per repo (not necessarily a bad thing)
++ free basic project management (the only thing to pay here is Everhour)
++ great Wiki syntax
++ tightly integrated with issues/source code/PRs/wiki
++ PRs with Code Review feature
++ Everhour time tracking (less expensive)
++ Code Frequency/Commit charts
++ "Pulse" which shows number of recently active/closed/created issues
+- no Gantt (ganttify and elegantt.io only support Trello)
+- no Burndown charts
+
+
+
+Redmine:
++ time tracking & reporting
++ trackers to differentiate different kinds of issues (documentation/concept/hacking)
++ mile stones
++ closed source code is hosted securely if hosted on Andy's server, instead of HSR VM
++ Gantt charts (see below)
+- useless Gantt implementation (enormous effort to keep it up-to-date)
+- no kanban cards
+- need to host github repo on same machine (instead of Github)
+- bad wiki syntax (textile) (we could use github's wiki for meeting minutes anyway)
+- no Burndown charts
+- no PRs, no Code Review feature
+
+
+
+DO WE REALLY NEED GANTT?? => ask Prof. Mehta

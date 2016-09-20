@@ -1,0 +1,102 @@
+\lstloadlanguages{Ruby}
+\lstset{language=Ruby}
+\lstset{
+  prebreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+  postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\rcurvearrowse\space}},
+}
+
+% custom style for Ruby listings
+\lstdefinestyle{customruby}{
+  belowcaptionskip=1\baselineskip,
+  breaklines=true,
+  frame=single,
+  frameround=tttt,
+  aboveskip=1\bigskipamount,
+  belowskip=1\bigskipamount,
+  xleftmargin=\parindent,
+  language=Ruby,
+  showstringspaces=false,
+  basicstyle=\footnotesize\ttfamily,
+  keywordstyle=\bfseries\color{green!40!black},
+  commentstyle=\itshape\color{lightgray!40!black},
+  identifierstyle=\color{NavyBlue},
+  stringstyle=\color{red},
+  captionpos=b,
+}
+
+% inline Ruby
+% This style can be used within tabular. For some reason, the customruby style
+% above won't work. But it has to be used like this (not using the \rb command):
+%
+% 	\lstinline[style=custominlineruby]{char}
+%
+\lstdefinestyle{custominlineruby}{
+  basicstyle=\ttfamily,
+  language=Ruby,
+  keywordstyle=\bfseries\color{green!40!black},
+  commentstyle=\itshape\color{lightgray!40!black},
+  identifierstyle=\color{NavyBlue},
+  stringstyle=\color{red},
+  breaklines=true,
+}
+
+\newcommand{\rb}[1]{\lstinline[
+  style=custominlineruby,
+  basicstyle=\ttfamily,
+  prebreak={},
+  postbreak={}]{#1}
+}
+
+% custom style for shell command listings
+\lstdefinestyle{customsh}{
+  language=sh,
+  showstringspaces=false,
+  basicstyle=\footnotesize\ttfamily,
+  breaklines=true,
+  frame=single,
+  frameround=tttt,
+  aboveskip=1\bigskipamount,
+  belowskip=1\bigskipamount,
+  captionpos=b,
+}
+
+% inline shell
+\newcommand{\sh}[1]{\lstinline[
+  style=customsh,
+  basicstyle=\ttfamily,
+  prebreak={},
+  postbreak={}]{#1}}
+
+\definecolor{diffstart}{named}{Grey}
+\definecolor{diffincl}{named}{Green}
+\definecolor{diffrem}{named}{OrangeRed}
+
+\usepackage{listings}
+\lstdefinelanguage{diff}{
+  basicstyle=\ttfamily,
+  frame=single,
+  frameround=tttt,
+  morecomment=[f][\color{diffstart}]{@@},
+  morecomment=[f][\color{diffincl}]{+},
+  morecomment=[f][\color{diffrem}]{-},
+}
+\lstdefinestyle{customdiff}{ % custom style for diff command listings
+  language=diff,
+  showstringspaces=false,
+  basicstyle=\scriptsize\ttfamily,
+  breaklines=true,
+  captionpos=b,
+}
+
+\lstdefinelanguage{worddiff}{
+  basicstyle=\ttfamily,
+  morecomment=[s][\color{diffincl}]{\{+}{+\}},
+  morecomment=[s][\color{diffrem}]{[-}{-]}
+}
+\lstdefinestyle{customworddiff}{ % custom style for git diff --word-diff listings
+  language=worddiff,
+  showstringspaces=false,
+  basicstyle=\scriptsize\ttfamily,
+  breaklines=true,
+  captionpos=b,
+}

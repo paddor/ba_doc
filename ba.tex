@@ -43,108 +43,7 @@ block=none]{biblatex}
 
 \usepackage{MnSymbol}
 \usepackage{listings}
-\lstloadlanguages{Ruby}
-\lstset{language=Ruby}
-\lstset{
-  prebreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
-  postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\rcurvearrowse\space}},
-}
-
-% custom style for Ruby listings
-\lstdefinestyle{customruby}{
-  belowcaptionskip=1\baselineskip,
-  breaklines=true,
-  frame=single,
-  frameround=tttt,
-  aboveskip=1\bigskipamount,
-  belowskip=1\bigskipamount,
-  xleftmargin=\parindent,
-  language=Ruby,
-  showstringspaces=false,
-  basicstyle=\footnotesize\ttfamily,
-  keywordstyle=\bfseries\color{green!40!black},
-  commentstyle=\itshape\color{lightgray!40!black},
-  identifierstyle=\color{NavyBlue},
-  stringstyle=\color{red},
-  captionpos=b,
-}
-
-% inline Ruby
-% This style can be used within tabular. For some reason, the customruby style
-% above won't work. But it has to be used like this (not using the \rb command):
-%
-% 	\lstinline[style=custominlineruby]{char}
-%
-\lstdefinestyle{custominlineruby}{
-  basicstyle=\ttfamily,
-  language=Ruby,
-  keywordstyle=\bfseries\color{green!40!black},
-  commentstyle=\itshape\color{lightgray!40!black},
-  identifierstyle=\color{NavyBlue},
-  stringstyle=\color{red},
-  breaklines=true,
-}
-
-\newcommand{\rb}[1]{\lstinline[
-  style=custominlineruby,
-  basicstyle=\ttfamily,
-  prebreak={},
-  postbreak={}]{#1}
-}
-
-% custom style for shell command listings
-\lstdefinestyle{customsh}{
-  language=sh,
-  showstringspaces=false,
-  basicstyle=\footnotesize\ttfamily,
-  breaklines=true,
-  frame=single,
-  frameround=tttt,
-  aboveskip=1\bigskipamount,
-  belowskip=1\bigskipamount,
-  captionpos=b,
-}
-
-% inline shell
-\newcommand{\sh}[1]{\lstinline[
-  style=customsh,
-  basicstyle=\ttfamily,
-  prebreak={},
-  postbreak={}]{#1}}
-
-\definecolor{diffstart}{named}{Grey}
-\definecolor{diffincl}{named}{Green}
-\definecolor{diffrem}{named}{OrangeRed}
-
-\usepackage{listings}
-\lstdefinelanguage{diff}{
-  basicstyle=\ttfamily,
-  frame=single,
-  frameround=tttt,
-  morecomment=[f][\color{diffstart}]{@@},
-  morecomment=[f][\color{diffincl}]{+},
-  morecomment=[f][\color{diffrem}]{-},
-}
-\lstdefinestyle{customdiff}{ % custom style for diff command listings
-  language=diff,
-  showstringspaces=false,
-  basicstyle=\scriptsize\ttfamily,
-  breaklines=true,
-  captionpos=b,
-}
-
-\lstdefinelanguage{worddiff}{
-  basicstyle=\ttfamily,
-  morecomment=[s][\color{diffincl}]{\{+}{+\}},
-  morecomment=[s][\color{diffrem}]{[-}{-]}
-}
-\lstdefinestyle{customworddiff}{ % custom style for git diff --word-diff listings
-  language=worddiff,
-  showstringspaces=false,
-  basicstyle=\scriptsize\ttfamily,
-  breaklines=true,
-  captionpos=b,
-}
+\include{lst_styles}
 
 \begin{document}
 \thispagestyle{empty}
@@ -203,33 +102,7 @@ TODO any usage agreements or license
 TODO anyone we'd like to thank
 
 %-----------------------------------------------------------------------------
-\part*{Management Summary}\label{part:mgmtsummary}
-\setcounter{secnumdepth}{0} % avoid section numbering here
-
-\section*{Initial Situation}
-TODO describe initial situation, not too technical
-
-\section*{Software Development Process}
-TODO describe decision to use RUP/Scrum
-TODO maybe describe what project management tools we'll be using
-
-\section*{Project Phases}
-TODO describe this phase in retrospection
-
-\subsection*{Inception}
-TODO describe this phase in retrospection
-
-\subsection*{Elaboration}
-TODO describe this phase in retrospection
-
-\subsection*{Construction}
-TODO describe this phase in retrospection
-
-\subsection*{Transition}
-TODO describe this phase in retrospection
-
-\section*{Results}
-TODO describe results
+\include{mgmt_summary}
 
 
 %-----------------------------------------------------------------------------
@@ -246,75 +119,13 @@ TODO describe results
 \part{Technical Report}
 
 %-----------------------------------------------------------------------------
-\chapter{Context}
-TODO what's this thesis about (general scope)
-
-\section{Initial Situation}
-TODO What's Roadster and its goals
-
-\section{Software Architecture}
-TODO Roadster architecture\\
-
-\includegraphics[trim=4cm 2cm 3.5cm 2.8cm, clip=true, width=\textwidth]{img/roadster_arch.pdf}
-
-\section{Goals}
-TODO mandatory goals
-
-\subsection*{Optional Goals}
-TODO optional goals
-
-\section{Problem Description}
-TODO our tasks
-
-\section{Non-Functional Requirements}
-TODO the NFRs
-
-\chapter{About ZMQ}
-
-TODO crash course in ZMQ/CZMQ/CZTop\\
-TODO strong abstraction (one socket for many connections, connection handling transparent, transport and encryption transparent, no concept of peer addresses)\\
-TODO brokerless/with broker, up to you\\
-TODO basic patterns\\
-TODO extended patterns\\
-TODO not only a "MOM", but a multi threading library (Actor pattern)\\
-
-\chapter{Port}\label{ch:port}
-\section{Concept}
-TODO explain binding options out there, why CZTop\\
-TODO explain concept of exchanging ffi-rzmq with CZTop\\
-
-\section{Implementation}
-TODO show certain excerpts how it was done
-
-\chapter{Cluster}\label{ch:cluster}
-\section{Concept}
-TODO explain planned multi node setup\\
-TODO election/design of appropriate protocol\\
-TODO explain Clustered Hashmap Protocol (I guess)\\
-
-\section{Implementation}
-TODO explain how to implement/integrate CHP
-
-\chapter{High Availability}\label{ch:ha}
-
-\section{Concept}
-TODO explain binary star pattern and how to implement/integrate it
-
-\section{Implementation}
-TODO explain how to implement/integrate Binary Star
-
-\chapter{Highly Available OPC UA Server}\label{ch:opc-ua-server}
-TODO This is the optional goal.\\
-TODO explain new opportunity for OPC UA HA server
-
-\section{Concept}
-TODO describe whatever needs to be described
-
-\section{Implementation}
-TODO describe whatever needs to be described
-
-\chapter{Conclusion}
-TODO write conclusion, we're the best and everything is awesome
+\include{context}
+\include{about_zmq}
+\include{port}
+\include{cluster} % multi node
+\include{ha} % high availability
+\include{ha_opc_ua}
+\include{conclusion}
 
 \printbibliography
 
@@ -329,11 +140,7 @@ TODO how did we perform, completion of goals, accuracy of estimated efforts, eff
 \section{Organization}
 TODO roles, how we organize ourselves and how we communicate with each other
 
-\chapter{Infrastructural Problems}\label{ch:problems}
-TODO describe serious problems here, if any
-
-\section{Project Management Software}
-TODO Github/Trello/Harvest/Everhour/Elegantt/Ganttify/Redmine\\
+\include{problems}
 
 TODO add any other appendix chapters here, like detailed ZMQ stuff, usage manuals, ...\\
 

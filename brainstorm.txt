@@ -35,15 +35,15 @@ Project Management
   - with Everhour for time tracking and reporting
   - HuBoard/Waffle.io/ZeHub/Zube ???
     - all the same, probably just older than github's own board software
-  - or Overv.io + Harvest
 
 * trello
   - pro: battle tested, many integrations
   - attach commit/issue/branch/PR from github
   - time tracking: Harvest (integrated into trello) or Punchtime (as webapp, browser ext, or mobile app)
   - gantt charts: Elegantt
+  - con: no milestones :((((
 
-* => use a combo of github and trello
+* => see projmgmt_tradeoffs.txt
 
 
 General Plan

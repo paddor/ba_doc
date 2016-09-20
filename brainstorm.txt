@@ -1,6 +1,6 @@
 Documentation
 -------------
-* CERN paper on MOMs
+* CERN paper on MOMs (img/cern_middleware.pdf)
 * iterative design
 * crash course in ZMQ
   - intelligent sockets with simple interface (create, bind/connect, send/recv)

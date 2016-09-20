@@ -39,7 +39,8 @@ Redmine:
 + closed source code is hosted securely if hosted on Andy's server, instead of HSR VM
 + Gantt charts (see below)
 - useless Gantt implementation (enormous effort to keep it up-to-date)
-- no kanban cards
+- no kanban cards (painful issue management)
+- no combinable labels (only trackers, which are exclusive)
 - need to host github repo on same machine (instead of Github)
 - bad wiki syntax (textile) (we could use github's wiki for meeting minutes anyway)
 - no Burndown charts

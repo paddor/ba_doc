@@ -58,11 +58,18 @@ General Plan
   - we need to at least add security, which should be easy
   - maybe we can implement our protocol on top of CHP
   - describe test scenarios
-* create new ruby gem: cztop-patterns
-  * implement Binary Star pattern as reusable reactor called CZTop::BStar
+* service discovery?
+  - hard coded
+  - static config files
+  - config files synced over Etcd
+  - Zookeeper
+  - CZMQ's ZBeacon functionality
+* ZeroMQ transport
+  - TCP or maybe TIPC?
+* create new ruby gem: ruby-zguide-patterns (or maybe back to "cztop-patterns"?)
+  * implement Binary Star pattern as reusable reactor
   * implement Clone (CHP) pattern as reusable actor/reactor (client/server)
     - client supports talking to 1 or 2 Clone servers
-    - CZTop::CHP::Server and CZTop::CHP::Client
   * one difference from zguide: use ZMTP 3.1 heartbeats instead of "HUGZ" commands
 * integrate new gem into Roadster
   - run test scenarios, log and interpret results

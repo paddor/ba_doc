@@ -1,0 +1,21 @@
+@Andy
+=====
+* does Roadster require different ZMQ contexts in the same process?
+  - not possible in CZTop, because it's based on CZMQ, which completely hides
+    the concept of contexts
+  - (maybe possible via deprecated API and considerable effort to introduce
+    that in CZTop)
+* legacy code raises RuntimeError for socket exceptions.
+  - Is it bad to raise more specific ones? (done by CZTop)
+* instead of :bind/:connect, CZMQ supports endpoint syntax
+  - bind:    "@tcp://foo:555"
+  - connect: ">tcp://foo:555"
+* how efficient does it have to be?
+  - right now, every time EM::ZMQ::Socket#send_msg is called, some object is created just to find out whether socket is writable
+  - similar when receiving all queued messages in #recv_msg
+* CLIENT/SERVER sockets?
+  - now possible with ZMQ 4.2
+  - replacement for REQ/REP/DEALER/ROUTER sockets
+  - thread safe
+  - simplified message routing
+  - only single part messages

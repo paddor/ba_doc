@@ -13,5 +13,5 @@
 *.toc
 
 # generated PDFs
-/ba.pdf
+/main.pdf
 /task_description/*.pdf

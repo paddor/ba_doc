@@ -1,0 +1,69 @@
+risk (likelihood): low, medium, high
+severities: minor, medium, major, fatal
+
+
+* Roadster requires different ZMQ contexts
+  - risk: low
+  - not possible with CZTop because CZMQ hides contexts
+  - severity: medium
+  - solution: extract and run affected ZMQ sockets in their own process
+
+* wrong protocols chosen / protocol design flaw
+  - risk: medium
+  - severity: major (or even fatal)
+  - prevention: architecture reviews, prototypes
+  - solution: fix (reevaluate, reengineer, redesign)
+
+* CHP/BSTar (if these are needed) difficult to implement as reusable code
+  - severity: major
+  - prevention: prototypes
+  - nice solution:
+    - build more iteratively, step by step
+  - dirty solution:
+    - customized solution built right into Roadster, not as a public gem
+
+* CZTop design flaws/limitations
+  - severity: low (because it's just a thin wrapper to CZMQ), or
+              medium (because it's relatively young and not battle tested)
+  - solution: adapt CZtop
+
+* CZMQ changes API
+  - risk: low
+  - severity: medium
+  - solution: adapt CZTop, maybe change CZTop adapter in Roadster
+
+* wrong time estimations
+  - risk: medium
+  - severity: medium (depends on how much estimatiion is off)
+  - solution: reserve time
+
+* ASCII Gantt charts too painful to update
+  - risk: medium
+  - severity: minor
+  - solution: split each RUP phase, then only plan ahead for one phase/sprint
+
+* complete ASCII Gantt chart doesn't fit into one page in documentation
+  - risk: high
+  - severity: minor
+  - solution: split, one partial Gantt chart per RUP phase (could improve readability as well)
+
+* bad readability of ASCII Gantt chart
+  - risk: medium
+  - severity: minor
+  - solution: add vertical lines and/or split up into partial Gantt charts
+
+* finer grained resolution than quarter days (2 hours) needed in Gantt
+  - risk: low
+  - severity: minor
+  - solution: think of better syntax, maybe ".:-=" for <1h, ~1h, ~2h, ~4h
+
+* managing multiple Projects (at least one per repo) on Github too painful
+  - risk: high
+  - severity: minor
+  - partial solution: CodeTree
+    - can't be used for private repos like roadster itself
+  - complete solution: using a single Project which just has cards that link
+                       to issues from other repos
+    - linking to "foreign" issues is additional effort
+    - should be straight forward using Github syntax (org/repo#42 or maybe
+      even repo#42 within same org)

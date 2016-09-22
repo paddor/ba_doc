@@ -1,4 +1,4 @@
-SOURCES = ba.tex ba.bib
+SOURCES = ba.tex ba.bib $(shell find chapters/ -type f)
 IMAGES := $(shell find img/ -type f)
 LISTINGS := $(shell find listings/ -type f)
 

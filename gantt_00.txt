@@ -25,8 +25,8 @@ Inception:
     - cluster & HA                     . 0.25d
     - OPC-UA HA                         . 0.25d
   - set priorities                     . 0.25d
-  - assess & analyze risks               .. 0.5d
-  - estimate schedule                    #. 0.5d
+  - assess & analyze risks               ## 0.5d
+  - estimate schedule                    ## 0.5d
   - get familiar with Roadster             .... 1d
 _________________________________________________________________________________________________________________________________________________________________________________________
 
@@ -42,8 +42,8 @@ Elaboration:
 _________________________________________________________________________________________________________________________________________________________________________________________
 
 Construction:
-  - create prototypes                                                    ........ 2d
-  - port                                                                         .... 1d
+  - create prototypes                                                    ##...... 2d
+  - port                                                                         ##.. 1d
   - cluster                                                                         [................] 4d
     - implement                                                                      ........ 2d
     - integrate                                                                              .... 1d

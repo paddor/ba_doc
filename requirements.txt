@@ -1,0 +1,100 @@
+* 1st step: CHP (CSP) over multiple nodes/hierarchies
+    - new COMM actors for inter node communication
+    - PCP: use DIM to know node tree and determine next hop for (dialog or fire+forget) messages
+    - usually 2 (or 3) levels of Roadster nodes
+      common cases:
+        - single level, single node (legacy)
+        - single level HA
+        - multi level, HA at root node only
+      exotic cases:
+        - multi level, HA at bottom
+        - multi level, HA in middle
+    - every subtree can live on autonomously
+    - only node A has write access to values on A (to avoid uncertain situations involving race conditions), e.g.:
+      - a forced value coming from the web UI comes through a command,
+      - routed to the relevant node, where it is applied,
+      - and then synced (up via DEALER and down via PUB, we suppose)
+
+
+       C
+     /   \
+    A     B
+
+
+    sync variant 1:
+     - always sync on self-subtree only
+     - con: no copy of remaining tree
+
+    sync variant 2:
+     - always sync on complete tree
+     - get snapshot and merge own subtree
+
+    sync variant 3:
+     - make it configurable: either sync on subtree or complete tree
+
+
+    * node topology in DSL, static file shared on all nodes, read by each actor on startup
+    * specific config file on each node (conf.rb) knows its own place in topology
+	conf.system_id = "nodes.root" # no HA
+        OR
+        conf.system_id = "nodes.root_ha.foo" # with root HA, subnode A directly below root level
+
+     * maybe a HA pair is one DIM object, has one name, but two IP addresses (primary and backup, in order)
+    * KISS
+
+
+
+* 2nd step: HA Bottom (PLC level) ("single level HA")
+  - life sign from one node to the other through some continually updated PLC value
+  - mark active HA peer in DIM, OR PUSH-PULL & different route back => elaboration
+  - side note: PUSH-PULL is probably not feasible, because message are sent to inactive pull anyway, until queue full
+
+
+
+
+
+* 3rd step: HA Middle/Top ("multi level HA")
+
+* 4th step: persistence synchronization (TC)
+  - autonomous
+  - not same as CHP
+  - super node requests for delta of TC periodically
+  - root node knows everything
+  - data only flows from bottom to top
+
+* OPC UA HA
+  - Andy's gem
+  - concept in elab
+  - should be a simple thing
+
+
+
+
+
+Use cases
+=========
+
+* crash of primary node
+  - what if it comes back up
+* message routing with crashed redudant subnode
+* create multi node setup
+* bstar mechanism state diagram
+
+
+
+Testing
+=======
+* specs (unit tests) for our contributions
+* system test with multiple VBoxes (or mininet)
+
+
+Coding Guidelines
+=================
+* basically Ruby style guide
+* method calls: only use parenthesis when needed (even with parameters)
+* 2 blank lines before method definition
+* YARD API doc, 1 blank comment line before params, one blank comment line before code
+* Ruby 1.9 symbol keys are wanted
+* align assignments
+
+

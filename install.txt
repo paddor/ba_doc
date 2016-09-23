@@ -1,0 +1,22 @@
+apt-get install libtool autoconf
+apt-get install pkg-config
+clone libzmq & czmq
+
+mkdir roadster-projects
+clone ba-roadster-app
+
+cd ba-roadster-app; mkdir data
+
+
+curl....|bash from README
+nvm ..
+npm install -g ember-cli
+npm install -g bower
+
+
+cd roadster/roadster-webgui-core; npm link
+cd ../roadster-webui-metronic-theme/; npm link
+
+cd .../roadster-webui-core; ./reinstall_js_packages.sh
+
+cd ../roadster-webui-metronic-theme; ./reinstall_js_packages.sh

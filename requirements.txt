@@ -46,7 +46,8 @@
 
 * 2nd step: HA Bottom (PLC level) ("single level HA")
   - life sign from one node to the other through some continually updated PLC value
-  - mark active HA peer in DIM, OR PUSH-PULL & different route back => elaboration
+  - mark active HA peer in DIM, OR PUSH-PULL & different route back
+    - evaluate in elaboration
   - side note: PUSH-PULL is probably not feasible, because message are sent to inactive pull anyway, until queue full
 
 
@@ -63,9 +64,10 @@
   - data only flows from bottom to top
 
 * OPC UA HA
-  - Andy's gem
+  - study standard
+  - use Andy's gem
   - concept in elab
-  - should be a simple thing
+  - according to Andy, this should be a simple thing
 
 
 

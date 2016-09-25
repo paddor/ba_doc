@@ -9,3 +9,7 @@ Roadster
 Doc
 ===
 * define which failures we can handle
+* advantage over multiple sockets in reactor loop vs. one socket in each thread
+  => heartbeat thread could happily continue heartbeating, even if other threads are unusable
+* phase-wise Gantt charts, probably with (LaTeX) pgf-gantt
+

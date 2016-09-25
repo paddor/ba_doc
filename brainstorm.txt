@@ -60,12 +60,15 @@ General Plan
   - describe test scenarios
 * service discovery?
   - hard coded
-  - static config files
+  - static config files [chosen during requirements meeting]
   - config files synced over Etcd
   - Zookeeper
   - CZMQ's ZBeacon functionality
-* ZeroMQ transport
-  - TCP or maybe TIPC?
+* ZeroMQ transport: TCP or maybe TIPC?
+  - TIPC (Transparent Inter Process Communication) is made for clusters,
+    Linux-only, L2/L3 protocol, location transparent (addresses identify services,
+    not nodes), requires direct links (no routing), reliable message passing
+    whether connection-oriented or connection-less
 * create new ruby gem: ruby-zguide-patterns (or maybe back to "cztop-patterns"?)
   * implement Binary Star pattern as reusable reactor
   * implement Clone (CHP) pattern as reusable actor/reactor (client/server)
@@ -81,6 +84,7 @@ General Plan
 
 * I don't think we need:
   - reliable request-reply patterns (* Pirate patterns)
+    - well yes, the first of them (Lazy Pirate) is the client side for BStar)
   - service-oriented broker (Majordomo pattern)
   - disconnected reliability (messages stored on disk) (Titanic pattern)
   - brokerless name resolution service (Freelance pattern)

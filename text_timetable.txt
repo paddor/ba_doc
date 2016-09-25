@@ -126,6 +126,18 @@ Id	risk										P	D		prevention						measures at entry
 (riskmatrix picture)
 
 *** critical risks
+Risk 2:
+Probability: rare	impact: project threatening
+Description: todo
+Prevention:	todo
+Risk 6:
+Probablity: possible	impact: significantly
+Description: One of our team members had so far no points of contact with the development of zmq and ruby. In addition, distributed service is complex system which will require a lot of planning and prototyping time.
+		Through the lack of knowdlege, it may be that  the cost can be massively higher then planned.
+Prevention	In the elaboration phase is a lot of time invested in setting into distrubted service and the training of the second team member with the lack of skills in ruby and zmq.
+
+
+
 
 
 

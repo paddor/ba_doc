@@ -1,0 +1,18 @@
+                                                  3 weeks
+                                   |....................................|
+                                   |            Elaboration             |
+_________________________________________________________________________
+                                   |
+Elaboration:                       |
+  - use cases                      |.... 1d
+  - design protocols               |   [................] 4d
+    - cluster                      |    ...... 1.5d
+    - single level HA              |          .... 1d
+    - multi level HA               |              .... 1d
+    - persistence                  |                  .. 0.5d
+  - design security model, key-ex  |                    .... 1d
+  - design OPC-UA-HA interface     |                    .... 1d
+  - revise risks                   |                        .. 0.5d
+  - plan development               |                          .. 0.5d
+  - mitigate risks with prototypes |                            .... 1d
+  - (reserve)                      |                                ???? 1d

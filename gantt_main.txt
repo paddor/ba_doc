@@ -1,0 +1,15 @@
+BA Roadster: ASCII Gantt
+========================
+
+Available time: 12 weeks of 3 days
+Calculation of width:
+  12 * 3 days * 4 quarter days = 36 * 4 = 144 quarter days
+
+Syntax:
+  Each dot (.) represents a quarter day.
+  A planned task of 2 days: ........
+  Half way done:            ####....
+  One day overdue:          ########!!!!
+
+See phase-wise Gantt charts:
+  - gantt_inception.txt

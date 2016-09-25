@@ -73,7 +73,13 @@
   - according to Andy, this should be a simple thing
 
 
-
+Out of Scope
+============
+* high availability within a node, e.g. automatic restarting of a dead actor
+* security implications above the transport layer (sockets/reactor layer), e.g. session hijacking using shared contents of DIM
+* automatic node discovery
+* software distribution within cluster
+* start/stop orchestration within cluster
 
 
 Use cases

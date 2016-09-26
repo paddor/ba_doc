@@ -13,3 +13,8 @@ Doc
   => heartbeat thread could happily continue heartbeating, even if other threads are unusable
 * phase-wise Gantt charts, probably with (LaTeX) pgf-gantt
 
+
+Project Management
+==================
+* move risk table to github wiki
+* move phase table to github wiki

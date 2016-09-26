@@ -1,18 +1,37 @@
-                                                  3 weeks
-                                   |....................................|
-                                   |            Elaboration             |
-_________________________________________________________________________
+Elaboration, 5 weeks, in 3 iterations
+
+                                                  5 weeks
+                                   |............................................................|
+___________________________________|<--  Iteration 1     --><--  Iteration 2     --><-- It 3 -->|
                                    |
-Elaboration:                       |
-  - use cases                      |.... 1d
-  - design protocols               |   [................] 4d
-    - cluster                      |    ...... 1.5d
-    - single level HA              |          .... 1d
-    - multi level HA               |              .... 1d
-    - persistence                  |                  .. 0.5d
-  - design security model, key-ex  |                    .... 1d
-  - design OPC-UA-HA interface     |                    .... 1d
-  - revise risks                   |                        .. 0.5d
-  - plan development               |                          .. 0.5d
-  - mitigate risks with prototypes |                            .... 1d
-  - (reserve)                      |                                ???? 1d
+  - write use cases                |.... 1d
+  - roughly design protocols       |   [................] 4d
+    - cluster                      |    .... 1d
+    - single level HA              |        .... 1d
+    - multi level HA               |            .... 1d
+    - persistence                  |                .... 1d
+    - key distribution for security|                    .... 1d
+    - OPC-UA-HA interface          |                    .. 0.5d
+                                   |
+                                   |
+^^^ MS E1: Protocol Designs        |                       ^ MS E1
+                                   |
+                                   |
+  - implement prototypes           |
+    - cluster                      |                        ........ 2d
+    - single level HA              |                                ........ 2d
+    - multi level HA               |                                        ........ 2d
+    - persistence                  |                                                .... 1d
+    - key distribution for security|                                                    .... 1d
+    - OPC-UA-HA interface          |                                                    .. 0.5d
+                                   |
+                                   |
+^^^ MS E2: Prototypes              |                                                       ^ MS E2
+                                   |
+                                   |
+  - revise risks                   |                                                        .. 0.5d
+  - (reserve)                      |                                                          ?? 0.5d
+
+
+* Documenting the process and results is included in the time estimates
+* Most of the documentation should be done by the end of the Elaboration phase

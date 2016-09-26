@@ -7,10 +7,8 @@ Inception:                        |
   - setup proj mgmt               |###. 1d
   - init documentation            |## 0.5d
   - define scope                  |    . 0.25d
-  - understand requirements       |   [..] 0.5d
-    - cluster & HA                |    . 0.25d
-    - OPC-UA HA                   |     . 0.25d
+  - understand requirements       |    ## 0.5d
   - set priorities                |    . 0.25d
   - assess & analyze risks        |      ## 0.5d
   - estimate schedule             |      ## 0.5d
-  - get familiar with Roadster    |        .... 1d
+  - get familiar with Roadster    |        #### 1d

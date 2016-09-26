@@ -1,24 +1,35 @@
+Construction, 5 weeks, in 3 iterations
 
-                                                   7 weeks
-                      |.....................................................................................|
-                      |                          Construction                                               |
-_____________________________________________________________________________________________________________
+                                                   6 weeks
+                      |........................................................................|
+______________________|<--  Iteration 1     --><--  Iteration 2     --><--  Iteration 3     -->|
                       |
-Construction:         |
-  - create prototypes |##...... 2d
-  - port              |        ##.. 1d
-  - cluster           |           [................] 4d
-    - implement       |            ........ 2d
-    - integrate       |                    .... 1d
-    - measure         |                        .... 1d
-  - HA                |                           [........................] 6d
-    - implement       |                            ........ 2d
-    - integrate       |                                    ........ 2d
-    - verify          |                                            ........ 2d
-  - security          |                                                   [............] 3d
-    - implement       |                                                    ........     2d
-    - test            |                                                            .... 1d
-  - OPC-UA HA         |                                                               [............] 3d
-    - implement       |                                                                ........ 2d
-    - verify          |                                                                        .... 1d
-  - (reserve)         |                                                                            ......... 2d
+  - port              |###. 1d
+  - cluster           |   [....................] 3d
+    - refactor        |    ........ 2d
+    - integrate       |            ........ 2d
+    - measure         |                    .... 1d
+                      |
+                      |
+^^^ MS C1: Cluster    |                       ^ MS C1
+                      |
+                      |
+  - HA                |                       [....................] 5d
+    - refactor        |                        ........ 2d
+    - integrate       |                                .... 1d
+    - verify          |                                    ........ 2d
+  - (reserve)         |                                            .... 1d
+                      |
+                      |
+^^^ MS C2:            |                                               ^ MS C2
+                      |
+                      |
+  - security          |                                               [............] 3d
+    - implement       |                                                ........     2d
+    - test            |                                                        .... 1d
+  - OPC-UA HA         |                                                           [............] 3d
+    - implement       |                                                            ........ 2d
+    - verify          |                                                                    .... 1d
+                      |
+                      |
+^^^ MS C3: Cluster    |                                                                       ^ MS C3

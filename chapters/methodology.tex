@@ -1,0 +1,91 @@
+% vim: ft=tex
+\chapter{Methodology}
+TODO what have we done to arrive at the goal (should be reproducible)\\
+TODO this is probably what we know as "Concept"\\
+
+
+
+\section{Port to new ZMQ library}\label{sec:meth:port}
+TODO justify why port is needed right at the beginning (exclude faults from unmaintained ffi-rzmq gem, encryption is needed anyway, all the other tasks involve communication over ZMQ)\\
+TODO explain binding options out there, why CZTop (including difference between ZMQ and CZMQ)\\
+TODO explain preliminary task of adding support for the ZMQ options FD and EVENTS in CZTop\\
+TODO explain concept of exchanging ffi-rzmq with CZTop\\
+
+
+\section{Cluster}\label{sec:meth:cluster}
+TODO explain planned multi node setup\\
+TODO election/design of appropriate protocol\\
+TODO explain Clustered Hashmap Protocol (I guess)\\
+
+
+\begin{itemize}
+	\item PCP: use DIM to know node tree and determine next hop for (dialog or fire+forget) messages
+	\item decide on sync variant
+	\begin{itemize}
+		\item variant 1
+		\begin{itemize}
+			\item always sync on self-subtree only
+			\item con: no copy of remaining tree
+		\end{itemize}
+
+		\item variant 2:
+		\begin{itemize}
+			\item always sync on complete tree
+			\item get snapshot and merge own subtree
+		\end{itemize}
+
+		\item variant 3:
+		\begin{itemize}
+			\item make it configurable: either sync on subtree or complete tree
+		\end{itemize}
+	\end{itemize}
+
+	\item node topology in DSL, static file shared on all nodes, read by each actor on startup
+	\item specific config file on each node (conf.rb) knows its own place in topology\\
+		\sh{conf.system_id = "nodes.root" # no HA}\\
+		OR\\
+		\sh{conf.system_id = "nodes.root_ha.foo" # with root HA, subnode A directly below root level}
+
+	\item maybe a HA pair is one DIM object, has one name, but two IP addresses (primary and backup, in order)
+\end{itemize}
+
+
+\section{High Availability}\label{sec:meth:ha}
+TODO we have two different kinds of HA\\
+TODO explain how the failures we're required to be able to handle can be handled\\
+TODO expalin similarities between the two kinds of HA\\
+
+\subsection*{Single Level}
+\begin{itemize}
+	\item this is different from what's described in the zguide because the concept of client requests is missing here (PLCs don't request anything)
+	\item life sign from one node to the other through some continually updated PLC value
+	\item mark active HA peer in DIM, OR PUSH-PULL \& different route back
+	\item side note: PUSH-PULL is probably not feasible, because message are sent to inactive pull anyway, until queue full
+\end{itemize}
+
+\subsection*{Multi Level}
+TODO explain why is this one different from SL-HA\\
+TODO Finding consensus should be easier here, as it's closely related to the CHP described in the zguide.\\
+
+\section{Persistence Synchronization}\label{sec:meth:psync}
+\begin{itemize}
+	\item super node requests for delta of TC periodically
+\end{itemize}
+
+\section{Security}\label{sec:meth:security}
+TODO briefly describe ZMQ's security features, what's left for us to decide (key destribution)\\
+TODO how it can be verified (-> using wireshark)\\
+
+
+
+
+\section{OPC UA Interface: High Availability}\label{sec:meth:opc-ua}
+TODO This is the optional goal.\\
+TODO explain new opportunity for OPC UA HA server\\
+TODO describe whatever needs to be described\\
+
+\begin{itemize}
+	\item study standard
+	\item use Andy's gem
+	\item according to Andy, this should be a simple thing
+\end{itemize}

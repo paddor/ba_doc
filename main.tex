@@ -1,4 +1,5 @@
 \documentclass[a4paper]{report}
+% vim: ft=tex
 \usepackage[utf8]{inputenc}
 \usepackage[a4paper]{geometry}
 \geometry{verbose, marginparwidth=15mm, marginparsep=3mm, tmargin=25mm}
@@ -98,7 +99,7 @@ described changes to the Roadster framework and libraries developed.
 TODO any usage agreements or license
 %\includepdf[width=\textwidth,pages=1,pagecommand=\section{Permissions},trim=1.9cm 3cm 2cm 2cm,clip]{vereinbarung.pdf}
 
-\chapter*{Thank You}
+\chapter*{Acknoledgements}
 TODO anyone we'd like to thank
 
 %-----------------------------------------------------------------------------
@@ -119,15 +120,12 @@ TODO anyone we'd like to thank
 \part{Technical Report}
 
 %-----------------------------------------------------------------------------
-\include{chapters/context}
-\include{chapters/about_zmq}
-\include{chapters/port}
-\include{chapters/cluster} % multi node
-\include{chapters/ha} % high availability
-\include{chapters/persistence_sync}
-\include{chapters/ha_opc_ua}
+\include{chapters/scope}
+\include{chapters/requirements}
+\include{chapters/methodology}
+\include{chapters/results}
+\include{chapters/discussion}
 \include{chapters/conclusion}
-
 \printbibliography
 
 %-----------------------------------------------------------------------------
@@ -136,13 +134,15 @@ TODO anyone we'd like to thank
 \chapter{Self Reflection}
 TODO how did we perform, completion of goals, accuracy of estimated efforts, efficiency, resourcefulness
 
+\chapter{Task Description}
+TODO here goes the printed, signed, and scanned Task Description
+
 \chapter{Project Plan}
+TODO import from wiki
 
 \section{Organization}
 TODO roles, how we organize ourselves and how we communicate with each other
 
+\include{chapters/zmq}
 \include{chapters/problems}
-
-TODO add any other appendix chapters here, like detailed ZMQ stuff, usage manuals, ...\\
-
 \end{document}

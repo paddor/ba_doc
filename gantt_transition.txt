@@ -1,4 +1,4 @@
-                                           2 weeks              1 week
+                                           1 week              1 week
                                    |........................|............|
                                    |       Transition       |  (reserve) |
 __________________________________________________________________________
@@ -6,5 +6,5 @@ __________________________________________________________________________
 Transition:                        |
   - polish documentation           |............ 3d
   - write abstract                 |            .. 0.5d
-  - poster                         |              .... 1d
+  - create poster                  |              .... 1d
   - print documentation & burn CDs |                  .. 0.5d

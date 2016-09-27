@@ -11,25 +11,26 @@ ___________________________________|<--  Iteration 1     --><--  Iteration 2    
     - multi level HA               |            .... 1d
     - persistence                  |                .... 1d
     - key distribution for security|                    .... 1d
-    - OPC-UA-HA interface          |                    .. 0.5d
+    - OPC-UA HA interface          |                    .. 0.5d
                                    |
                                    |
 ^^^ MS E1: Protocol Designs        |                       ^ MS E1
                                    |
                                    |
   - implement prototypes           |
-    - cluster                      |                        ........ 2d
-    - single level HA              |                                ........ 2d
-    - multi level HA               |                                        ........ 2d
-    - persistence                  |                                                .... 1d
-    - key distribution for security|                                                    .... 1d
-    - OPC-UA-HA interface          |                                                    .. 0.5d
+    - cluster                      |                        ...... 1.5d
+    - single level HA              |                              ...... 1.5d
+    - multi level HA               |                                    ...... 1.5d
+    - persistence                  |                                          .. 0.5d
+    - key distribution for security|                                            .. 0.5d
+    - OPC-UA HA interface          |                                              .. 0.5d
                                    |
                                    |
-^^^ MS E2: Prototypes              |                                                       ^ MS E2
+^^^ MS E2: Prototypes              |                                               ^ MS E2
                                    |
                                    |
-  - revise risks                   |                                                        .. 0.5d
+  - revise risks                   |                                                .. 0.5d
+  - finish bulk of documentation   |                                                  ........ 2d
   - (reserve)                      |                                                          ?? 0.5d
 
 

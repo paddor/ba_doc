@@ -21,7 +21,7 @@ ______________________|<--  Iteration 1     --><--  Iteration 2     --><--  Iter
   - (reserve)         |                                            .... 1d
                       |
                       |
-^^^ MS C2:            |                                               ^ MS C2
+^^^ MS C2: HA         |                                               ^ MS C2
                       |
                       |
   - security          |                                               [............] 3d

@@ -32,4 +32,4 @@ ______________________|<--  Iteration 1     --><--  Iteration 2     --><--  Iter
     - verify          |                                                                    .... 1d
                       |
                       |
-^^^ MS C3: Cluster    |                                                                       ^ MS C3
+^^^ MS C3: Security   |                                                                       ^ MS C3

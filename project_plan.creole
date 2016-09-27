@@ -1,0 +1,45 @@
+= Phases and Iterations
+
+The duration for a normal iteration is 2 weeks. A short iteration (such as Inception, the 3rd one of Elaboration, and Transition) is only one week.
+The following table describes all project phases and milestones.
+
+
+|=Iteration|=Description|=End
+|Inception|Project structure, requirements, risk analysis|SW01 (Sept. 25 2016)
+|**MS01 - Project plan**		|**Date**			25.09.2016\\**Description**		Finished inception iteration\\**Work products:**		Work description\\			Project plan\\			risiko management |
+|Elaboration 1			|Brief use cases,  project management,\\requirement specification, multi node concept planned		|SW03
+|Elaboration 2			|multi node prototyp, HA concept planned for multi node			|SW05
+|
+|MS02 - Concept			|**Date**			23.10.2016\\**Description**		concept for the construction phase planned\\**Work products**		requirement specification\\multi node concept planned\\HA concept planned for nodes
+|
+|
+|Elaboration 3			|HA prototype for nodes, HA planned for NTA, NIS\\concept for multi node persistence						|SW06
+|
+|MS03 - Prototype			|**Date**			30.10.2016\\**Description**		architecture prototyp\\**Work products**			runnable prototype\\  			architecture finished
+|
+|
+|Construction 1			|implement multi node\\implement HA for multi node							|SW08
+|Construction 2			|implement HA for NTA, NIS\\implement persistence multi node							|SW10
+|Construction 3			|finish coding, integration testing					|SW12
+|MS04 - End of construction			|**Date**			11.12.2016\\**Description**		first release\\**Work products**		version 1.0
+|
+|
+|Transition 1			|finish documentation (poster, burn cd)			|SW13
+|Reserve 1			|			|SW14
+|MS05 - delivery |**Date**			23.12.2016\\**Description**		BA work finished\\**Work products**		finished BA work
+|
+|
+
+
+|=Iteration|=Description|=Work Products|=Due
+|Inception|- setup proj mgmt\\- init documentation\\- define scope\\- understand requirements\\- set priorities\\- assess & analyze risks\\- estimate schedule\\- get familiar with Roadster|- project plan\\- risk matrix\\- project mgmt infrastructure|SW01\\(25th Sept 2016)
+|Elab. 1\\**MS E1: Protocol Designs**|- write use cases\\- roughly design protocols (cluster, single & multi level HA, persistence, key distribution, OPC-UA HA interface)|- use cases\\-requirement spec (?)\\- protocol designs|SW03\\(9th Oct 2016)
+|Elab. 2\\**MS E2: Prototypes**|- implement prototypes (cluster, single & multi level HA, persistence, secure socket communication, OPC-UA HA interface)|runnable prototypes|SW05\\(23rd Oct 2016)
+|Elab. 3|- revise risks\\- finish bulk of documentation\\- (reserve)|- updated risks\\- 80% of documentation\\- green light|SW06\\(30th Oct 2016)
+|Constr. 1\\**MS C1: Cluster**|- port to CZTop\\- cluster (refactor & integrate prototype)|runnable cluster functionality on top of CZTop\\|SW08\\(13th Nov 2016)
+|Constr. 2\\**MS C2: HA**|- refactor, integrate, and verify HA prototype\\- (reserve)|working HA functionality\\|SW10\\(27th Nov 2016)
+|Constr. 3\\**MS C3: Security**|- security (implement prototype, test)\\- OPC-UA HA (implement prototype, verify)|secure communication between nodes\\|SW12\\(11th Dec 2016)
+|Transit. 3|- polish documentation\\- write abstract\\- create poster\\- print documentation & burn CDs|complete handover of thesis|SW13\\(16th Dec 2016)
+|(reserve)|in case things to south||SW14\\(23rd Dec 2016)
+
+

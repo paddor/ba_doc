@@ -8,10 +8,8 @@ TODO Why do we care about this thesis? Why are we interested?
 \section{Initial Situation}
 TODO What's Roadster and its goals
 
-\subsection{Software Architecture}
-TODO Roadster architecture\\
-
-\subsubsection{ZeroMQ}
+\subsection{ZeroMQ}
+% maybe this subsection has to be moved
 To be able to understand Roadster's architecture, it's helpful to understand
 the basics of ZeroMQ (hereafter ZMQ) first. This is a brief introduction to ZMQ
 for the unfamiliar reader.\\
@@ -41,9 +39,17 @@ TODO supported transports: in-memory, IPC, TCP, multicast (UDP or TCP?), TIPC\\
 TODO to achieve reliability or any custom message flow desirable, you build your own solution using this library, see zguide.\\
 (TODO security)\\
 (TODO CZMQ abstraction layer)\\
+TODO doesn't provide serialization (use protobuf/msgpack/json/...)
 
-It is several orders of magnigude more performant than other well known MOMs,
-including closed source and open source solutions.\\
+\subsubsection{Performance}
+ZMQ is very light-weight and incorporates advanced technologies such as intelligent
+message batching and zero-copying which allow it to offer very high throughputs
+and extremely low latencies. It is several orders of magnigude more performant
+than other well known MOMs, including closed source and open source
+solutions.\\
+
+\subsection{Software Architecture}
+TODO Roadster architecture\\
 
 \includegraphics[trim=4cm 2cm 3.5cm 2.8cm, clip=true, width=\textwidth]{img/roadster_arch.pdf}
 

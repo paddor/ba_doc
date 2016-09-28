@@ -1,9 +1,12 @@
+SOURCES = task_description.tex refs.bib
+IMAGES := $(shell find img/ -type f)
+
 all:	task_description.pdf
 
-task_description.pdf: task_description.tex refs.bib
-	pdflatex $<
+task_description.pdf: $(SOURCES) $(IMAGES)
+	pdflatex -interactive=batchmode $<
 	biber $(basename $@ .pdf)
-	pdflatex $<
+	pdflatex -interactive=batchmode $<
 
 .PHONY: all clean
 

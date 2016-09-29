@@ -14,8 +14,6 @@ TODO explain concept of exchanging ffi-rzmq with CZTop\\
 
 \section{Cluster}\label{sec:meth:cluster}
 TODO explain planned multi node setup\\
-TODO election/design of appropriate protocol\\
-TODO explain Clustered Hashmap Protocol (I guess)\\
 
 
 \begin{itemize}
@@ -32,23 +30,88 @@ TODO explain Clustered Hashmap Protocol (I guess)\\
 		\begin{itemize}
 			\item always sync on complete tree
 			\item get snapshot and merge own subtree
+			\item (this should probably be the first step)
 		\end{itemize}
 
 		\item variant 3:
 		\begin{itemize}
 			\item make it configurable: either sync on subtree or complete tree
+			\item (this should probably be the second step, if at all)
 		\end{itemize}
 	\end{itemize}
+\end{itemize}
 
-	\item node topology in DSL, static file shared on all nodes, read by each actor on startup
-	\item specific config file on each node (conf.rb) knows its own place in topology\\
-		\sh{conf.system_id = "nodes.root" # no HA}\\
-		OR\\
-		\sh{conf.system_id = "nodes.root_ha.foo" # with root HA, subnode A directly below root level}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Actual Planning below
+
+\subsection{DIM Synchronization}
+TODO election/design of appropriate protocol\\
+TODO explain Clustered Hashmap Protocol (?)\\
+
+\begin{itemize}
+	\item we need two new COMM actors
+	\item they sync between super node and sub node
+	\item they do something closely related to the existing CSP
+	\item future oriented: because of the HA requirement, ideas from the CHP are integrated, such as using PUB-SUB (instead of PUSH-PULL) for inter-node KVSET messages, so both super nodes (in HA setup) hear updates
+	\item for intra-node KVSET messages, PUSH-PULL is OK and can be left unchanged
+\end{itemize}
+
+\subsection{Node Typology Definition}
+
+\begin{itemize}
+	\item node topology in DSL, static file (e.g. topology\_conf.rb) shared on all nodes, read by each actor on startup
+	\item specific config file on each node (conf.rb) knows its own place in topology (through \rb{conf.system_id})
 	\item maybe a HA pair is one DIM object, has one name, but two IP addresses (primary and backup, in order)
 \end{itemize}
 
+\begin{lstlisting}[style=customruby]
+# * basic method to add a node: #add_node(ID, south_facing_bind_endpoint)
+# * it takes a block for defining subnodes
+
+##################
+# without HA:
+
+conf.nodes do |map|
+  map.add_node("root", "tcp://10.0.0.1:5000") do |map|
+    map.add_node("subnode_a", "tcp://10.0.0.10:5000")
+    map.add_node("subnode_b", "tcp://10.0.0.11:5000")
+  end
+end
+
+# subnode_a can infer its endpoints from its position in the tree:
+conf.system_id = "nodes.root.subnode_a"
+#=> this node is "subnode_a"
+#=> its IP address is 10.0.0.10
+#=> north facing COMM actor's bind port is 5001
+#=> south facing COMM actor's bind port is 5000
+#=> north facing COMM actor will connect to "root" node on "tcp://10.0.0.1:5000"
+
+#####################
+# later with HA:
+
+conf.nodes do |map|
+  map.add_ha_pair("root", "tcp://10.0.0.1:5000", "tcp://10.0.0.2:5000") do |map|
+    map.add_node("subnode_a", "tcp://10.0.0.10:5000")
+    map.add_node("subnode_b", "tcp://10.0.0.11:5000")
+  end
+end
+
+# subnodeA can infer its endpoints from its position in the tree:
+conf.system_id = "nodes.root.subnode_a"
+#=> this node is "subnode_a"
+#=> its IP address is 10.0.0.10
+#=> north facing COMM actor's bind port is 5001
+#=> south facing COMM actor's bind port is 5000
+#=> north facing COMM actor will connect to "root" HA pair on "tcp://10.0.0.1:5000" OR "tcp://10.0.0.2:5000" (Lazy Pirate algorithm)
+
+# for primary root:
+conf.system_id = "nodes.root[primary]"
+\end{lstlisting}
+
+
+\subsection{Message Routing}
+TODO message routing (end-to-end routing with identity/identities as prepended message frame?, should be simpler and more efficient than hop-by-hop routing)\\
 
 \section{High Availability}\label{sec:meth:ha}
 TODO we have two different kinds of HA\\

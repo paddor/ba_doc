@@ -8,45 +8,64 @@ TODO Why do we care about this thesis? Why are we interested?
 \section{Initial Situation}
 TODO What's Roadster and its goals
 
-\subsection{ZeroMQ}
-% maybe this subsection has to be moved
-To be able to understand Roadster's architecture, it's helpful to understand
-the basics of ZeroMQ (hereafter ZMQ) first. This is a brief introduction to ZMQ
-for the unfamiliar reader.\\
+\subsection{\zmq}
+\emph{For a more detailed introduction, see \autoref{ch:zmq}.}
+%TODO add acronyms/abbreviations to glossary (TIPC, TCP, PGM, MOM, BSD, NaCl, ...)
+To understand Roadster's architecture and the rest of this document, it's
+helpful to understand the basics of \zmq (sometimes written as ZeroMQ or simply
+ZMQ) first. This is a brief introduction to \zmq for the unfamiliar reader.
 
-ZMQ is a message oriented middleware implemented as a library (it doesn't
-require a broker). Instead, it provides a set of unique socket types and a very
-abstract, simple interface to interact with them. Socket types:\\
+\zmq is a MOM implemented as an open source library, that is, it doesn't
+require a dedicated broker. Instead, it offers sockets with an abstract
+interface similar to BSD sockets. Different types of sockets are used for
+different messaging patterns such as request-reply, publish-subscribe, and
+push-pull.
 
-\begin{description}
-	\item [REQ and REP] strict request-reply message handling (synchronous
-		and thus fragile and unflexible)
+A single socket can bind/connect to multiple endpoints, which allows \zmq to
+use round-robbin on the sender side, and fair-queueing on the receiver side,
+where applicable. It doesn't matter whether the communication happens
+in-process (between threads), inter-process (e.g. over Unix Domain Sockets), or
+inter-node (e.g. over TCP/PGM/TIPC), since the transport is completely
+abstracted away. The same goes for connection handling; an arbitrary amount of
+connections is handled over a single socket and reconnecting after short
+network failures is done transparently.
 
-	\item [DEALER and ROUTER] similar, but doesn't enforce strict
-		request-reply fashion (asynchronous and thus more robust and
-		flexible)
+\zmq is lightweight and provides extremely low latencies, which means it can
+also be used as the fabric of concurrent applications, e.g. for the actor
+model. In case of the TCP transport, it incorporates advanced techniques such
+as smart message batching to achieve significantly higher throughputs than with
+raw TCP or other MOM solutions \cite[Figure 2, Middleware evaluation and
+prototyping, p.~4]{cern:new-cmw}.
 
-	\item [PUB and SUB] publish-subscribe
+To build a solution with \zmq, its sockets are used as building blocks to
+design custom message flows and to achieve reliability with respect to the
+failure types in question, if needed.  The
+zguide\footnote{\url{http://zguide.zeromq.org/}} explains best practices,
+including commonly needed, resilient messaging patterns.
 
-	\item [PUSH and PULL] fan in/fan out, useful for pipelines, round
-		robbin on sender side, fair queueing on receiver side
-\end{description}
+The above characteristics make \zmq a valuable asset when it comes to building
+robust, distributed high-performance systems.
 
-TODO not strictly server/client type: order of bind/connect doesn't matter\\
-TODO binding/connecting a socket to multiple endpoints is possible\\
-TODO a single socket for many connections, connection handling is completely abstracted away\\
-TODO supported transports: in-memory, IPC, TCP, multicast (UDP or TCP?), TIPC\\
-TODO to achieve reliability or any custom message flow desirable, you build your own solution using this library, see zguide.\\
-(TODO security)\\
-(TODO CZMQ abstraction layer)\\
-TODO doesn't provide serialization (use protobuf/msgpack/json/...)
+\subsubsection{Transport Security}
+Since version 4.0, \zmq boasts state of the art encryption and authentication,
+based on the excellent and highly renown
+NaCl\footnote{\url{http://nacl.cr.yp.to}} library.
 
-\subsubsection{Performance}
-ZMQ is very light-weight and incorporates advanced technologies such as intelligent
-message batching and zero-copying which allow it to offer very high throughputs
-and extremely low latencies. It is several orders of magnigude more performant
-than other well known MOMs, including closed source and open source
-solutions.\\
+\subsubsection{Data Serialization}
+Data serialization is outside the scope of \zmq. To fill the gap, one typically
+uses another library such as MsgPack\footnote{\url{http://msgpack.org}},
+Protocol
+Buffers\footnote{\url{https://developers.google.com/protocol-buffers/}}, or
+even a programming language's built-in object serialization
+support\footnote{such as Ruby's Marsharalling support:
+\url{http://ruby-doc.org/core/Marshal.html}}.
+
+\subsubsection{CZMQ}
+CZMQ is a high-level abstraction layer for \zmq. It makes working with the \zmq
+library more expressive and allows for better portability. It also provides
+additional functionality such as a reactor, a simple actor implementation, as
+well as utilities for certificate and authentication handling, and LAN node
+discovery. This is the recommended way of using \zmq nowadays.
 
 \subsection{Software Architecture}
 TODO Roadster architecture\\

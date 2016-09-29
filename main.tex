@@ -9,6 +9,7 @@
 \usepackage[hyphens]{url}
 \usepackage[flushmargin,hang]{footmisc}
 \usepackage{hyperref}
+\usepackage{xspace} % space, but not before punctuation
 \usepackage[hypcap]{caption} % link to top of tables and figures, not to bottom caption
 \usepackage[parfill]{parskip} % no idented first line of each paragraph
 \usepackage{amssymb} % for \checkmark
@@ -21,7 +22,7 @@
 \usepackage[
 backend=biber,
 hyperref=true,
-url=false,
+url=true,
 isbn=false,
 backref=false,
 % style=custom-numeric-comp,
@@ -45,6 +46,10 @@ block=none]{biblatex}
 \usepackage{MnSymbol}
 \usepackage{listings}
 \include{lst_styles}
+
+
+% canonical ZMQ spelling with \zmq
+\newcommand\zmq{{\O}MQ\xspace}
 
 \begin{document}
 \thispagestyle{empty}

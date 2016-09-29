@@ -38,8 +38,8 @@ raw TCP or other MOM solutions \cite[Figure 2, Middleware evaluation and
 prototyping, p.~4]{cern:new-cmw}.
 
 To build a solution with \zmq, its sockets are used as building blocks to
-design custom message flows and to achieve reliability with respect to the
-failure types in question, if needed.  The
+design custom message flows. Certain patterns are used to achieve reliability
+with respect to the failure types that need to be addressed in particular.  The
 zguide\footnote{\url{http://zguide.zeromq.org/}} explains best practices,
 including commonly needed, resilient messaging patterns.
 
@@ -57,7 +57,7 @@ uses another library such as MsgPack\footnote{\url{http://msgpack.org}},
 Protocol
 Buffers\footnote{\url{https://developers.google.com/protocol-buffers/}}, or
 even a programming language's built-in object serialization
-support\footnote{such as Ruby's Marsharalling support:
+support\footnote{such as Ruby's marshalling support:
 \url{http://ruby-doc.org/core/Marshal.html}}.
 
 \subsubsection{CZMQ}

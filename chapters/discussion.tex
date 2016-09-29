@@ -1,5 +1,26 @@
 % vim: ft=tex
 \chapter{Discussion}
+TODO something like a SWOT analysis here (strengths, weaknesses, opportunities, threats)\\
+TODO general advice: be concise, brief, and specific\\
+
+\section{Value Added}
+TODO what's better than before\\
+
+\section{Limitations}
 TODO identify potential limitations and weaknesses of the product\\
-TODO potential applications (UeLS on Roadster?)\\
-TODO be concise, brief, and specific\\
+
+\section{Business Benefits}
+TODO potential applications (UeLS powered by Roadster?)\\
+
+\section{Ideas for Improvement}
+\begin{itemize}
+	\item HA within a node: kill and respawn an actor when it's unresponsive
+	\item switch to Moneta for a unified key-value store interface, then eventually away from TokyoCabinet to something more modern and maintained, like LMDB (it's super fast and crash-proof)
+	\item TIPC: high performance cluster communication protocol, suitable because Roadster nodes are Linux and there are direct links to peers (required for TIPC)
+	\item client authentication
+	\item key management in a DB (instead of files), with GUI to accept new clients
+	\item dynamic node topology (maybe via DSL-file in Etcd, or DIM-only, or Zookeeper)
+	\item other method for data serialization (like MessagePack), would allow adding other programming languages to the cluster
+	\item fast compression for messages, like LZ4 or Snappy
+	\item SERVER/CLIENT sockets from ZMQ 4.2 for simplified message routing
+\end{itemize}

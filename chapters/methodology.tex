@@ -183,19 +183,23 @@ TODO integrate findings from scribble (ML-HA.pdf)
 
 There are multiple aspects involved in persistence synchronization:
 
-\begin{itemize}
-	\item delta
-	\item updates
-	\item when supernode is HA pair: sync with HA peer or independent synchronization?
+\begin{description}
+	\item [Delta:]
+		How does one get the initial delta of updates since last
+		synchronization?
 
-		Independent: 2 cons: Most obviously, the traffic will be twice as much. This could be a problem for nodes connected via slow links. Additionally, with non-consistent solutions, it could lead to different datasets on both HA peers.
+	\item [Updates:]
+		Further updates, one-by-one. This is only needed in
+		case the solution aims for real-time synchronization.
 
-		Sync with HA peer: 2 pros: Sync most likely happens via a fast link and relieves the subnode's link. HA peer can also sync 100\% consistently (I guess? maybe not)
-\end{itemize}
-
-
+	\item [HA peer sync:]
+		How does the inactive HA peer get updated? Of
+		course, this only matters when the supernode is HA pair.
+\end{description}
 
 \subsection{Variants}
+
+There are multiple variants to achieve the needed functionality.
 
 \subsubsection{Polling only}
 The supernode just periodically request persistence

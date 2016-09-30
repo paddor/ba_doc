@@ -13,8 +13,26 @@ TODO explain concept of exchanging ffi-rzmq with CZTop\\
 
 
 \section{Cluster}\label{sec:meth:cluster}
-TODO explain planned multi node setup\\
+TODO describe scribble (chp.pdf)
 
+
+\subsection{Aspects}
+\begin{itemize}
+	\item node topology DSL
+
+		This DSL also has to provide means to define the roles/functionality of each node, e.g. the set of COMM actors running on a particular node
+
+	\item DIM synchronization
+	\item message routing
+	\item What needs to be done a WebUI user wants to e.g. change some value on a PLC, possibly on a remote node? Is it completely handled via DIM or do we need message routing?
+\end{itemize}
+
+
+
+
+\subsection{DIM Synchronization}
+TODO election/design of appropriate protocol\\
+TODO explain Clustered Hashmap Protocol (?)\\
 
 \begin{itemize}
 	\item PCP: use DIM to know node tree and determine next hop for (dialog or fire+forget) messages
@@ -41,13 +59,6 @@ TODO explain planned multi node setup\\
 	\end{itemize}
 \end{itemize}
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Actual Planning below
-
-\subsection{DIM Synchronization}
-TODO election/design of appropriate protocol\\
-TODO explain Clustered Hashmap Protocol (?)\\
 
 \begin{itemize}
 	\item we need two new COMM actors
@@ -107,6 +118,37 @@ conf.system_id = "nodes.root.subnode_a"
 
 # for primary root:
 conf.system_id = "nodes.root[primary]"
+
+############
+# within ba-roadster-app's lib/domain/domain.rb file:
+#
+# Idea for node topology definition and assigning roles (features/adapters) to
+# diffent kinds of nodes.
+
+module Roadster
+  module Domain::Model
+
+    build do
+      nodes do
+        node "root" do # or maybe ha_node or bstar_node
+          endpoint "tcp://10.0.0.1:5000", "tcp://10.0.0.2:5000"
+          label 'BA Roadster App'
+          desc  'Sample application for experimenting and developing the new features within the scope of the Bacherlor Thesis of Patrik Wenger and Manuel Schuler at HSR.'
+
+          load_conf ::Conf::AccessControl
+          load_conf ::Conf::Objects
+          load_conf ::Conf::Navigation
+
+          node "subnode_a" do
+            endpoint "tcp://10.0.0.1:5000"
+            load_conf ::Conf::Adapters
+            # load_conf ...
+          end
+        end
+    end
+
+  end # Domain::Model
+end # Roadster
 \end{lstlisting}
 
 
@@ -122,13 +164,15 @@ TODO expalin similarities between the two kinds of HA\\
 \begin{itemize}
 	\item this is different from what's described in the zguide because the concept of client requests is missing here (PLCs don't request anything)
 	\item life sign from one node to the other through some continually updated PLC value
-	\item mark active HA peer in DIM, OR PUSH-PULL \& different route back
-	\item side note: PUSH-PULL is probably not feasible, because message are sent to inactive pull anyway, until queue full
+	\item mark active HA peer in DIM
 \end{itemize}
+
+TODO integrate findings from scribble (SL-HA.pdf)
 
 \subsection*{Multi Level}
 TODO explain why is this one different from SL-HA\\
 TODO Finding consensus should be easier here, as it's closely related to the CHP described in the zguide.\\
+TODO integrate findings from scribble (ML-HA.pdf)
 
 \section{Persistence Synchronization}\label{sec:meth:psync}
 \begin{itemize}

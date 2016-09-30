@@ -9,6 +9,10 @@ TODO what's better than before\\
 \section{Limitations}
 TODO identify potential limitations and weaknesses of the product\\
 
+BStar pair has to be complete (both nodes running) during initialization. Otherwise, only primary node can serve requests; the backup node can't.
+
+Message traffic towards root node sums up because of persistence synchronization. This shouldn't be a problem because of \zmq's brilliant message batching, so the real limit is given by the inter-node network links.
+
 \section{Business Benefits}
 TODO potential applications (UeLS powered by Roadster?)\\
 

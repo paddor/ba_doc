@@ -135,6 +135,119 @@ TODO Finding consensus should be easier here, as it's closely related to the CHP
 	\item super node requests for delta of TC periodically
 \end{itemize}
 
+\subsection{Aspects}
+
+There are multiple aspects involved in persistence synchronization:
+
+\begin{itemize}
+	\item delta
+	\item updates
+	\item when supernode is HA pair: sync with HA peer or independent synchronization?
+
+		Independent: 2 cons: Most obviously, the traffic will be twice as much. This could be a problem for nodes connected via slow links. Additionally, with non-consistent solutions, it could lead to different datasets on both HA peers.
+
+		Sync with HA peer: 2 pros: Sync most likely happens via a fast link and relieves the subnode's link. HA peer can also sync 100\% consistently (I guess? maybe not)
+\end{itemize}
+
+
+
+\subsection{Variants}
+
+\subsubsection{Polling only}
+The supernode just periodically request persistence
+deltas. This would be handled over a DEALER/ROUTER pair of sockets. The nice
+thing about this variant is that the subnode only has to do one thing, which is
+responding to requests from the supernode(s); it doesn't have to proactively
+send any updates after sending the an initial delta.
+
+A big drawback is that the synchronization doesn't happen in real-time. This
+doesn't seem to fit well into the overall Roadster architecture, which is
+completely event-driven (no polls or "sleeps").
+
+In case the supernode is a HA pair, this variant would generate duplicated
+traffic. To avoid this, another pair of sockets has to be introduced to
+synchronize persistence between a HA pair. This also means designing another
+protocol, and more moving parts overall.
+
+Overall, this variant is very simple, but doesn't offer some features we'd
+normally expect from a framework like Roadster. The fruits are hanging low;
+achieving real-time synchronization is easy.
+
+\subsubsection{PUSH-PULL}
+This variant avoids the delays introduced by the polling mechanism of the first variant.
+
+Procedure (for each subnode):
+\begin{enumerate}
+	\item via a ROUTER/DEALER socket pair:
+		\begin{enumerate}
+			\item supernode tells subnode its most recent timestamp in an ICANHAZ request
+			\item subnode sends delta
+			\item supernode receives and processes the complete delta
+		\end{enumerate}
+	\item subnode sends updates to supernode via PUSH-PULL
+	\item during low-traffic times, we can send HUGZ as heartbeats
+\end{enumerate}
+
+This seems nice at first, but PUSH socket's send buffer will fill up when the
+connection is interrupted.  This isn't bad in and of itself, because when it's
+full (and writes start to block), we can just destroy the socket and
+reinitialize and start syncing anew (from ICANHAZ) after a certain timeout.
+But the problem is that, in case the delta is large, it will inevitably fill
+the PUSH socket's send buffer, temporarily reaching its high water mark, which
+is part of its normal operation.
+
+So we'd have to introduce logic to recognize whether the PUSH
+socket is just temporarily full (e.g. during delta transmission), or
+permanently full (e.g. the supernode or the link to it is down).
+
+Another disadvantage is that there needs to be another channel to synchronize
+persistence updates to the other HA peer, if there is one. This means another
+pair of sockets, another protocol to be designed, and more moving parts
+overall.
+
+\subsubsection{PUB/SUB}
+This is similar to CSP/CHP. It's not 100\% reliable, but even with unstable
+links, no data loss will occur if the client (the supernode) is able to reconnect within a
+specific amount of time. ZMQ's default for that amount is 10 seconds. As the
+requirements specify, 100\% consistency is not mandatory for the persistent
+data.
+
+A possible drawback is that the traffic is duplicated in case the supernode
+is a HA pair. However, there are numerous opportunities to mitigate this.
+
+Procedure (for each subnode):
+\begin{enumerate}
+	\item supernode subscribes to updates from subnode
+	\item via a ROUTER/DEALER socket pair:
+		\begin{enumerate}
+			\item supernode tells subnode its most recent timestamp in an ICANHAZ request
+			\item subnode sends delta
+			\item supernode receives and processes the complete delta
+		\end{enumerate}
+	\item supernode starts reading updates, possibly skipping the first few (based on timestamp)
+\end{enumerate}
+
+\subsection{Chosen Variant}
+We'll most likely go with the PUB-SUB variant, since it's simple, is similar to
+what's used for the CSP in conjunction with multi-node HA. It provides the best
+opportunities to improve efficiency later on.
+
+Its possible performance issues can be ignored right now, as, to quote Donald
+Knuth, ``Premature optimization is the root of all evil''. If this turns out to
+be an issue in a productive deployment, like over a mobile link, a future
+version can switch to multicast. ZMQ supports PGM, which is a reliable
+multicast protocol. (Pragmatic General Multicast, standardized, directly on top
+of IP, requires access to raw sockets and thus may require additional
+privileges) and EPGM (Encapsulated Pragmatic General Multicast, encapsulated in
+a series of UDP datagrams, doesn't require additional privileges, useful in a
+ZMQ-only setup).
+
+If its reliablity turn out to be an issue, one the socket option
+ZMQ\_RECOVERY\_IVL can be increased from 10 seconds to, say, 60 seconds, which
+gives an unstable link more time to recover before any data loss happens.
+TODO: describe reasonable default setting, in case we change ZMQ's default.
+
+
 \section{Security}\label{sec:meth:security}
 TODO briefly describe ZMQ's security features, what's left for us to decide (key destribution)\\
 TODO how it can be verified (-> using wireshark)\\

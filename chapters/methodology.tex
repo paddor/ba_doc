@@ -338,19 +338,18 @@ Procedure (for each subnode):
 \end{enumerate}
 
 \subsection{Chosen Variant}
-We'll most likely go with the PUB-SUB variant, since it's simple, is similar to
-what's used for the CSP in conjunction with multi-node HA. It provides the best
+We'll most likely go with the PUB-SUB variant, since it's simple and is similar to
+what's used for the new CSP in conjunction with multi-node HA. It provides the best
 opportunities to improve efficiency later on.
 
-Its possible performance issues can be ignored right now, as, to quote Donald
-Knuth, ``Premature optimization is the root of all evil''. If this turns out to
-be an issue in a productive deployment, like over a mobile link, a future
-version can switch to multicast. ZMQ supports PGM, which is a reliable
-multicast protocol. (Pragmatic General Multicast, standardized, directly on top
-of IP, requires access to raw sockets and thus may require additional
-privileges) and EPGM (Encapsulated Pragmatic General Multicast, encapsulated in
-a series of UDP datagrams, doesn't require additional privileges, useful in a
-ZMQ-only setup).
+Its possible performance issues can be ignored right now, as trying to fix them
+is arguably considered premature optimization. If this turns out to be an issue
+in a productive deployment, like over a cellular network link, a future version
+can switch to multicast. \zmq supports PGM, which is a reliable multicast
+protocol. (Pragmatic General Multicast, standardized, directly on top of IP,
+requires access to raw sockets and thus may require additional privileges) and
+EPGM (Encapsulated Pragmatic General Multicast, encapsulated in a series of UDP
+datagrams, doesn't require additional privileges, useful in a \zmq-only setup).
 
 If its reliablity turn out to be an issue, one the socket option
 \sh{ZMQ_RECOVERY_IVL} can be increased from 10 seconds to, say, 60 seconds, which

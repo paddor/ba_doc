@@ -44,7 +44,6 @@ This could also be called "Multi-node CSP".
 \item - routed to the relevant node, where it is applied,
 \item - and then synced (up via DEALER and down via PUB, we suppose)
 \end{itemize}
-\item KISS
 \end{itemize}
 
 
@@ -96,21 +95,35 @@ TODO maybe there are any?
 
 % ---------------------------------------------------------------------------
 \section{Non-Functional Requirements}
-TODO the NFRs
+\subsection{Simplicity}
+The two reoccuring patterns that surfaced during the requirements gathering
+meeting were:
 
-\subsubsection{Testing}
+\begin{enumerate}
+\item KISS principle -- Keep it simple, stupid. Simplicity is favored,
+	unnecessary complexity should be avoided.
+
+\item No premature optimization since it's the root of all evil.\footnote{Quote
+	by Donald Knuth: ``Premature optimization is the root of all evil.''}
+\end{enumerate}
+
+
+\subsection{Testing}
 \begin{itemize}
 	\item we write unit tests for our own contributions
 	\item we test the integrated result in a close-to-reality setup
 \end{itemize}
 
 
-\subsubsection{Coding Guidelines}
+\subsection{Coding Guidelines}
+The coding guidelines desired by the client are basically the ones written down
+in the popular Ruby style guide \cite{rb:style-guide}, with the following
+differences or special remarks:
+
 \begin{itemize}
-	\item basically Ruby style guide\footnote{\url{https://github.com/bbatsov/ruby-style-guide}}
 	\item method calls: only use parenthesis when needed, even with arguments (as opposed to \footnote{\url{https://github.com/bbatsov/ruby-style-guide\#method-invocation-parens}})
 	\item 2 blank lines before method definition (slightly extending \footnote{\url{https://github.com/bbatsov/ruby-style-guide\#empty-lines-between-methods}})
 	\item YARD API doc, 1 blank comment line before param documentation, one blank comment line before code (ignoring \footnote{\url{https://github.com/bbatsov/ruby-style-guide\#rdoc-conventions}})
-	\item Ruby 1.9 symbol keys are wanted (just like \footnote{\url{https://github.com/bbatsov/ruby-style-guide\#hash-literals}})
+	\item Ruby 1.9 symbol keys are wanted (e.g. \rb{foo: "bar", baz: 42} instead of \rb{:foo => "bar", :baz => 42}, just like \footnote{\url{https://github.com/bbatsov/ruby-style-guide\#hash-literals}})
 	\item align multiple assignments so there's a column of equal signs
 \end{itemize}

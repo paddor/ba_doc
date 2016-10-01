@@ -6,7 +6,28 @@ TODO what's this thesis about
 TODO Why do we care about this thesis? Why are we interested?
 
 \section{Initial Situation}
-TODO What's Roadster and its goals
+
+\subsection{mindclue GmbH}
+\subsubsection{About}
+Die Firma mindclue GmbH mit Sitz in Ziegelbrücke GL/SG stellt für ihren
+Partner REMTEC AG für Steuerungen, Regelungen und Überwachungen von technischen Prozessen,
+komplette SCADA- und Steuerungssysteme her. Dabei sind sie in den Bereichen
+Betriebs-und Sicherheitausrüstung für Nationalstrassen, Trinkwasser-
+versorgungen, im Energiesektor und vielen Spezielbereichen tätig.
+Dabei setzen sie auf ihre eigens entwickelte Applikation - Roadster.
+
+\subsubsection{Roadster}
+Roadster ist eine Ereignis gesteuerte Applikation geschrieben in Ruby.
+Sie ist die eigentliche SCADA Applikation und wird bereits in einer Vielzahl von
+Tunnelanlagen in der Schweiz eingesetzt und dient zur Überwachung der einzelnen Komponenten im Tunnel.
+Durch den modularen Aufbau kann jede Roadster Applikation sich selbst laufen - Autonom.
+Sprich jeder Roadster hat seinen eigenen Webserver und Datenverwaltung.
+
+\subsubsection{AS - UeLS}
+Roadster ist einer von vielen AS Knoten eines UeLS. Die Kommunikation
+zwischen AS und AR geschieht über "OPC UA".
+%TODO .... include graphics as_detail and overall system
+
 
 \subsection{\zmq}
 \emph{For a more detailed introduction, see \autoref{ch:zmq}.}

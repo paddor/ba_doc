@@ -46,7 +46,7 @@ participants. To greatly reduce the complexity, it's not decentralized: There's
 a server part which serves as the single source of truth.
 
 The server uses a ROUTER, a PULL, and a PUB socket; each client a DEALER, a
-PUSH, and a SUB socket. The protocol consists of three messages flows:
+PUSH, and a SUB socket. The protocol consists of three distinct messages flows:
 
 \begin{description}
 	\item [Snapshots:]
@@ -69,7 +69,7 @@ PUSH, and a SUB socket. The protocol consists of three messages flows:
 \end{description}
 
 By making all updates go through the server, a total order is enforced,
-which is crucial keep the state consistent across all clients.
+which is crucial to keep the state consistent across all clients.
 
 To avoid risking a gap between requesting the current snapshot and subscribing
 to updates, a client actually subscribes to the updates first, then gets the
@@ -121,6 +121,7 @@ TODO explain Clustered Hashmap Protocol (?)\\
 \end{itemize}
 
 
+\subsubsection{What's needed}
 \begin{itemize}
 	\item we need two new COMM actors
 	\item they sync between super node and sub node

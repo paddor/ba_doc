@@ -5,10 +5,10 @@ TODO this is probably what we know as "Concept"\\
 
 
 
-\section{Port to new ZMQ library}\label{sec:meth:port}
+\section{Port to new \zmq library}\label{sec:meth:port}
 TODO justify why port is needed right at the beginning (exclude faults from unmaintained ffi-rzmq gem, encryption is needed anyway, all the other tasks involve communication over ZMQ)\\
 TODO explain binding options out there, why CZTop (including difference between ZMQ and CZMQ)\\
-TODO explain preliminary task of adding support for the ZMQ options FD and EVENTS in CZTop\\
+TODO explain preliminary task of adding support for the ZMQ options \sh{ZMQ_FD} and \sh{ZMQ_EVENTS} in CZTop\\
 TODO explain concept of exchanging ffi-rzmq with CZTop\\
 
 
@@ -160,7 +160,7 @@ TODO we have two different kinds of HA\\
 TODO explain how the failures we're required to be able to handle can be handled\\
 TODO expalin similarities between the two kinds of HA\\
 
-\subsection*{Single Level}
+\subsection{Single Level}
 \begin{itemize}
 	\item this is different from what's described in the zguide because the concept of client requests is missing here (PLCs don't request anything)
 	\item life sign from one node to the other through some continually updated PLC value
@@ -169,7 +169,7 @@ TODO expalin similarities between the two kinds of HA\\
 
 TODO integrate findings from scribble (SL-HA.pdf)
 
-\subsection*{Multi Level}
+\subsection{Multi Level}
 TODO explain why is this one different from SL-HA\\
 TODO Finding consensus should be easier here, as it's closely related to the CHP described in the zguide.\\
 TODO integrate findings from scribble (ML-HA.pdf)
@@ -256,7 +256,7 @@ overall.
 \subsubsection{PUB/SUB}
 This is similar to CSP/CHP. It's not 100\% reliable, but even with unstable
 links, no data loss will occur if the client (the supernode) is able to reconnect within a
-specific amount of time. ZMQ's default for that amount is 10 seconds. As the
+specific amount of time. \zmq's default for that amount is 10 seconds. As the
 requirements specify, 100\% consistency is not mandatory for the persistent
 data.
 
@@ -291,13 +291,14 @@ a series of UDP datagrams, doesn't require additional privileges, useful in a
 ZMQ-only setup).
 
 If its reliablity turn out to be an issue, one the socket option
-ZMQ\_RECOVERY\_IVL can be increased from 10 seconds to, say, 60 seconds, which
+\sh{ZMQ_RECOVERY_IVL} can be increased from 10 seconds to, say, 60 seconds, which
 gives an unstable link more time to recover before any data loss happens.
+
 TODO: describe reasonable default setting, in case we change ZMQ's default.
 
 
 \section{Security}\label{sec:meth:security}
-TODO briefly describe ZMQ's security features, what's left for us to decide (key destribution)\\
+TODO briefly describe \zmq's security features, what's left for us to decide (key destribution)\\
 TODO how it can be verified (-> using wireshark)\\
 
 

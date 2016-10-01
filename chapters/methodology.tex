@@ -33,6 +33,66 @@ Adding cluster functionality to Roadster involves the following aspects:
 
 \subsection{DIM Synchronization}
 TODO election/design of appropriate protocol\\
+
+\subsubsection{The Existing CSP in a Nutshell}
+\emph{This is a brief introduction/refresher for the Clone State Pattern
+implemented by Roadster. Although Roadster actually sends serialized instances
+of CSP message classes to fulfill this protocol, for better readability the
+Zguide's canonical nomenclature of Clone Pattern messages will be used.}
+
+The existing CSP is closely related to the Clone Pattern from the Zguide\footnote{\url{FIXME}}. Its
+goal is to keep a state (a list of key-value pairs) in sync across a set of
+participants. To greatly reduce the complexity, it's not decentralized: There's
+a server part which serves as the single source of truth.
+
+The server uses a ROUTER, a PULL, and a PUB socket; each client a DEALER, a
+PUSH, and a SUB socket. The protocol consists of three messages flows:
+
+\begin{description}
+	\item [Snapshots:]
+		Requesting and receiving the complete, current snapshot of the
+		state (all key-value pairs). This happens via a
+		ROUTER/DEALER pair of sockets. The request message consists solely of
+		the humorously named ICANHAZ command. The response is the
+		complete set of KVSET messages so a late-joining (or previously
+		disconnected) client can rebuild the current snapshot.
+
+	\item [Upstream updates:]
+		Updates always originate from clients and are sent to the
+		server via a PUSH/PULL pair of sockets. These are KVSET messages.
+
+	\item [Downstream updates:]
+		After being applied to the server's copy of the state,
+		updates get a sequence number and are published back to all
+		clients. This happens via the PUB socket and
+		uses KVPUB messages.
+\end{description}
+
+By making all updates go through the server, a total order is enforced,
+which is crucial keep the state consistent across all clients.
+
+To avoid risking a gap between requesting the current snapshot and subscribing
+to updates, a client actually subscribes to the updates first, then gets the
+snapshot, and then starts reading the updates from the socket (which has been
+queueing updates in the meantime, if any). Updates that are older or the same
+age as the received snapshot are skipped, and only successive updates are
+applied (tested by comparing the sequence numbers).
+
+Because message loss via the third message flow (PUB-SUB) is unlikely but
+theoretically possible, the client checks for gaps in the sequence number of
+each KVPUB message. If a gap is detected, the current state is discarded and a
+complete resynchronization happens. This is brutal, but is very simple and thus
+robust; there's no complexity that would leave room for nasty corner cases.
+
+Keys can be treated hierarchically (e.g. \sh{topic.subtopic.key}) and thus, a
+client can optionally subscribe to only a particular subtree. This is useful
+when the number of client grows and not all of the state needs to be on every
+client. In that case, the topic of interest is sent by the client along with
+the ICANHAZ message.
+
+\subsubsection{What's Missing}
+TODO it has to work across several nodes\\
+TODO it has to be able to handle HA supernodes\\
 TODO explain Clustered Hashmap Protocol (?)\\
 
 \begin{itemize}

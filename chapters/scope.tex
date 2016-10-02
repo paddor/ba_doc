@@ -122,9 +122,61 @@ well as utilities for certificate and authentication handling, and LAN node
 discovery. This is the recommended way of using \zmq nowadays.
 
 \subsection{Software Architecture}
-TODO Roadster architecture\\
+TODO more\\
 
-\includegraphics[trim=4cm 2cm 3.5cm 2.8cm, clip=true, width=\textwidth]{img/roadster_arch.pdf}
+Roadster is event-driven and built on the Actor model, meaning it exhibits a
+shared-nothing architecture. Each Roadster node runs a number of Ruby processes
+which communicate via \zmq sockets. The key here is communication:
+
+\begin{quote}
+``Don't communicate by sharing state; share state by communicating.''
+\end{quote}
+
+Running multiple, loosely coupled processes (actors) allows leveraging the full
+potential of modern multi-core processors, while avoiding a whole class of
+traditional concurrency problems.
+
+Every Roadster node runs a group of actors:
+
+\begin{description}
+	\item [CORE:]
+		It is responsible to start the other actors. It also plays a
+		key role in keeping state in all actors synchronized, being the
+		source of truth.
+
+	\item [COMM:]
+		A bunch of COMM actors communicate with the outside world of a
+		node. This can be different kind of PLCs or higher level
+		monitoring systems. Each COMM actor uses an adapter
+		specifically written for a single communication protocol.
+
+	\item [STORAGE:]
+		This actor is used when information needs to be persisted, such
+		as time series or event journals. It's the interface to a
+		key-value store.
+
+	\item [LOGGER:]
+		This actor collects logging data and sends it to whatever
+		target is configured, be it STDOUT, a file, or a syslog server.
+\end{description}
+
+\autoref{fig:roadster:arch} illustrates Roadster's architecture.
+
+\begin{figure}[!ht]
+	\includegraphics[trim=4cm 2cm 3.5cm 2.8cm, clip=true, width=\textwidth]{img/roadster_arch.pdf}
+	\caption{Roadster's software architecture}
+	\label{fig:roadster:arch}
+\end{figure}
+
+\subsubsection{Communication Layers}
+TODO briefly explain layers. \autoref{fig:roadster:layers} illustrates the three layers.
+
+\begin{figure}[!ht]
+	\includegraphics[trim=2cm 2.5cm 1cm 2.8cm, clip=true, width=\textwidth]{img/roadster_layering.png}
+	\caption{Roadster's communication layers}
+	\label{fig:roadster:layers}
+TODO use PDF
+\end{figure}
 
 \section{Goals}
 TODO mandatory goals

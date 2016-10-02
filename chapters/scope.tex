@@ -190,5 +190,31 @@ TODO use PDF
 \section{Goals}
 TODO mandatory goals
 
+To summarize the goals from the Task Description in \autoref{ch:task-desc}:
+
+\begin{enumerate}
+	\item Extending communication protocols to support clustering
+	\item Extending communication protocols to add high availability
+\end{enumerate}
+
+An implication of the above goals is secure inter-node communication in a Roadster cluster. This is also to mitigate common security concerns with SCADA systems which are becoming more and more open due to standardization. To quote wikipedia:
+
+TODO move this part somewhere else, a section dedicated to security in SCADA systems
+\begin{quote}
+
+``In particular, security researchers are concerned about:
+	\begin{itemize}
+		\item the lack of concern about security and authentication in the design, deployment and operation of some existing SCADA networks
+		\item the belief that SCADA systems have the benefit of security through obscurity through the use of specialized protocols and proprietary interfaces
+		\item the belief that SCADA networks are secure because they are physically secured
+		\item the belief that SCADA networks are secure because they are disconnected from the Internet.''
+	\end{itemize}
+\end{quote}
+
 \subsection*{Optional Goals}
 TODO optional goals
+
+\begin{enumerate}
+	\item Encryption of the communication
+	\item Highly available OPC UA server
+\end{enumerate}

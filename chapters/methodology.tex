@@ -225,10 +225,30 @@ end # Roadster
 TODO message routing (end-to-end routing with identity/identities as prepended message frame?, should be simpler and more efficient than hop-by-hop routing)\\
 
 \section{High Availability}\label{sec:meth:ha}
+If Roadster is going to be run in a cluster setup, measures need to be taken to
+mitigate the risk of failure, since many nodes are more likely to fail than a
+single node. Availability shall be ensured by adding redundancy on certain
+levels of the node hierarchy, in the form of a fully functional backup node in
+addition to the primary one.
+
+Run together in a hot-standby cluster, the passive node's responsibility is to
+take over in case the active one goes down.
+
+When speaking about reliability, it's worth listing the failures we want to be
+able to handle. According to the requirements, these are exactly:
+
+\begin{itemize}
+	\item hardware or software failure on the primary node
+	\item network failure
+\end{itemize}
+
+
 TODO we have two different kinds of HA\\
 TODO explain how the failures we're required to be able to handle can be handled\\
 TODO expalin similarities between the two kinds of HA\\
 TODO case generation in case of failover or passive down\\
+TODO useful for upgrades (maybe in Discussion)\\
+TODO for free: failover from backup to primary\\
 
 \subsection{Single Level}
 \begin{itemize}

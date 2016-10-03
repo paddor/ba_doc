@@ -10,6 +10,7 @@ TODO andy's introduction during first Friday morning\\
 TODO first impression of Roadster's code base: very clean, abstractions, loosely coupled, scarcely documented
 
 
+%----------------------------------------------------------------------------
 \section{Port to new \zmq library}\label{sec:meth:port}
 TODO justify why port is needed right at the beginning (exclude faults from unmaintained ffi-rzmq gem, encryption is needed anyway, all the other tasks involve communication over ZMQ)\\
 TODO explain binding options out there, why CZTop (including difference between ZMQ and CZMQ)\\
@@ -17,6 +18,7 @@ TODO explain preliminary task of adding support for the ZMQ options \sh{ZMQ_FD} 
 TODO explain concept of exchanging ffi-rzmq with CZTop\\
 
 
+%----------------------------------------------------------------------------
 \section{Cluster}\label{sec:meth:cluster}
 TODO describe scribble (chp.pdf)
 
@@ -99,40 +101,46 @@ the ICANHAZ message.
 TODO it has to work across several nodes\\
 TODO it has to be able to handle HA supernodes\\
 TODO explain Clustered Hashmap Protocol (?)\\
+TODO PCP: use DIM to know node tree and determine next hop for (dialog or fire+forget) messages
 
-\begin{itemize}
-	\item PCP: use DIM to know node tree and determine next hop for (dialog or fire+forget) messages
-	\item decide on sync variant
-	\begin{itemize}
-		\item variant 1
+Here are the possible variants:
+
+\begin{description}
+	\item [Variant 1. Sync self-subtree only:] \hfill
 		\begin{itemize}
 			\item always sync on self-subtree only
 			\item con: no copy of remaining tree
 		\end{itemize}
 
-		\item variant 2:
+	\item [Variant 2. Sync complete tree:] \hfill
 		\begin{itemize}
 			\item always sync on complete tree
 			\item get snapshot and merge own subtree
-			\item (this should probably be the first step)
 		\end{itemize}
 
-		\item variant 3:
+	\item [Variant 3. Either sync on subtree or complete tree:] \hfill
 		\begin{itemize}
 			\item make it configurable: either sync on subtree or complete tree
-			\item (this should probably be the second step, if at all)
 		\end{itemize}
-	\end{itemize}
-\end{itemize}
+\end{description}
+
+Variant 2 will be the first step. Variant 3 will be the second step, if at all.
 
 
 \subsubsection{What's needed}
+Since COMM actors are used to communicate with the outside world, new COMM
+actors will have to be introduced: One kind that is south-facing to communicate
+with subnodes, and another one that is north-facing for communication with
+supernodes. We'll call them COMM CLUSTER NORTH and COMM CLUSTER SOUTH.
+
+Their responsibility is the inter-node synchronization of the DIM, similarly to
+what's happening in the existing CSP within a single node.
+
 \begin{itemize}
-	\item we need two new COMM actors
-	\item they sync between super node and sub node
 	\item they do something closely related to the existing CSP
 	\item future oriented: because of the HA requirement, ideas from the CHP are integrated, such as using PUB-SUB (instead of PUSH-PULL) for inter-node KVSET messages, so both super nodes (in HA setup) hear updates
 	\item for intra-node KVSET messages, PUSH-PULL is OK and can be left unchanged
+	\item only node A has write access to values on A (to avoid uncertain situations involving race conditions), e.g.:
 \end{itemize}
 
 \includegraphics[width=\textwidth]{img/cluster_protocol.pdf}
@@ -224,56 +232,144 @@ end # Roadster
 \subsection{Message Routing}
 TODO message routing (end-to-end routing with identity/identities as prepended message frame?, should be simpler and more efficient than hop-by-hop routing)\\
 
+%----------------------------------------------------------------------------
 \section{High Availability}\label{sec:meth:ha}
 If Roadster is going to be run in a cluster setup, measures need to be taken to
 mitigate the risk of failure, since many nodes are more likely to fail than a
-single node. Availability shall be ensured by adding redundancy on certain
-levels of the node hierarchy, in the form of a fully functional backup node in
-addition to the primary one.
+single node (unless they add redundancy). Availability shall be ensured by
+adding redundancy on certain levels of the node hierarchy (e.g. at the bottom
+of the topology, right above the PLC, or at the root level), in the form of a
+fully functional backup node in addition to the primary one.
 
 Run together in a hot-standby cluster, the passive node's responsibility is to
 take over in case the active one goes down.
 
+\subsection{Defining Reliability}
 When speaking about reliability, it's worth listing the failures we want to be
 able to handle. According to the requirements, these are exactly:
 
-\begin{itemize}
-	\item hardware or software failure on the primary node
-	\item network failure
-\end{itemize}
+\begin{description}
+	\item [Hardware or software failure on the primary node:]
+		This could be one of the actors crashing, the whole OS
+		crashing, or a fatal disk failure, irrecoverable memory error,
+		or even just someone accidentally pulling the power plug.
+
+	\item [Network failure]
+		This only includes the failure of the link between the two HA
+		peers. Interestingly, this limitation applies to both single
+		level and multi level HA.
+\end{description}
 
 
-TODO we have two different kinds of HA\\
-TODO explain how the failures we're required to be able to handle can be handled\\
-TODO expalin similarities between the two kinds of HA\\
-TODO case generation in case of failover or passive down\\
+Failures that won't be covered include:
+\begin{description}
+	\item [Failure of the link between a subnode one of the supernodes:]
+
+		This can't be handled since the two HA peers would have to
+		continually share the number of subnodes connected to them, and
+		based on that, make a decision on which one should be active or
+		passive. Since the link between them could fail as well, this
+		decision can't be done reliably, which could lead to the
+		dreaded split brain syndrome.
+
+	\item [Failure of the link between a HA peer node and the PLC]
+		The Binary Star alrogrithm won't initiate a failover since the
+		active is still alive and is able to tell the passive node so.
+		The missing life signs via the PLC could cause an alarm, but no
+		failover, since they're only half of the conditions that have
+		to be met for a failover.
+\end{description}
+
+\subsection{What's Needed}
+TODO A simple HA protocol => Binary Star\\
+TODO maybe we need to extend binary star to handle other kinds of network failures?\\
+TODO new actor: COMM BSTAR\\
+
+\subsection{Binary Star in a Nutshell}
+TODO explain binary star\\
+TODO two conditions (no heartbeats, and vote)\\
+
+\subsection{Failover}
+In case the currently active node goes down, the two conditions will be met.
+This means that the passive node starts accepting snapshot requests (ICANHAZ
+messages) and updates the DIM, so every other node will know about the new,
+active node. This is needed for the message routing to work.
+
+\subsubsection{Alarm Generation}
+When a failover happens, we want to create a \rb{Case} (alarm) in the DIM, so
+the outage is visible to a user in one of the web UIs. Also, in case the
+passive node goes down, which doesn't have an immediate effect on availability,
+we also want to create a \rb{Case}. This is so the user can act upon the alarm
+and e.g. initiate field forces to inspect the failed node and repair it.
+
+Once repaired, it's started with the exact same configuration (either primary
+or backup) again. Since there's already an active node (either the primary one,
+or the backup one), the newly repaired node will become the new passive node.
+
+\subsubsection{Failover from Backup to Primary}
+Once failed over, the newly actve backup node stays active. It does so until it
+fails itself, at which point the now repaired, up and running primary node will
+take over. This works because the Binary Star protocol operates symmetrically
+after successful initialization. But it never automatically switches back to
+make the primary node the new active one without a failure. This is key. If a
+node goes down, the failover happens automatically, but anything else will
+require human interaction.
+
+\subsection{Side benefit: Rolling Upgrades}
 TODO useful for upgrades (maybe in Discussion)\\
-TODO for free: failover from backup to primary\\
 
 \subsection{Single Level}
-\begin{itemize}
-	\item this is different from what's described in the zguide because the concept of client requests is missing here (PLCs don't request anything)
-	\item life sign from one node to the other through some continually updated PLC value
-	\item don't send life signs when, for example, CORE is dead!
-	\item mark active HA peer in DIM
-\end{itemize}
+This is different from what's described in the zguide because the concept of
+client requests is missing here (PLCs don't request anything).  What can be
+done instead is periodically sending life signs from one node to the other
+through the PLC by updating some designated memory block. This can actually be
+done by both the active and the passive node, which reduces code complexity.
+
+The passive node will check the active node's life signs periodically as well.
+In case the life signs cease, it can give its vote to the COMM BSTAR actor.
+This would satisfy the second condition of the Binary Star protocol for a
+failover to take place. The first condition would be the missing heartbeats
+which are normally transmitted through the network link.
+
+TODO new actor: COMM PLCVOTER\\
 
 \includegraphics[width=\textwidth]{img/SL-HA_bstar.pdf}
 
+\subsubsection{Caveats}
+Special attention needs to be paid when it comes to writing these life signs. A
+na\"ive developer might implement the COMM PLCVOTER so it autonomously causes
+life signs to be written PLC. This works as long as the failures only affect
+the hardware. But what if a software error happens in the CORE or BSTAR actor?
+They'd crash or hang, while the PLCVOTER happily sends out life signs, which it
+obviously shouldn't be doing at that moment.
+
+A better implementation would have the PLCVOTER poll the BSTAR via the CORE
+router whether it's still alive, and only send out a life sign in case it gets
+an answer. This way, the BSTAR and the CORE actor are being tested for
+responsiveness. We'll call the two messages being sent back and forth "DEAD?"
+and "ALIVE!".
+
+\subsubsection{Node---PLC Link Failure}
+TODO describe why this won't cause a failover and thus can't be handled, as
+mentioned above\\
+
+\subsubsection{Supporting Different PLCs}
+TODO: adapter
+
 \subsection{Multi Level}
-TODO explain why is this one different from SL-HA\\
-TODO Finding consensus should be easier here, as it's closely related to the CHP described in the zguide.\\
-TODO integrate findings from scribble (ML-HA.pdf)
+This kind of HA setup is closely related to the Binary Star Pattern described
+in the zguide, meaning that there will be actual requests from client on the
+passive node in case the active node fails. These requests will count as votes
+to fulfill the second condition that has to be met for a failover to be
+initiated.
 
 \includegraphics[width=\textwidth]{img/ML-HA_bstar.pdf}
 
+%----------------------------------------------------------------------------
 \section{Persistence Synchronization}\label{sec:meth:psync}
-\begin{itemize}
-	\item super node requests for delta of TC periodically
-\end{itemize}
+The persisted data needs to be bubbled up towards the root node.
 
 \subsection{Aspects}
-
 There are multiple aspects involved in persistence synchronization:
 
 \begin{description}
@@ -291,7 +387,6 @@ There are multiple aspects involved in persistence synchronization:
 \end{description}
 
 \subsection{Variants}
-
 There are multiple variants to achieve the needed functionality.
 
 \subsubsection{Polling only}
@@ -390,7 +485,8 @@ TODO: describe reasonable default setting, in case we change ZMQ's default.
 
 
 \section{Security}\label{sec:meth:security}
-TODO briefly describe \zmq's security features, what's left for us to decide (key destribution)\\
+TODO This is the optional goal.\\
+TODO briefly describe \zmq's security features, what's left for us to decide (key destribution, if at all)\\
 TODO how it can be verified (-> using wireshark)\\
 TODO why curvezmq is awesome (confidentiality, integrity, availability (server keeps no state until client is fully authenticated)
 

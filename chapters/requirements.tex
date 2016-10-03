@@ -1,87 +1,139 @@
 % vim: ft=tex
 \chapter{Requirements}
-TODO the requirements
+The requirements gathered during the first meeting with the client are
+explained in this chapter. These are more concrete than the ones listed in the
+Task Description in \autoref{ch:task-desc}.
 
 \section{Priorities}
-In descending priority:
+First of all, these are the priorities from the client's point of view in
+descending order:
 
 \begin{enumerate}
-\item multi-node CSP
+\item clustering
 \item single-level HA
 \item multi-level HA
 \item persistence synchronization
-\item security
+\item security (optional)
 \item OPC UA HA (optional)
 \end{enumerate}
 
 The following sections explain the requirements in greater detail.
 
 \section{Functional}
+Below are the functional requirements, as opposed to the non-functional
+requirements.
 
 
 \subsection{Cluster}
-This could also be called "Multi-node CSP".
+This requirement is to allow running Roadster on multiple nodes in a
+hierarchical topology.  It could also be called "Multi-node CSP", since
+extending the Clone State Protocol will be a central part of it. But it's
+definitely not all that's needed to add cluster functionality.
 
+The DIM must be kept in sync across all nodes. This means synchronizing the
+items within the DIM that have \rb{@lifecycle_status = "updated"}. According to
+the Data Model class diagram, these should only be instances of one of three
+classes (marked yellow in the diagram):
 \begin{itemize}
-\item this is to allow running Roadster in a hierarchical setup
-\item new COMM actors for inter node communication
-\item usually 2 (or 3) levels of Roadster nodes
-\item common cases:
-\begin{itemize}
-\item   - single level, single node (legacy)
-\item   - single level HA
-\item   - multi level, HA at root node only
-\end{itemize}
-\item exotic cases:
-\begin{itemize}
-\item   - multi level, HA at bottom
-\item   - multi level, HA in middle
-\end{itemize}
-\item every subtree can live on autonomously
-\item only node A has write access to values on A (to avoid uncertain situations involving race conditions), e.g.:
-\begin{itemize}
-\item - a forced value coming from the web UI comes through a command,
-\item - routed to the relevant node, where it is applied,
-\item - and then synced (up via DEALER and down via PUB, we suppose)
-\end{itemize}
+	\item \rb{DataItem}
+	\item \rb{Session}
+	\item \rb{Case}
 \end{itemize}
 
+In addition to that, there needs to be some kind of message routing so a user
+of one node's web UI can send a command to another node where it will be
+executed. An example for this is a forced value in the DIM to ignore the
+actually measured value reported by a device in case the device is known to be
+wrong.
 
-\begin{lstlisting}[style=customsh]
-       C
-     /   \
-    A     B
-\end{lstlisting}
+It's important that every node subtree can live on autonomously, even if the
+link to its supernode, or the supernode itself fails.
 
+The above requirements imply that changes to the DIM can only be done by the
+respective node. In other words, a node can only change its own values. It
+cannot change values of supernodes, nor is it allowed to change values of
+subnodes directly. This is to ensure that each node is its own source of truth
+for all other nodes in the setup.
+
+
+\subsubsection{Typical Usecases}
+The typical use cases include:
+
+\begin{description}
+	\item [ Single level, single node ]
+		This is the legacy setup and is what Roadster is already able to do.
+
+	\item [ Single level HA ]
+		This is when there are exactly two nodes, both of them
+		connected to the same PLC. There are two nodes for redundancy.
+
+	\item [ Multi level, HA at root only ]
+		There can be multiple levels in the hierarchy, such as two or
+		three (anything else is considered exotic), and there's a HA
+		cluster at the root.
+\end{description}
+
+The exotic cases which can be ignored, if need be, include:
+
+\begin{itemize}
+	\item Multi level, HA at bottom
+	\item Multi level, HA in the middle
+\end{itemize}
 
 
 \subsection{Single Level HA}
-This is where there's a node pair directly connected to a PLC. Both nodes have read\slash write access to the PLC, but only one of the nodes (the active one) must do so. The nodes must automatically find consensus on who's active. The passive one must automatically take over in case the active one is confirmed to be dead.\\
+This is where there's a node pair directly connected to a PLC. Both nodes have
+read\slash write access to the PLC, but only one of the nodes (the active one)
+must do so. The nodes must automatically find consensus on who's active. The
+passive one must automatically take over in case the active one is confirmed to
+be dead.\\
 
-TODO the kinds of failures we want to be able to handle: exactly hardware/software failure of the primary node, and network failure (stated by the Task Description)\\
+The kinds of failures that need to be handled include:
+\begin{itemize}
+	\item Hardware/software failure on the primary node
+	\item Failure of the link between the two nodes
+\end{itemize}
+
 
 
 \subsection{Multi Level HA}
-This is where a node pair is the parent of one or more other nodes (subnodes).\\
+This is where a node pair is the parent of one or more subnodes.
 
-TODO the kinds of failures we want to be able to handle: exactly hardware/software failure of the primary node, and network failure (stated by the Task Description)\\
-
-\subsection{Persistence Synchronization}
-This is about the synchronization of the TokyoCabinet databases. Data flow is from south to north (towards the root node), so the root node collects and maintains a replication of the persisted data of all subnodes, recursively.
-
+The kinds of failures that need to be handled include:
 \begin{itemize}
-	\item autonomous
-	\item not same as CHP
-	\item 100\% consistency is not important
-	\item data only flows from bottom to top
-	\item TC keys contain timestamp
+	\item Hardware/software failure on the primary node
+	\item Failure of the link between the two nodes
 \end{itemize}
 
+\subsection{Persistence Synchronization}
+This is about the synchronization of the TokyoCabinet databases. Data flow is
+from south to north (towards the root node), so the root node collects and
+maintains a replication of the persisted data of all subnodes, recursively.
+
+It's important that every node and its subnodes form an autonomous subtree. So
+in case the link to its supernode fails, it has to continue working. As soon as
+the link is repaired, the delta of the newly added data to the database can be
+bubbled up. Sending just the delta should be possible since keys in the
+database contain timestamps.
+
+This is not the same as CHP (DIM synchronization), as the DIM is shared across
+all nodes and is a relatively small data structure. The TokyoCabinet databases
+can possibly contain large amounts of data (in the hundreds of megabytes) and
+are shared only towards the root node (thus "bubbling up").
+
+100\% consistency is not an absolute requirement for persistence synchronization.
+
 \subsection{Security}
+TODO common concern about SCADA systems lacking security\\
+
 \begin{itemize}
 	\item transport needs to be secure (encrypted and authenticated)
-	\item TODO verify requirements with Andy (we didn't really discuss this during the meeting)
-	\item this requirement comes as the last mandatory goal not because it's insignificant, but because it's easy to enable transport level security on ZMQ sockets, and it would just interfere with the previous development
+	\item TODO verify requirements with Andy (we didn't really discuss this
+		during the meeting)
+	\item this requirement comes as the last mandatory goal not because
+		it's insignificant, but because it's easy to enable transport
+		level security on ZMQ sockets, and it would just interfere with
+		the previous development
 \end{itemize}
 
 \subsection{OPC UA HA}

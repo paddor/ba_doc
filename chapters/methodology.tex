@@ -40,9 +40,6 @@ Adding cluster functionality to Roadster involves the following aspects:
 	\item What needs to be done a WebUI user wants to e.g. change some value on a PLC, possibly on a remote node? Is it completely handled via DIM or do we need message routing?
 \end{itemize}
 
-
-
-
 \subsection{DIM Synchronization}
 TODO election/design of appropriate protocol\\
 
@@ -107,6 +104,7 @@ TODO it has to work across several nodes\\
 TODO it has to be able to handle HA supernodes\\
 TODO explain Clustered Hashmap Protocol (?)\\
 TODO PCP: use DIM to know node tree and determine next hop for (dialog or fire+forget) messages
+TODO mention CAP theorem, we need AP since sub trees are autonomous, but we guarantee eventual consistency by restricting write access to the owning node\\
 
 Here are the possible variants:
 

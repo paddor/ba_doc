@@ -40,6 +40,8 @@ block=none]{biblatex}
 }
 \usepackage{csquotes}
 \usepackage{pdfpages}
+\usepackage[toc,xindy]{glossaries}
+\makeglossaries
 \title{Roadster High Availability}
 \author{Patrik Wenger, Manuel Schuler}
 
@@ -47,11 +49,11 @@ block=none]{biblatex}
 \usepackage{listings}
 \include{lst_styles}
 
-
 % canonical ZMQ spelling with \zmq
 \newcommand\zmq{{\O}MQ\xspace}
 
 \begin{document}
+\include{glossary_entries}
 \thispagestyle{empty}
 \selectlanguage{english}
 
@@ -131,6 +133,7 @@ TODO anyone we'd like to thank
 \include{chapters/discussion}
 \include{chapters/conclusion}
 \printbibliography
+\printglossaries
 
 %-----------------------------------------------------------------------------
 \appendix

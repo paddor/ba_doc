@@ -5,6 +5,7 @@ LISTINGS := $(shell find listings/ -type f)
 main.pdf: $(SOURCES) $(IMAGES) $(LISTINGS)
 	pdflatex -interactive=batchmode $<
 	biber $(basename $@ .pdf)
+	makeglossaries $(basename $@ .pdf)
 	pdflatex -interactive=batchmode $<
 
 .PHONY: all clean

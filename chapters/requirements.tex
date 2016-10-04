@@ -9,12 +9,12 @@ First of all, these are the priorities from the client's point of view in
 descending order:
 
 \begin{enumerate}
-\item clustering
-\item single-level HA
-\item multi-level HA
-\item persistence synchronization
-\item security (optional)
-\item OPC UA HA (optional)
+\item Clustering
+\item Single-level \gls{HA}
+\item Multi-level \gls{HA}
+\item Persistence synchronization
+\item Security (optional)
+\item OPC UA \gls{HA} (optional)
 \end{enumerate}
 
 The following sections explain the requirements in greater detail.
@@ -26,11 +26,10 @@ requirements.
 
 \subsection{Cluster}
 This requirement is to allow running Roadster on multiple nodes in a
-hierarchical topology.  It could also be called "Multi-node CSP", since
-extending the Clone State Protocol will be a central part of it. But it's
-definitely not all that's needed to add cluster functionality.
+hierarchical topology.
 
-The DIM must be kept in sync across all nodes. This means synchronizing the
+Extending the \gls{CSP} to keep the DIM in sync across all nodes is a central
+part of the clustering functionality. This means synchronizing the
 items within the DIM that have \rb{@lifecycle_status = "updated"}. According to
 the Data Model class diagram, these should only be instances of one of three
 classes (marked yellow in the diagram):
@@ -63,11 +62,11 @@ The typical use cases include:
 	\item [ Single level, single node ]
 		This is the legacy setup and is what Roadster is already able to do.
 
-	\item [ Single level HA ]
+	\item [ Single level \gls{HA} ]
 		This is when there are exactly two nodes, both of them
 		connected to the same PLC. There are two nodes for redundancy.
 
-	\item [ Multi level, HA at root only ]
+	\item [ Multi level, \gls{HA} at root only ]
 		There can be multiple levels in the hierarchy, such as two or
 		three (anything else is considered exotic), and there's a HA
 		cluster at the root.

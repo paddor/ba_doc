@@ -11,6 +11,11 @@
 *.lol
 *.lot
 *.toc
+*.glg
+*.glo
+*.gls
+*.glsdefs
+*.xdy
 
 # generated PDFs
 /main.pdf

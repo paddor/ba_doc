@@ -10,6 +10,128 @@ TODO andy's introduction during first Friday morning\\
 TODO first impression of Roadster's code base: very clean, abstractions, loosely coupled, scarcely documented
 
 \section{Testing}
+Diese Section beschreibt die Testmethods welche wir angewandt haben, um die 
+einzelnen Funktionen, das Zusammenspiel der Komponenten, sowie das Verhalten 
+der Applikation als ganzes zu testen. Alle Resultate zu den Tests können im 
+Results Kapitel entnommen werden.
+
+This section describes the test methods we used to check single functions, 
+the components interaction and the behaviour of the whole application.
+All resuts of the tests can be found in the results section.
+
+\subsection(Setup)
+Zur Umsetzung von Continous Integration wird gitlab CI verwendent, weil gitlab
+kostenlos ist im gegensatz zu seinem pendant Travis CI, welches nach mehr als 100
+Builds kostet bei privaten repositorys. 
+Daher wurde gitlab CI auf dem HSR Server installiert und konfiguriert.
+
+Due to the fact that our repository is private, we can't use the online 
+travis ci without to pay for it, because after 100 build it costs.
+We had to install on our hsr server gitlab. Gitlab has a own continous integration 
+which we used for unit and integration test. Each commit execute all unit tests and 
+integration tests. This is straightforward to check if all components work together correctly.
+
+\subsection(Unit test)
+unit test
+Um die Richtigkeit der Implementationen zu gewährleisten wurden Unittests mit
+Ruby Unit gesetzt, welche die Kernfunktionen testen. Die Unit Tests sind im Source Code zu finden. 
+
+To ensure the correctness of the implementations were ruby unit tests set 
+which test the functions. Whenever the functionality of the application was changed or
+a bug was fixed, new tests were added to cover the new behavior.
+An other benefit of the tests was, we could refactoring the code and check 
+if nothing on the behaviour changed.
+
+For each commit to the repository every test has to pass otherwise it is
+an offend against our team contract.
+
+The unit tests can be found in the source code.
+
+\subsection(Integration test)
+Integration tests überprüfen das Zusammenspiel zwischen den einzelnen Komponenten.
+Um unsere Kern Features zu testen (Cluster, HA, persistence) schreiben wir
+integration tests mit ruby unit tests. Dazu starten wir jeden Node als eigenen Prozess.
+ZMQ erlaubt es uns die "Inter-Kommunikation" auch über Prozesse zu testen.
+Um Verbindungsprobleme zu testen werden die einzelnen Prozess "gekillt" um ein Failover zu erzwingen.
+
+Integration tests verify the interaction between the individual components. 
+To test our core features (like cluster, high availability, persistence). We wrote integration
+tests with ruby unit tests. To test the interaction between nodes, we started the roadster application
+in different process. ZMQ allows us to interact between process and they will act like internode connections.
+In order to test the failover or synchronization functionality the individual process - "node" 
+can be killed and started again later if the scenario defines this.
+
+More detail about the integration tests scenarios can be found under the results chapter.
+
+\subsection(Continous integration)
+Continous Integration soll Aushilfe schaffen beim Elimnieren von Integration Problemen. 
+Daher wird CI bei jedem Push ins Github Repository ausgeführt. Dazu überwacht gitlab 
+das Repository und führt das definierte Build zum Projekt aus
+Dieses Build beinhaltet das installieren von Abhängigkeiten, das Installieren der Roadster app und
+zu guter letzt das Ausführen der Tests. 
+
+Continous integration helps us to prevent integration problems also known as "integration hell". On
+each push to the repository will trigger an CI check. Therefore gitlab hooks our repository and 
+runs the defined build from the project. A Build containts the installation of the dependencies, 
+installing the roadster app and the carrying out of tests.
+
+\subsection(System test)
+\subsubsection(Setup)
+Systemtests dienen dazu die Applikation unter realen Bediengungen zu testen. Um eine fast realitätsnah
+Umgebung zu erschaffen, kam mininet, jnettop und fake SPS Steuerungen zum Einsatz. 
+\begin{description}
+	\item [Mininet:]
+		Mininet erlaubt es adhoc VirtuelMachine's zu starten, 
+		welche einen gemeinsamen Kernel teilen.
+		Dies ermöglicht es auf einem Rechner viele Nodes/Rechner zu starten. 
+		Mittels mininet können auch Verbindungen zwischen Nodes getrennt werden
+		um Netzwerkprobleme zu simulieren. 
+	\item [jnettop:]
+		jnettop simuliert Netzkapazitätprobleme auf den einzelnen Verbindungen.
+	\item [fake sps:]
+		Fake SPS Steuerungen sind einfache Scripts, welche auf Anfragen antworten.
+\end{description}
+
+Alle Ereignise wurden in Logdateien gespeichert, welche für die Auswertung des Ergebnis gebraucht wurden. 
+Mit einem Ruby Programm wurden diese Logdateien auf korrektheit überprüft.
+Alle Systemtests wurden manuell nach jeder construction phase ausgeführt.
+
+System tests are designed to test the application under real conditions. 
+To create an almost realistic environment we used mininet, jnettop and fake PLC controls for deployment.
+
+\begin{description}
+	\item [Mininet:]
+		Mininet allows adhoc start VirtuelMachine's, which share a common kernel.
+		This makes it possible on a computer to start many nodes / hosts. 
+		Mininet can also simulated connection problems between nodes.
+	\item [jnettop:]
+		jnettop simulated network capacity problems on the individual network connections between the nodes.
+	\item [fake sps:]
+		Fake PLC controls are simple scripts that respond to requests.
+\end{description}
+
+All events were stored in log files, which were used for the evaluation of the result. 
+A Ruby program checked these log files on correctness. All system tests were performed manually 
+after each construction iteration.
+
+\subsubsection(Test scenarios)
+Die Testszenarien enthalten primär nur mögliche Bediengungen wie sie in einer realen Situation anzutreffen sind. Aus wissenschaftlichen Interesse wurden weitere Szenarien
+getestet, welche den Extremfall abbilden sollten.
+
+The test scenarios only includes possible combinations as they are encountered in a real situation. From scientific interest
+we added more test scenarios, which reflected the extreme cases.
+
+ML-HA
+	Multi Layer mit zwei ebenen. Die erste Ebene enthält ein Node, welches die Steuerungen überwacht. Die zweite Eben hat einen Primary und Backup.
+SL-HA	Single Layer. Ein Primay und Backup Node welche beide direkt mit der Steuerungen verbunden sind.
+Persistence wird bei allen Tests mit geprüft, da sie zu Non functional requirements gehört und bei allen Szenarien aktiv ist.
+
+Extremfall todo
+	3 Ebenen mit 1 ebe
+	
+Testszenarien enthalten die Konfiguration von Mininet und den einzelnen Nodes. Der Ablauf der Szenarios wurde im Detail beschrieben um die Ergebnisse reproduzierbar zu machen.
+
+
 TODO work out methodology (maybe with mininet, shell scripts, and analyze logs retrospectively)\\
 TODO integration tests at the end of every iteration\\
 TODO system tests at end of construction\\

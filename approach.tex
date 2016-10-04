@@ -267,7 +267,12 @@ what's happening in the existing CSP within a single node.
 	\item only node A has write access to values on A (to avoid uncertain situations involving race conditions), e.g.:
 \end{itemize}
 
-\includegraphics[width=\textwidth]{img/cluster_protocol.pdf}
+\begin{figure}[!ht]
+	\includegraphics[width=\textwidth]{img/cluster_protocol.pdf}
+	\caption{Cluster setup between a supernode and two subnodes}
+	\label{fig:cluster}
+\end{figure}
+% TODO: mention figure in text
 
 \subsection{Node Typology Definition}
 
@@ -277,6 +282,7 @@ what's happening in the existing CSP within a single node.
 	\item maybe a HA pair is one DIM object, has one name, but two IP addresses (primary and backup, in order)
 \end{itemize}
 
+% TODO: shorten and and wrap into a figure
 \begin{lstlisting}[style=customruby]
 # * basic method to add a node: #add_node(ID, south_facing_bind_endpoint)
 # * it takes a block for defining subnodes
@@ -461,7 +467,12 @@ which are normally transmitted through the network link.
 
 TODO new actor: COMM PLCVOTER\\
 
-\includegraphics[width=\textwidth]{img/SL-HA_bstar.pdf}
+\begin{figure}[!ht]
+	\includegraphics[width=\textwidth]{img/SL-HA_bstar.pdf}
+	\caption{Single level HA setup between a HA pair and a PLC}
+	\label{fig:sl-ha}
+\end{figure}
+% TODO: mention figure in text
 
 \subsubsection{Caveats}
 Special attention needs to be paid when it comes to writing these life signs. A
@@ -491,7 +502,12 @@ passive node in case the active node fails. These requests will count as votes
 to fulfill the second condition that has to be met for a failover to be
 initiated.
 
-\includegraphics[width=\textwidth]{img/ML-HA_bstar.pdf}
+\begin{figure}[!ht]
+	\includegraphics[width=\textwidth]{img/ML-HA_bstar.pdf}
+	\caption{Multi level HA setup between a HA pair and a number of client nodes}
+	\label{fig:ml-ha}
+\end{figure}
+% TODO: mention figure in text
 
 %----------------------------------------------------------------------------
 \section{Persistence Synchronization}\label{sec:meth:psync}

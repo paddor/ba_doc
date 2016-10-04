@@ -524,6 +524,8 @@ A big drawback is that the synchronization doesn't happen in real-time. This
 doesn't seem to fit well into the overall Roadster architecture, which is
 completely event-driven (no polls or "sleeps").
 
+TODO another drawback: computing the diff might be heavy (depending on DB)
+
 In case the supernode is a HA pair, this variant would generate duplicated
 traffic. To avoid this, another pair of sockets has to be introduced to
 synchronize persistence between a HA pair. This also means designing another

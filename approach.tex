@@ -532,6 +532,7 @@ There are multiple aspects involved in persistence synchronization:
 
 \subsection{Variants}
 There are multiple variants to achieve the needed functionality.
+% NOTE: Client seems to favor polling.
 
 \subsubsection{Polling only}
 The supernode just periodically request persistence
@@ -631,18 +632,31 @@ TODO: describe reasonable default setting, in case we change ZMQ's default.
 
 
 \section{Security}\label{sec:meth:security}
-TODO This is the optional goal.\\
-TODO briefly describe \zmq's security features, what's left for us to decide (key destribution, if at all)\\
-TODO how it can be verified (-> using wireshark)\\
-TODO why curvezmq is awesome (confidentiality, integrity, availability (server keeps no state until client is fully authenticated)
+Encrypted communication can be achieved using \zmq's transport encryption,
+which is completely transparent to the application. It uses the \gls{libsodium}
+library to do this, although there's also the possibility to do it using
+\gls{tweetnacl} to avoid the additional dependency. The handshake is designed
+to be immune against flooding, using encrypted and authenticated cookies, so
+the server does not have to allocate any resources before the handshake is
+completed.
 
+Server authentication is always done, by specifying the server's public key on
+the client side socket.  Client authentication is optional. If done, the server
+side socket will talk to an additional socket responsible to authenticate
+clients by their public keys. The protocol between these two sockets is called
+\gls{ZAP}. Completely abstracting the authentication in another socket allows
+any kind of authentication service to be plugged in.
 
+%TODO briefly describe \zmq's security features, what's left for us to decide (key destribution, if at all)\\
 
 
 \section{OPC UA Interface: High Availability}\label{sec:meth:opc-ua}
 TODO This is the optional goal.\\
 TODO explain new opportunity for OPC UA HA server\\
 TODO describe whatever needs to be described\\
+
+
+\cite[6.4.2.4 Non-transparent Redundancy, p.~96]{opc-ua:behavior:server-redundancy} describes the exact behavior.
 
 \begin{itemize}
 	\item study standard

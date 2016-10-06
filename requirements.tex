@@ -104,14 +104,17 @@ The kinds of failures that need to be handled include:
 \end{itemize}
 
 \subsection{Persistence Synchronization}
-This is about the synchronization of the TokyoCabinet databases. Data flow is
-from south to north (towards the root node), so the root node collects and
-maintains a replication of the persisted data of all subnodes, recursively.
+This is about the synchronization of persisted data, which is currently stored
+in TokyoCabinet databases on a Roadster node. With the clustering, this is
+still true: Every node will have its own key-value store. Updates for persisted
+data must only flow from south to north (towards the root node), so the root
+node can collect and maintain a replication of the persisted data of all
+subnodes, recursively.
 
 It's important that every node and its subnodes form an autonomous subtree. So
 in case the link to its supernode fails, it has to continue working. As soon as
-the link is repaired, the delta of the newly added data to the database can be
-bubbled up. Sending just the delta should be possible since keys in the
+the link is repaired, synchronization of the delta (the newly added data) can
+be initiatd. Sending just the delta should be possible since keys in the
 database contain timestamps.
 
 This is not the same as \gls{CHP} (\gls{DIM} synchronization), as the DIM is shared across
@@ -120,28 +123,49 @@ can possibly contain large amounts of data (in the hundreds of megabytes) and
 are shared only towards the root node (thus "bubbling up").
 
 100\% consistency is not an absolute requirement for persistence synchronization.
+However, it is mandatory that updates make it to the root node within 30 seconds.
 
 \subsection{Security}
-TODO common concern about SCADA systems lacking security\\
+\emph{This is optional.}
 
-\begin{itemize}
-	\item transport needs to be secure (encrypted and authenticated)
-	\item TODO verify requirements with Andy (we didn't really discuss this
-		during the meeting)
-	\item this requirement comes as the last mandatory goal not because
-		it's insignificant, but because it's easy to enable transport
-		level security on ZMQ sockets, and it would just interfere with
-		the previous development
-\end{itemize}
+The communication between a given set of Roadster nodes must be secured using
+encryption.
+% TODO: wait for Andy's answer on #9
+% TODO common concern about SCADA systems lacking security\\
+
+This requirement comes last not because it's insignificant, but because it's
+easy to enable transport level security on ZMQ sockets, and it would just
+interfere with the previous development if that turns out to be difficult.
 
 \subsection{OPC UA HA}
-\begin{itemize}
-	\item provide standardized interface upwards from HA pair
-\end{itemize}
+\emph{This is optional.}
+
+A given \gls{HA} pair needs to provide an OPC UA Server Redundancy interface,
+as described in \cite[6.4.2.4 Non-transparent Redundancy,
+p.~96]{opc-ua:behavior:server-redundancy}.
 
 % ---------------------------------------------------------------------------
 \section{Use Cases}
-TODO maybe there are any?
+% TODO intro
+
+\subsection{UC01: Cluster}
+% TODO
+
+\subsection{UC02: Hardware failure at top}
+% TODO
+
+\subsection{UC03: Hardware failure at bottom}
+% TODO
+
+\subsection{UC04: Persistence synchronization}
+% TODO
+
+\subsection{UC05: Security}
+% TODO
+
+\subsection{UC05: OPC-UA HA}
+% TODO
+
 
 % ---------------------------------------------------------------------------
 \section{Non-Functional Requirements}

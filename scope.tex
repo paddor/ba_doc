@@ -88,12 +88,12 @@ TODO creation of cztop-patterns (as mentioned in the Mgmt Summary)\\
 
 \subsection{mindclue GmbH}
 \subsubsection{About}
-Die Firma mindclue GmbH mit Sitz in Ziegelbrücke GL/SG stellt für ihren
-Partner REMTEC AG für Steuerungen, Regelungen und Überwachungen von technischen Prozessen,
-komplette SCADA- und Steuerungssysteme her. Dabei sind sie in den Bereichen
-Betriebs-und Sicherheitausrüstung für Nationalstrassen, Trinkwasser-
-versorgungen, im Energiesektor und vielen Spezielbereichen tätig.
-Dabei setzen sie auf ihre eigens entwickelte Applikation - Roadster.
+The company mindclue GmbH, located in Ziegelbr\"ucke provides its partner
+REMTEC AG with complete SCADA applications. These are then used to control and
+monitor operational and safety equipment found in national freeways, water
+supply systems, as well as in energy facilities and many other specialized
+fields. To build these customized applications, their in-house creation
+Roadster, a next-generation SCADA framework, is used.
 
 \subsubsection{Roadster}
 Roadster ist eine Ereignis gesteuerte Applikation geschrieben in Ruby.
@@ -265,6 +265,9 @@ internally. They reside in the messaging communication layer, and include:
 \end{description}
 
 Every actor in Roadster uses a subset of these protocols to perform its job.
+
+% Fire+Forget: no guarantee of correct processing. E.g. DIM updates from COMM to CORE
+% TODO: Dialogs: immediate answer, synchronous looking code (but still handled with async messaging). E.g. creating a user session
 
 \section{Goals}
 TODO preprocessed mandatory goals\\

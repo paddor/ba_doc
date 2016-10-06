@@ -244,6 +244,28 @@ The communication architecture in Roadster consists of three layers. The followi
 TODO use PDF
 \end{figure}
 
+\subsubsection{\gls{RMP}}
+These are a collection of protocols implemented and used by Roadster
+internally. They reside in the messaging communication layer, and include:
+
+\begin{description}
+	\item [\gls{CSP}:]\hfill\\
+		Used to synchronize state between the actors.
+	\item [\gls{ACP}:]\hfill\\
+		Used to control the application state, e.g. things like shutdown.
+	\item [\gls{PDP}:]\hfill\\
+		Used when data needs to be persisted.
+	\item [\gls{SMP}:]\hfill\\
+		Used to suppress the generation of certain \glspl{case}, e.g.
+		when a sensor is defect and repeatedly causes cases.
+	\item [\gls{CTP}:]\hfill\\
+		Used for asynchronous command execution with feedback.
+	\item [\gls{LOG}:]\hfill\\
+		Used for system logging.
+\end{description}
+
+Every actor in Roadster uses a subset of these protocols to perform its job.
+
 \section{Goals}
 TODO preprocessed mandatory goals\\
 TODO retrospective, diff with initial goals\\

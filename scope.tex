@@ -215,7 +215,27 @@ Every Roadster node runs a group of actors:
 \end{figure}
 
 \subsubsection{Communication Layers}
-TODO briefly explain layers. \autoref{fig:roadster:layers} illustrates the three layers.
+The communication architecture in Roadster consists of three layers. The following list briefly explains the layers from top (most abstracted) to bottom:
+
+\begin{description}
+	\item [Reactor layer:]\hfill\\
+		This layer forms the base, which is where the \zmq sockets and
+		WebSockets used. In case of COMM actors, there can also be raw
+		TCP sockets, e.g. to interact with certain \glspl{PLC}.
+
+	\item [Messaging layer:]\hfill\\
+		The \gls{RMP} reside here implement essential protocols used
+		for logging, state synchronization, commands, application
+		shutdown, and storage. They're explained below.
+
+	\item [Engine layer:]\hfill\\
+		Here is the business logic of Roadster, e.g. the \gls{DIM},
+		user authentication, adapters for different devices, the web
+		\gls{UI}, etc.
+\end{description}
+
+
+\autoref{fig:roadster:layers} illustrates the three layers.
 
 \begin{figure}[!ht]
 	\includegraphics[trim=2cm 2.5cm 1cm 2.8cm, clip=true, width=\textwidth]{img/roadster_layering.png}

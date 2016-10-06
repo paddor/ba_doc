@@ -93,7 +93,7 @@ Mit einem Ruby Programm wurden diese Logdateien auf korrektheit überprüft.
 Alle Systemtests wurden manuell nach jeder construction phase ausgeführt.\\
 \\
 System tests are designed to test the application under real conditions. 
-To create an almost realistic environment we used mininet, jnettop and fake PLC controls for deployment.
+To create an almost realistic environment we used mininet, jnettop and fake \gls{PLC} controls for deployment.
 \begin{description}
 	\item [Mininet:]
 		Mininet allows adhoc start VirtuelMachine's, which share a common kernel.
@@ -102,7 +102,7 @@ To create an almost realistic environment we used mininet, jnettop and fake PLC 
 	\item [jnettop:]
 		jnettop simulated network capacity problems on the individual network connections between the nodes.
 	\item [fake sps:]
-		Fake PLC controls are simple scripts that respond to requests.
+		Fake \gls{PLC} controls are simple scripts that respond to requests.
 \end{description}
 
 All events were stored in log files, which were used for the evaluation of the result. 
@@ -168,9 +168,9 @@ TODO election/design of appropriate protocol\\
 \emph{This is a brief introduction/refresher for the Clone State Pattern
 implemented by Roadster. Although Roadster actually sends serialized instances
 of CSP message classes to fulfill this protocol, for better readability the
-Zguide's canonical nomenclature of Clone Pattern messages will be used.}
+\gls{zguide}'s canonical nomenclature of \gls{clone-pattern} messages will be used.}
 
-The existing CSP is closely related to the Clone Pattern from the Zguide\footnote{\url{FIXME}}. Its
+The existing \gls{CSP} is closely related to the \gls{clone-pattern} from the \gls{zguide}. Its
 goal is to keep a state (a list of key-value pairs) in sync across a set of
 participants. To greatly reduce the complexity, it's not decentralized: There's
 a server part which serves as the single source of truth.
@@ -403,7 +403,7 @@ Failures that won't be covered include:
 		dreaded split brain syndrome.
 
 	\item [Failure of the link between a HA peer node and the PLC]
-		The Binary Star alrogrithm won't initiate a failover since the
+		The \gls{bstar} algorithm won't initiate a failover since the
 		active is still alive and is able to tell the passive node so.
 		The missing life signs via the PLC could cause an alarm, but no
 		failover, since they're only half of the conditions that have
@@ -439,7 +439,7 @@ or the backup one), the newly repaired node will become the new passive node.
 \subsubsection{Failover from Backup to Primary}
 Once failed over, the newly actve backup node stays active. It does so until it
 fails itself, at which point the now repaired, up and running primary node will
-take over. This works because the Binary Star protocol operates symmetrically
+take over. This works because the \gls{bstar} operates symmetrically
 after successful initialization. But it never automatically switches back to
 make the primary node the new active one without a failure. This is key. If a
 node goes down, the failover happens automatically, but anything else will
@@ -461,7 +461,7 @@ done by both the active and the passive node, which reduces code complexity.
 
 The passive node will check the active node's life signs periodically as well.
 In case the life signs cease, it can give its vote to the COMM BSTAR actor.
-This would satisfy the second condition of the Binary Star protocol for a
+This would satisfy the second condition of the \gls{bstar} for a
 failover to take place. The first condition would be the missing heartbeats
 which are normally transmitted through the network link.
 
@@ -496,8 +496,8 @@ mentioned above\\
 TODO: adapter
 
 \subsection{Multi Level}
-This kind of HA setup is closely related to the Binary Star Pattern described
-in the zguide, meaning that there will be actual requests from client on the
+This kind of \gls{HA} setup is closely related to the \gls{bstar} described
+in the \gls{zguide}, meaning that there will be actual requests from client on the
 passive node in case the active node fails. These requests will count as votes
 to fulfill the second condition that has to be met for a failover to be
 initiated.
@@ -588,7 +588,7 @@ pair of sockets, another protocol to be designed, and more moving parts
 overall.
 
 \subsubsection{PUB/SUB}
-This is similar to CSP/CHP. It's not 100\% reliable, but even with unstable
+This is similar to \gls{CSP}/\gls{CHP}. It's not 100\% reliable, but even with unstable
 links, no data loss will occur if the client (the supernode) is able to reconnect within a
 specific amount of time. \zmq's default for that amount is 10 seconds. As the
 requirements specify, 100\% consistency is not mandatory for the persistent
@@ -611,7 +611,7 @@ Procedure (for each subnode):
 
 \subsection{Chosen Variant}
 We'll most likely go with the PUB-SUB variant, since it's simple and is similar to
-what's used for the new CSP in conjunction with multi-node HA. It provides the best
+what's used for the new \gls{CSP} in conjunction with multi-node \gls{HA}. It provides the best
 opportunities to improve efficiency later on.
 
 Its possible performance issues can be ignored right now, as trying to fix them

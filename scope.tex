@@ -74,22 +74,21 @@ zwischen AS und AR geschieht über "OPC UA".
 \subsection{\zmq}
 \emph{For a more detailed introduction, see \autoref{ch:zmq}.}
 
-%TODO add acronyms/abbreviations to glossary (TIPC, TCP, PGM, MOM, BSD, NaCl, ...)
 To understand Roadster's architecture and the rest of this document, it's
 helpful to understand the basics of \zmq (sometimes written as ZeroMQ or simply
 ZMQ) first. This is a brief introduction to \zmq for the unfamiliar reader.
 
-\zmq is a MOM implemented as an open source library, that is, it doesn't
+\zmq is a \gls{MOM} implemented as an open source library, that is, it doesn't
 require a dedicated broker. Instead, it offers sockets with an abstract
-interface similar to BSD sockets. Different types of sockets are used for
+interface similar to \acrshort{BSD} sockets. Different types of sockets are used for
 different messaging patterns such as request-reply, publish-subscribe, and
 push-pull.
 
 A single socket can bind/connect to multiple endpoints, which allows \zmq to
 use round-robbin on the sender side, and fair-queueing on the receiver side,
 where applicable. It doesn't matter whether the communication happens
-in-process (between threads), inter-process (e.g. over Unix Domain Sockets), or
-inter-node (e.g. over TCP/PGM/TIPC), since the transport is completely
+in-process (between threads), inter-process (e.g. over \glspl{unix-domain-socket}), or
+inter-node (e.g. over \acrshort{TCP}/\acrshort{PGM}/\acrshort{TIPC}), since the transport is completely
 abstracted away. The same goes for connection handling; an arbitrary amount of
 connections is handled over a single socket and reconnecting after short
 network failures is done transparently.
@@ -98,7 +97,7 @@ network failures is done transparently.
 also be used as the fabric of concurrent applications, e.g. for the actor
 model. In case of the TCP transport, it incorporates advanced techniques such
 as smart message batching to achieve significantly higher throughputs than with
-raw TCP or other MOM solutions \cite[Figure 2, Middleware evaluation and
+raw TCP or other \gls{MOM} solutions \cite[Figure 2, Middleware evaluation and
 prototyping, p.~4]{cern:new-cmw}.
 
 To build a solution with \zmq, its sockets are used as building blocks to
@@ -113,7 +112,7 @@ robust, distributed high-performance systems.
 \subsubsection{Transport Security}
 Since version 4.0, \zmq boasts state of the art encryption and authentication,
 based on the excellent and highly renown
-NaCl\footnote{\url{http://nacl.cr.yp.to}} library.
+\gls{nacl}\footnote{\url{http://nacl.cr.yp.to}} library.
 
 \subsubsection{Data Serialization}
 Data serialization is outside the scope of \zmq. To fill the gap, one typically
@@ -125,7 +124,7 @@ support\footnote{such as Ruby's marshalling support:
 \url{http://ruby-doc.org/core/Marshal.html}}.
 
 \subsubsection{CZMQ}
-CZMQ is a high-level abstraction layer for \zmq. It makes working with the \zmq
+\gls{czmq} is a high-level abstraction layer for \zmq. It makes working with the \zmq
 library more expressive and allows for better portability. It also provides
 additional functionality such as a reactor, a simple actor implementation, as
 well as utilities for certificate and authentication handling, and LAN node
@@ -156,7 +155,7 @@ Every Roadster node runs a group of actors:
 
 	\item [COMM:]
 		A bunch of COMM actors communicate with the outside world of a
-		node. This can be different kind of PLCs or higher level
+		node. This can be different kind of \glspl{PLC} or higher level
 		monitoring systems. Each COMM actor uses an adapter
 		specifically written for a single communication protocol.
 

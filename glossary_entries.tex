@@ -1,32 +1,120 @@
 % vim: ft=tex
+
+% general
+\newacronym{HA}{HA}{high availability}
+\newacronym{OPC}{OPC}{Open Platform Communications}
+\newacronym{UA}{UA}{Unified Architecture}
+\newacronym{RUP}{RUP}{Rational Unified Process}
+\newacronym{TIPC}{TIPC}{Transparent Inter-Process Communication}
+\newacronym{TCP}{TCP}{Transmission Control Protocol}
+\newacronym{PGM}{PGM}{Pragmatic General Multicast}
+\newacronym{MOM}{MOM}{Message Oriented Middleware}
+\newacronym{BSD}{BSD}{Berkeley Software Distribution}
+\newacronym{PLC}{PLC}{Programmable Logic Controller}
+\newacronym{SCADA}{SCADA}{Supervisory Control and Data Acquisition}
+\newacronym{DSL}{DSL}{Domain Specific Language}
+\newacronym{CHP}{CHP}{Clustered Hashmap Protocol}
+\newacronym{UI}{UI}{user interface}
+\newacronym{FFI}{FFI}{Foreign Function Interface}
+
+% Roadster terminology
+\newacronym{DIM}{DIM}{Domain Information Model}
+\newacronym{CSP}{CSP}{Clone State Protocol}
+\newacronym{RMP}{RMP}{Roadster Messaging Protocols}
+\newacronym{ACP}{ACP}{Application Control Protocol}
+\newacronym{CSP}{CSP}{Clone State Protocol}
+\newacronym{CTP}{CTP}{Command Transaction Protocol}
+\newacronym{SMP}{SMP}{Supress Management Protocol}
+\newacronym{PDP}{PDP}{Persistent Data Protocol}
+
 \newglossaryentry{zmq}{
 	name={\zmq},
-	description={High-performance socket library for advanced messaging}
+	description={High-performance socket library and concurrency framework for advanced messaging},
+	sort={0MQ}
 }
 \newglossaryentry{ruby}{
 	name={Ruby},
 	description={A modern and expressive scripting language from Japan}
 }
-\newglossaryentry{actor model}{
+\newglossaryentry{c}{
+	name={C},
+	description={A compiled, imperative, very influential low-level
+		programming language, invented in the early 1970s as a Unix system
+		programming language. Compared to other languages, it very simple,
+		knows only a handful of primitives and keywords.}
+}
+\newglossaryentry{actor-model}{
 	name={Actor Model},
 	description={A mathematical model for concurrent computation where
 		there's no shared state and all communication between actors
 		happens through messages}
 }
-\newacronym{HA}{HA}{high availability}
-\newacronym{CSP}{CSP}{Clone State Protocol}
-
-\newacronym{OPC}{OPC}{Open Platform Communications}
-\newacronym{UA}{UA}{Unified Architecture}
-\newacronym{SCADA}{SCADA}{Supervisory Control and Data Acquisition}
-
-% Binary Star
-% CSP
-% CHP
-% Zguide
-%TODO add acronyms/abbreviations to glossary (TIPC, TCP, PGM, MOM, BSD, NaCl, ...)
-% CZTop
-% CZMQ
-% DSL
+\newglossaryentry{zguide}{
+	name={Zguide},
+	description={An extensive online
+		document\footnote{\url{http://zguide.zeromq.org/page:all}} describing
+		best-practice patterns for \gls{zmq}}
+}
+\newglossaryentry{bstar}{
+	name={Binary Star Pattern},
+	description={A fairly simple hot-standby and failover mechanism to
+		achieve high availability between two servers, described as a reliable
+		request-reply pattern in the \gls{zguide}}
+}
 
 
+\newglossaryentry{clone-pattern}{
+	name={Clone Pattern},
+	description={A client-server protocol to share state (a list of
+		key-value pairs) across multiple clients, described as a reliable
+		pub-sub pattern in the \gls{zguide}}
+}
+
+\newglossaryentry{unix-domain-socket}{
+	name={Unix Domain Sockets},
+	description={Named pipes for extremely performant, duplex inter-process
+		communication on Unix systems}
+}
+
+\newglossaryentry{case}{
+	name={case},
+	description={An alarm in a Roadster application that needs to be confirmed}
+}
+
+\newglossaryentry{LOG}{
+	name={LOG protocol},
+	description={Used within Roadster for system logging}
+}
+
+\newglossaryentry{KISS}{
+	name={KISS},
+	description={The design principle ``Keep it simple, stupid'', which
+		favors simplicity over complexity}
+}
+
+\newglossaryentry{wrapper-facade}{
+	name={wrapper fa\c{c}ade},
+	description={A structural software design pattern which provides an
+		object-oriented fa\c{c}ade to a low-level functional subsystem or
+		library}
+}
+
+\newglossaryentry{czmq}{
+	name={CZMQ},
+	description={A thin abstraction layer (\gls{wrapper-facade}) for
+		\gls{zmq} with some additional functionality, written in clean and
+		elegant C}
+}
+\newglossaryentry{cztop}{
+	name={CZTop},
+	description={A modern, \gls{FFI} based \gls{ruby} binding for \gls{czmq}, written by Patrik Wenger}
+}
+
+\newglossaryentry{nacl}{
+	name={NaCl},
+	description={Networking and Cryptography Library. Modern, state-of-the-art cryptography library, created by the brilliant Daniel J. Bernstein. \url{https://nacl.cr.yp.to}}
+}
+\newglossaryentry{libsodium}{
+	name={libsodium},
+	description={A portable and installable variant of \gls{nacl}. \url{https://libsodium.org}}
+}

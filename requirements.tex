@@ -27,7 +27,7 @@ requirements.
 This requirement is to allow running Roadster on multiple nodes in a
 hierarchical topology.
 
-Extending the \gls{CSP} to keep the DIM in sync across all nodes is a central
+Extending the \gls{CSP} to keep the \gls{DIM} in sync across all nodes is a central
 part of the clustering functionality. This means synchronizing the
 items within the DIM that have \rb{@lifecycle_status = "updated"}. According to
 the Data Model class diagram, these should only be instances of one of three
@@ -114,7 +114,7 @@ the link is repaired, the delta of the newly added data to the database can be
 bubbled up. Sending just the delta should be possible since keys in the
 database contain timestamps.
 
-This is not the same as CHP (DIM synchronization), as the DIM is shared across
+This is not the same as \gls{CHP} (\gls{DIM} synchronization), as the DIM is shared across
 all nodes and is a relatively small data structure. The TokyoCabinet databases
 can possibly contain large amounts of data (in the hundreds of megabytes) and
 are shared only towards the root node (thus "bubbling up").
@@ -150,8 +150,9 @@ The two reoccuring patterns that surfaced during the requirements gathering
 meeting were:
 
 \begin{enumerate}
-\item KISS principle -- ``Keep it simple, stupid.'' Simplicity is favored,
-	unnecessary complexity should be avoided.
+\item \gls{KISS} principle. Simplicity is favored, as experience shows that
+	simpler systems are more stable, so complexity should be avoided if not
+	absolutely necessary.
 
 \item No premature optimization since it's the root of all evil.\footnote{Quote
 	by Donald Knuth: ``Premature optimization is the root of all evil.''}

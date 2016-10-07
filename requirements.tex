@@ -125,18 +125,6 @@ are shared only towards the root node (thus "bubbling up").
 100\% consistency is not an absolute requirement for persistence synchronization.
 However, it is mandatory that updates make it to the root node within 30 seconds.
 
-\subsection{Security}
-\emph{This is optional.}
-
-The communication between a given set of Roadster nodes must be secured using
-encryption.
-% TODO: wait for Andy's answer on #9
-% TODO common concern about SCADA systems lacking security\\
-
-This requirement comes last not because it's insignificant, but because it's
-easy to enable transport level security on ZMQ sockets, and it would just
-interfere with the previous development if that turns out to be difficult.
-
 \subsection{OPC UA HA}
 \emph{This is optional.}
 
@@ -146,29 +134,36 @@ p.~96]{opc-ua:behavior:server-redundancy}.
 
 % ---------------------------------------------------------------------------
 \section{Use Cases}
-% TODO intro
+The use cases are briefly described here.
 
 \subsection{UC01: Cluster}
-% TODO
+A root node R has two subnodes A and B. A user connected to the root node's web
+UI wants to suppress a case repeatedly generated on subnode A. The DIM shall be
+kept in sync across all nodes.
 
 \subsection{UC02: Hardware failure at top}
-% TODO
+A subnode A is connected to a root-level HA pair (nodes R1 and R2). The active
+HA peer (R1) crashes. R2 is supposed to take over as soon as subnode A fails
+over to R2.
 
 \subsection{UC03: Hardware failure at bottom}
-% TODO
+A HA pair is connected to a field device. The active nodes crashes. The passive
+one has to notice and take over to ensure continued monitoring of and access to
+the field device.
 
 \subsection{UC04: Persistence synchronization}
-% TODO
-
-\subsection{UC05: Security}
-% TODO
+A root node R has two subnodes A and B. Persisted data on A has to bubble up to
+root, even after temporary failure of the link between them. Root eventually
+contains the union of all subnodes' persisted data.
 
 \subsection{UC05: OPC-UA HA}
-% TODO
-
+A HA pair provides an OPC UA interface. On failover, the superordinate system
+shall continue to interact with the leftover HA peer.
 
 % ---------------------------------------------------------------------------
 \section{Non-Functional Requirements}
+The following subsections illustrate the non-functional requirements.
+
 \subsection{Simplicity}
 The two reoccuring patterns that surfaced during the requirements gathering
 meeting were:
@@ -184,10 +179,21 @@ meeting were:
 
 
 \subsection{Testing}
+Regarding testing, the following requirements exist:
 \begin{itemize}
-	\item we write unit tests for our own contributions
-	\item we test the integrated result in a close-to-reality setup
+	\item the student's contributions are verified with at least unit tests
+	\item use cases shall be integration tested in a close-to-reality setup
 \end{itemize}
+
+\subsection{Security}
+\emph{This is optional. Also, this requirement has the lowest priority not
+because it's insignificant, but because it's easy to enable transport level
+security on ZMQ sockets.}
+
+The communication between a given set of Roadster nodes must be secured using
+encryption.
+% TODO: wait for Andy's answer on #9
+% TODO common concern about SCADA systems lacking security\\
 
 
 \subsection{Coding Guidelines}

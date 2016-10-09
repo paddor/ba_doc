@@ -60,10 +60,9 @@ likely going to be used in the real world only adds to the excitement.
 
 This bachelor thesis involves working with Ruby, the Actor Model, \zmq,
 distributed computing with high availability, and state-of-the-art
-cryptography. Furthermore, Roadster is a next-generation SCADA framework, and
-the results of this thesis will be used in real-world settings like the Ceneri
+cryptography. Furthermore, in case of successful completion of this thesis, the results will be used in real-world settings like the Ceneri
 Base Tunnel. It is a huge opportunity for a solution completely based on free
-and open-source software. The students, as well as the client, strongly believe
+and open-source software interacting with other industrial systems over open standards. The students, as well as the client, strongly believe
 in customized solutions built on reusable, free open-source software.
 
 In addition to that, we look at this bachelor thesis as an opportunity to
@@ -87,20 +86,28 @@ TODO creation of cztop-patterns (as mentioned in the Mgmt Summary)\\
 \section{Initial Situation}
 
 \subsection{mindclue GmbH}
-\subsubsection{About}
-The company mindclue GmbH, located in Ziegelbr\"ucke provides its partner
-REMTEC AG with complete SCADA applications. These are then used to control and
-monitor operational and safety equipment found in national freeways, water
+The company mindclue GmbH, located in Ziegelbr\"ucke, provides its partner
+REMTEC AG with complete \gls{SCADA} applications. These are then used to control and
+monitor operation and safety equipment found in national freeways, water
 supply systems, as well as in energy facilities and many other specialized
 fields. To build these customized applications, their in-house creation
 Roadster, a next-generation SCADA framework, is used.
 
-\subsubsection{Roadster}
-Roadster ist eine Ereignis gesteuerte Applikation geschrieben in Ruby.
-Sie ist die eigentliche \gls{SCADA} Applikation und wird bereits in einer Vielzahl von
-Tunnelanlagen in der Schweiz eingesetzt und dient zur Überwachung der einzelnen Komponenten im Tunnel.
-Durch den modularen Aufbau kann jede Roadster Applikation sich selbst laufen - Autonom.
-Sprich jeder Roadster hat seinen eigenen Webserver und Datenverwaltung.
+\subsection{Roadster}
+Roadster is a SCADA framework written in Ruby. It was, and still
+is, developed to produce next-generation SCADA applications to replace legacy
+solutions based on its predecessor found in numerous tunnel
+facilities in Switzerland.
+
+A Roadster installation combines the following responsibilities:
+
+\begin{itemize}
+	\item interaction with subordinate field devices (monitoring \& controlling)
+	\item persisting data (e.g. certain sensor data, and events)
+	\item sophisticated alarm (\emph{case}) management
+	\item providing an interface (\gls{OPC} \gls{UA}) to superordinate systems
+	\item providing a modern web UI for interaction with operational and executive personnel
+\end{itemize}
 
 \subsubsection{AS - UeLS}
 Roadster ist einer von vielen AS Knoten eines UeLS. Die Kommunikation
@@ -170,7 +177,7 @@ discovery. This is the recommended way of using \zmq nowadays.
 \subsection{Software Architecture}
 TODO more\\
 
-Roadster is event-driven and built on the Actor model, meaning it exhibits a
+As mentioned earlier, Roadster is event-driven and built on the Actor model, meaning it exhibits a
 shared-nothing architecture. Each Roadster node runs a number of Ruby processes
 which communicate via \zmq sockets. The key here is communication:
 

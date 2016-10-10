@@ -11,7 +11,15 @@
 \usepackage{hyperref}
 \usepackage{xspace} % space, but not before punctuation
 \usepackage[hypcap]{caption} % link to top of tables and figures, not to bottom caption
-%\usepackage[parfill]{parskip} % no idented first line of each paragraph
+
+% paragraph spacing, no indentation, with normal list spacing
+\usepackage[parfill]{parskip} % no idented first line of each paragraph
+\usepackage{enumitem}
+\newlength\docparskip
+\parskip=10pt
+\setlength{\docparskip}{\parskip}
+\setlist{nosep, itemsep=5pt, parsep=0pt, before={\parskip=5pt}, after={}}
+
 \usepackage{amssymb} % for \checkmark
 \usepackage{textgreek} % for \textMu
 \usepackage{enumitem} % for \begin{itemize}[label={...}]

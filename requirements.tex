@@ -39,11 +39,13 @@ classes (marked yellow in the diagram):
 	\item \rb{Case}
 \end{itemize}
 
-In addition to that, there needs to be some kind of message routing so a user
+In addition to that, there needs to be a message routing mechanism so a user
 of one node's web UI can send a command to another node where it will be
 executed. An example for this is a forced value in the DIM to ignore the
 actually measured value reported by a device in case the device is known to be
-wrong.
+wrong. The common case where the command is issued at a higher level in the node
+topology is priority. E.g. in a setup with a root node and two
+subnodes A and B, issuing a command on A for B has a low priority.
 
 It's important that every node subtree can live on autonomously even if the
 link to its supernode or the supernode itself fails.
@@ -55,8 +57,8 @@ subnodes directly. This is to ensure that each node is its own source of truth
 for all other nodes in the setup.
 
 
-\subsubsection{Typical Usecases}
-The typical use cases include:
+\subsubsection{Typical topologies}
+The typical topology setups include:
 
 \begin{description}
 	\item [ Single level, single node ]

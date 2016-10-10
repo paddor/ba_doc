@@ -205,9 +205,9 @@ explains the layers from top (most abstracted) to bottom:
 		\gls{UI}, etc.
 
 	\item [Messaging layer:]\hfill\\
-		The \gls{RMP} reside here implement essential protocols used
-		for logging, state synchronization, commands, application
-		shutdown, and storage. They're explained below.
+		The \gls{RMP} reside here and implement essential protocols used
+		for logging, state synchronization, commands, application controlling,
+		and storage. They're explained below in \autoref{sec:rmp}.
 
 	\item [Reactor layer:]\hfill\\
 		This layer forms the base, which is where the \zmq sockets and
@@ -222,7 +222,7 @@ explains the layers from top (most abstracted) to bottom:
 	\label{fig:roadster:layers}
 \end{figure}
 
-\subsubsection{RMP}
+\subsubsection{RMP}\label{sec:rmp}
 The \gls{RMP} are a collection of protocols implemented and used by Roadster
 internally. They reside in the messaging communication layer, and include:
 
@@ -244,7 +244,8 @@ internally. They reside in the messaging communication layer, and include:
 
 Every actor in Roadster uses a subset of these protocols to perform its job.
 
-Passing messages from actor to actor happens in one of two modes:
+Passing messages from actor to actor, which are nothing but serialized Ruby
+objects, happens in one of two modes:
 \begin{description}
 \item [Fire \& Forget:]
 No guarantee of correct processing, e.g. DIM updates from COMM to CORE. This

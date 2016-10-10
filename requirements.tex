@@ -57,31 +57,52 @@ subnodes directly. This is to ensure that each node is its own source of truth
 for all other nodes in the setup.
 
 
-\subsubsection{Typical topologies}
+\subsubsection{Topologies}
 The typical topology setups include:
 
 \begin{description}
-	\item [ Single level, single node ]
-		This is the legacy setup and is what Roadster is already able to do.
+	\item [ Single level, single node ] \hfill\\
+		This is the legacy setup and is what Roadster is already able
+		to do. Consisting of only one node, it's not actually a cluster.
+		% TODO: illustration
 
-	\item [ Single level \gls{HA} ]
+	\item [ Multi level, without \gls{HA} ] \hfill\\
+		This is the most basic cluster setup. There is a root node, and
+		two subnodes. Each subnode is directly connected to a field device such as a
+		PLC or an emergency phone. This is illustrated in
+		\autoref{fig:cluster_example}.
+
+	\item [ Single level \gls{HA} ] \hfill\\
 		This is when there are exactly two nodes, both of them
 		connected to the same PLC. There are two nodes for redundancy.
+		% TODO: illustration
 
-	\item [ Multi level, \gls{HA} at root only ]
+	\item [ Multi level, \gls{HA} at root only ] \hfill\\
 		There can be multiple levels in the hierarchy, such as two or
 		three (anything else is considered exotic), and there's a HA
 		cluster at the root.
+		% TODO: illustration
 \end{description}
 
-% TODO: illustrate using diagrams
+\begin{figure}[]
+	\center
+	\includegraphics[width=0.6\textwidth]{img/cluster_example.pdf}
+	\caption{Physical cluster topology example: supernode, two subnodes, a field device each}
+	\label{fig:cluster_example}
+\end{figure}
 
-The exotic cases which can be ignored, if need be, include:
 
-\begin{itemize}
-	\item Multi level, HA at bottom
-	\item Multi level, HA in the middle
-\end{itemize}
+The following exotic cases can be ignored:
+
+\begin{description}
+	\item [ Multi level, \gls{HA} at bottom ] \hfill\\
+	A single root node at the top and a subordinate HA pair each connected
+	to the same field device.
+
+	\item [ Multi level, \gls{HA} in the middle ] \hfill\\
+	A single root node at the top, a subordinate HA pair, which in turn has
+	a subordinate node connected to some field device.
+\end{description}
 
 
 \subsection{Single level HA}

@@ -254,8 +254,7 @@ Not every node in a cluster is the same: Some are only connected with other
 nodes, some also talk to field devices. To define different node roles, a
 syntax as shown in \autoref{lst:dsl:topo:with-roles} is possible.
 
-\begin{figure}[]
-\begin{lstlisting}[style=customruby]
+\begin{lstlisting}[style=customruby,caption={Cluster DSL example without HA}, label={lst:dsl:topo:no-ha}]
 # * basic method to add a node: #add_node(ID, south_facing_bind_endpoint)
 # * it takes a block for defining subnodes
 
@@ -274,12 +273,8 @@ conf.system_id = "nodes.root.subnode_a"
 #=> south facing COMM actor's bind port is 5000
 #=> north facing COMM actor will connect to "root" node on "tcp://10.0.0.1:5000"
 \end{lstlisting}
-\caption{DSL example without HA}
-\label{lst:dsl:topo:no-ha}
-\end{figure}
 
-\begin{figure}[]
-\begin{lstlisting}[style=customruby]
+\begin{lstlisting}[style=customruby, caption={Cluster DSL example with HA}, label={lst:dsl:topo:with-ha}]
 conf.nodes do |map|
   map.add_ha_pair("root", "tcp://10.0.0.1:5000", "tcp://10.0.0.2:5000") do |map|
     map.add_node("subnode_a", "tcp://10.0.0.10:5000")
@@ -298,15 +293,11 @@ conf.system_id = "nodes.root.subnode_a"
 # for primary root:
 conf.system_id = "nodes.root[primary]"
 \end{lstlisting}
-\caption{DSL example with HA}
-\label{lst:dsl:topo:with-ha}
-\end{figure}
 
 % ############
 % # within ba-roadster-app's lib/domain/domain.rb file:
 % #
-\begin{figure}[]
-\begin{lstlisting}[style=customruby]
+\begin{lstlisting}[style=customruby, caption={Cluster DSL example with HA and roles}, label={lst:dsl:topo:with-roles}]
 # Idea for node topology definition and assigning roles (features/adapters) to
 # diffent kinds of nodes.
 
@@ -335,9 +326,6 @@ module Roadster
   end # Domain::Model
 end # Roadster
 \end{lstlisting}
-\caption{DSL example with HA and roles}
-\label{lst:dsl:topo:with-roles}
-\end{figure}
 
 
 \subsection{Message Routing}

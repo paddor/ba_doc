@@ -19,17 +19,18 @@ descending order:
 The following sections explain the requirements in greater detail.
 
 \section{Functional}
-Below are the functional requirements, as opposed to the non-functional
-requirements.
-
+This section elucidates the functional requirements, as opposed to the
+non-functional requirements.
 
 \subsection{Cluster}
 This requirement is to allow running Roadster on multiple nodes in a
 hierarchical topology.
 
 Extending the \gls{CSP} to keep the \gls{DIM} in sync across all nodes is a central
-part of the clustering functionality. This means synchronizing the
-items within the DIM that have \rb{@lifecycle_status = "updated"}. According to
+part of the clustering functionality. This means replicating the
+items within the DIM that are marked "dirty" (updated, but not synchronized yet) onto all other actors on all other nodes.
+
+According to
 the Data Model class diagram, these should only be instances of one of three
 classes (marked yellow in the diagram):
 \begin{itemize}
@@ -71,6 +72,8 @@ The typical use cases include:
 		cluster at the root.
 \end{description}
 
+% TODO: illustrate using diagrams
+
 The exotic cases which can be ignored, if need be, include:
 
 \begin{itemize}
@@ -79,31 +82,38 @@ The exotic cases which can be ignored, if need be, include:
 \end{itemize}
 
 
-\subsection{Single Level HA}
-This is where there's a node pair directly connected to a PLC. Both nodes have
-read\slash write access to the PLC, but only one of the nodes (the active one)
-must do so. The nodes must automatically find consensus on who's active. The
-passive one must automatically take over in case the active one is confirmed to
-be dead.\\
+\subsection{Single level HA}
+This is where each of the two nodes forming a HA unit is directly connected to a number of
+subsystems such as \glspl{PLC}, forming two redundant network paths to each
+subsystem. Both nodes are able to interact with the subsystems to perform
+operation tasks (e.g. reading sensor data, writing down configurations), but
+only one of them (the active one) must do so.
 
-The kinds of failures that need to be handled include:
+The two nodes must automatically find consensus on which one is currently active. The
+passive one must automatically take over in case the active one is confirmed to
+be dead. Certain memory ranges can be used by the nodes to help find consensus
+without interfering with normal operation of the subsystem. The kinds of
+failures that need to be handled include:
 \begin{itemize}
 	\item Hardware/software failure on the primary node
-	\item Failure of the link between the two nodes
+	\item Failure of one of the redundant networking paths connecting the subsystem to the two nodes
 \end{itemize}
 
 
-
-\subsection{Multi Level HA}
+\subsection{Multi level HA}
 This is where a node pair is the parent of one or more subnodes.
 
-The kinds of failures that need to be handled include:
+The types of failures that need to be handled include:
 \begin{itemize}
-	\item Hardware/software failure on the primary node
-	\item Failure of the link between the two nodes
+	\item Software failure on the primary node, like an application or OS crash
+	\item Hardware failure on the primary node, like a defect power supply
+	\item Failure of the network link connecting a node to the cluster
 \end{itemize}
 
-\subsection{Persistence Synchronization}
+All three failure types listed above can collectively be called \emph{crash},
+as their effects are the same from the point of view of the cluster.
+
+\subsection{Persistence synchronization}
 This is about the synchronization of persisted data, which is currently stored
 in TokyoCabinet databases on a Roadster node. With the clustering, this is
 still true: Every node will have its own key-value store. Updates for persisted

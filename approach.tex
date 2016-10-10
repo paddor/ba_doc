@@ -4,73 +4,53 @@ TODO what have we done to arrive at the goal (should be reproducible)\\
 TODO this is probably what we know as "Concept"\\
 
 
-\section{Getting Familiar with Roadster}
-TODO: this is the first task according to Task Description\\
-TODO andy's introduction during first Friday morning\\
-TODO first impression of Roadster's code base: very clean, abstractions, loosely coupled, scarcely documented
+\section{Getting familiar with Roadster}
+The client gave a short introduction into Roadster's code base during the first
+week of this thesis. Although quite overwhelming, the first impression was that
+the code is clean, makes use of useful abstractions and has loosely coupled
+classes. API documentation is scarce though.
+
+TODO: describe approach of getting more familiar with Roadster, e.g. during prototyping
 
 \section{Testing}
-Diese Section beschreibt die Testmethods welche wir angewandt haben, um die 
-einzelnen Funktionen, das Zusammenspiel der Komponenten, sowie das Verhalten 
-der Applikation als ganzes zu testen. Alle Resultate zu den Tests können im 
-Results Kapitel entnommen werden.\\
-\\
-This section describes the test methods we used to check single functions, 
-the components interaction and the behaviour of the whole application.
-All resuts of the tests can be found in the results section.
+This section describes the test methods we used to check particular methods,
+the integration of multiple components, as well as the behavior of the whole application.
+All test resuts can be found in \autoref{ch:res}.
 
 \subsection{Setup}
-Zur Umsetzung von Continous Integration wird gitlab CI verwendent, weil gitlab
-kostenlos ist im gegensatz zu seinem pendant Travis CI, welches nach mehr als 100
-Builds kostet bei privaten repositorys. 
-Daher wurde gitlab CI auf dem HSR Server installiert und konfiguriert.\\
-\\
-Due to the fact that our repository is private, we can't use the online 
-travis ci without to pay for it, because after 100 build it costs.
-We had to install on our hsr server gitlab. Gitlab has a own continous integration 
-which we used for unit and integration test. Each commit execute all unit tests and 
-integration tests. This is straightforward to check if all components work together correctly.
+Due to the fact that Roadster's Github repository is private, online \gls{CI}
+services such as \emph{Travis
+CI}\footnote{url{https://travis-ci.com/}} can't be used without
+payment\footnote{Payment is required after the first 100 builds.}. Fortunately,
+Gitlab CI is free and can be installed on one's own infrastructure, such as the
+\gls{VM} provided by HSR, where it was installed and configured. Unit and
+integration tests are run every time new commits are checked in. This is useful
+to get informed proactively when something breaks.
 
-\subsection{Unit test}
-Um die Richtigkeit der Implementationen zu gewährleisten wurden Unittests mit
-Ruby Unit gesetzt, welche die Kernfunktionen testen. Die Unit Tests sind im Source Code zu finden.\\
-\\
-To ensure the correctness of the implementations were ruby unit tests set 
-which test the functions. Whenever the functionality of the application was changed or
-a bug was fixed, new tests were added to cover the new behavior.
-An other benefit of the tests was, we could refactoring the code and check 
-if nothing on the behaviour changed.\\
-For each commit to the repository every test has to pass otherwise it is
-an offend against our team contract.\\
-The unit tests can be found in the source code.
+\subsection{Unit tests}
+To ensure the correctness of the implementations, unit tests are written using
+RSpec. 100\% coverage of the students' contributions can be achieved by
+adhering to \gls{TDD}. Naturally, this also simplifies refactoring the code
+without risking things breaking silently. Unit tests reside under the \sh{spec}
+directory of Roadster's code base.
 
-\subsection{Integration test}
-Integration tests überprüfen das Zusammenspiel zwischen den einzelnen Komponenten.
-Um unsere Kern Features zu testen (Cluster, HA, persistence) schreiben wir
-integration tests mit ruby unit tests. Dazu starten wir jeden Node als eigenen Prozess.
-ZMQ erlaubt es uns die "Inter-Kommunikation" auch über Prozesse zu testen.
-Um Verbindungsprobleme zu testen werden die einzelnen Prozess "gekillt" um ein Failover zu erzwingen.\\
-\\
-Integration tests verify the interaction between the individual components. 
-To test our core features (like cluster, high availability, persistence). We wrote integration
-tests with ruby unit tests. To test the interaction between nodes, we started the roadster application
-in different process. ZMQ allows us to interact between process and they will act like internode connections.
-In order to test the failover or synchronization functionality the individual process - "node" 
-can be killed and started again later if the scenario defines this.\\
-\\
-More detail about the integration tests scenarios can be found under the results chapter.
+\subsection{Integration tests}
+Integration tests verify the interaction between the individual components.
+To test core features like cluster, high availability, and persistence
+synchronization, integration tests have been written. Multiple nodes can be
+simulated easily by starting them as different process groups. This is possible
+since \zmq completely abstracts the transport away.
+
+In order to test the failover or synchronization functionality, individual processes
+can simply be killed and restarted later if the scenario defines this.
+
+More details about the integration test scenarios can be found in \autoref{ch:res}.
 
 \subsection{Continous integration}
-Continous Integration soll Aushilfe schaffen beim Elimnieren von Integration Problemen. 
-Daher wird CI bei jedem Push ins Github Repository ausgeführt. Dazu überwacht gitlab 
-das Repository und führt das definierte Build zum Projekt aus
-Dieses Build beinhaltet das installieren von Abhängigkeiten, das Installieren der Roadster app und
-zu guter letzt das Ausführen der Tests.\\
-\\
-Continous integration helps us to prevent integration problems also known as "integration hell". On
-each push to the repository will trigger an CI check. Therefore gitlab hooks our repository and 
-runs the defined build from the project. A Build containts the installation of the dependencies, 
-installing the roadster app and the carrying out of tests.
+\gls{CI} helps us prevent integration problems also known as \emph{integration
+hell}. Each push to the repository will trigger a CI check, which will run a
+build script. This will install Roadster's dependencies, an example app built
+with Roadster, and finally Roadster's test suites.
 
 \subsection{System test}
 Systemtests dienen dazu die Applikation unter realen Bediengungen zu testen. Um eine fast realitätsnah
@@ -138,19 +118,44 @@ TODO use travis-ci.com OR GitLab CI (self-hosted on HSR VM)\\
 
 %----------------------------------------------------------------------------
 \section{Port to new \zmq library}\label{sec:meth:port}
-TODO justify why port is needed right at the beginning (exclude faults from unmaintained ffi-rzmq gem, encryption is needed anyway, all the other tasks involve communication over ZMQ)\\
-TODO explain binding options out there, why CZTop (including difference between ZMQ and CZMQ)\\
-TODO explain preliminary task of adding support for the ZMQ options \sh{ZMQ_FD} and \sh{ZMQ_EVENTS} in CZTop\\
-TODO explain concept of exchanging ffi-rzmq with CZTop\\
+Porting Roadster to a new \zmq library early on makes sense for the following reasons:
 
+\begin{itemize}
+\item to exclude possible failures from faults in the unmaintained ffi-rzmq\footnote{\url{https://github.com/chuckremes/ffi-rzmq}} library
+\item encryption is needed later anyway, which is not supported by the currently used library
+\item all other tasks involve \zmq communication anyway
+\end{itemize}
+
+There is currently only a single Ruby library that is maintained, supports
+encryption, and freely available, which is \gls{cztop}. Technically it's a
+binding for the \gls{czmq} library, which is the modern and recommended way of
+using \zmq. More info about CZMQ can be found in \autoref{ch:zmq}.
+
+As stated in the Task Description already, Roadster's event loop makes use of
+the \zmq options \sh{ZMQ_FD} and \sh{ZMQ_EVENTS}. Getters for these had to be
+added to in CZTop, which was a matter of minutes.
+
+\subsection{Actual port}
+Due to Roadster's beautiful software architecture, code that actually made use
+of the ffi-rzmq library directly was located in a single file. The following
+things needed to be done:
+
+\begin{itemize}
+\item Tell Ruby to load CZTop instead of ffi-rzmq.
+\item Remove code to send and receive multi-part messages. This has been simplified
+in CZMQ and thus is a single method call using CZTop.
+\item Remove error checking code. CZTop always checks error codes, and raises
+an appropriate exception if needed.
+\item Simplify code that reads option values such as \sh{ZMQ_FD} and \sh{ZMQ_EVENTS}.
+\item Rewrite library calls to use CZTop instead of ffi-rzmq.
+\end{itemize}
+
+This was about an hour's work.
 
 %----------------------------------------------------------------------------
 \section{Cluster}\label{sec:meth:cluster}
-TODO describe scribble (chp.pdf)
-
-
-\subsection{Aspects}
-Adding cluster functionality to Roadster involves the following aspects:
+A Roadster cluster is illustrated in \autoref{fig:cluster}. Adding cluster
+functionality to Roadster involves the following aspects:
 \begin{itemize}
 	\item node topology DSL
 
@@ -161,73 +166,24 @@ Adding cluster functionality to Roadster involves the following aspects:
 	\item What needs to be done if a WebUI user wants to e.g. change some value on a PLC, possibly on a remote node? Is it completely handled via DIM or do we need message routing?
 \end{itemize}
 
+\begin{figure}[]
+	\includegraphics[width=\textwidth]{img/cluster_protocol.pdf}
+	\caption{Cluster setup between a supernode and two subnodes}
+	\label{fig:cluster}
+\end{figure}
+
+\subsubsection{Fallacies of Distributed Computing}
+At this place, it is worth noting the common fallacies encountered in
+distributed computing, as explained on \cite{dcomp:fallacies}.
+
 \subsection{DIM Synchronization}
-TODO election/design of appropriate protocol\\
+The following is a list of things that are missing before the requirements can be fulfilled:
+\begin{itemize}
+\item it has to work across several nodes
+\item it has to be able to handle HA supernodes, which affects DIM synchronization and message routing
+\end{itemize}
 
-\subsubsection{The Existing CSP in a Nutshell}
-\emph{This is a brief introduction/refresher for the Clone State Pattern
-implemented by Roadster. Although Roadster actually sends serialized instances
-of CSP message classes to fulfill this protocol, for better readability the
-\gls{zguide}'s canonical nomenclature of \gls{clone-pattern} messages will be used.}
-
-The existing \gls{CSP} is closely related to the \gls{clone-pattern} from the \gls{zguide}. Its
-goal is to keep a state (a list of key-value pairs) in sync across a set of
-participants. To greatly reduce the complexity, it's not decentralized: There's
-a server part which serves as the single source of truth.
-
-The server uses a ROUTER, a PULL, and a PUB socket; each client a DEALER, a
-PUSH, and a SUB socket. The protocol consists of three distinct messages flows:
-
-\begin{description}
-	\item [Snapshots:]
-		Requesting and receiving the complete, current snapshot of the
-		state (all key-value pairs). This happens via a
-		ROUTER/DEALER pair of sockets. The request message consists solely of
-		the humorously named ICANHAZ command. The response is the
-		complete set of KVSET messages so a late-joining (or previously
-		disconnected) client can rebuild the current snapshot.
-
-	\item [Upstream updates:]
-		Updates always originate from clients and are sent to the
-		server via a PUSH/PULL pair of sockets. These are KVSET messages.
-
-	\item [Downstream updates:]
-		After being applied to the server's copy of the state,
-		updates get a sequence number and are published back to all
-		clients. This happens via the PUB socket and
-		uses KVPUB messages.
-\end{description}
-
-By making all updates go through the server, a total order is enforced,
-which is crucial to keep the state consistent across all clients.
-
-To avoid risking a gap between requesting the current snapshot and subscribing
-to updates, a client actually subscribes to the updates first, then gets the
-snapshot, and then starts reading the updates from the socket (which has been
-queueing updates in the meantime, if any). Updates that are older or the same
-age as the received snapshot are skipped, and only successive updates are
-applied (tested by comparing the sequence numbers).
-
-Because message loss via the third message flow (PUB-SUB) is unlikely but
-theoretically possible, the client checks for gaps in the sequence number of
-each KVPUB message. If a gap is detected, the current state is discarded and a
-complete resynchronization happens. This is brutal, but is very simple and thus
-robust; there's no complexity that would leave room for nasty corner cases.
-
-Keys can be treated hierarchically (e.g. \sh{topic.subtopic.key}) and thus, a
-client can optionally subscribe to only a particular subtree. This is useful
-when the number of client grows and not all of the state needs to be on every
-client. In that case, the topic of interest is sent by the client along with
-the ICANHAZ message.
-
-\subsubsection{What's Missing}
-TODO it has to work across several nodes\\
-TODO it has to be able to handle HA supernodes\\
-TODO explain Clustered Hashmap Protocol (?)\\
-TODO PCP: use DIM to know node tree and determine next hop for (dialog or fire+forget) messages
-TODO mention CAP theorem, we need AP since sub trees are autonomous, but we guarantee eventual consistency by restricting write access to the owning node\\
-
-Here are the possible variants:
+There are multiple choices when it comes to what exactly of the DIM should be synchronized:
 
 \begin{description}
 	\item [Variant 1. Sync self-subtree only:] \hfill
@@ -250,45 +206,58 @@ Here are the possible variants:
 
 Variant 2 will be the first step. Variant 3 will be the second step, if at all.
 
-
-\subsubsection{What's needed}
-Since COMM actors are used to communicate with the outside world, new COMM
+Since COMM actors are used to communicate with things outside of a node, new COMM
 actors will have to be introduced: One kind that is south-facing to communicate
 with subnodes, and another one that is north-facing for communication with
-supernodes. We'll call them COMM CLUSTER NORTH and COMM CLUSTER SOUTH.
+supernodes. They will be named COMM CLUSTER NORTH and COMM CLUSTER SOUTH.
 
 Their responsibility is the inter-node synchronization of the DIM, similarly to
 what's happening in the existing CSP within a single node.
 
-\begin{itemize}
-	\item they do something closely related to the existing CSP
-	\item future oriented: because of the HA requirement, ideas from the CHP are integrated, such as using PUB-SUB (instead of PUSH-PULL) for inter-node KVSET messages, so both super nodes (in HA setup) hear updates
-	\item for intra-node KVSET messages, PUSH-PULL is OK and can be left unchanged
-	\item only node A has write access to values on A (to avoid uncertain situations involving race conditions), e.g.:
-\end{itemize}
+To send KVSET updates from one actor to the CORE actor, PUSH-PULL sockets are
+used. However, similar to the \gls{CHP} described in the \gls{zguide}, this
+mechanism here needs to be able to handle replication to one or two (in case of
+HA) superordinate nodes. That means using PUB-SUB messaging for is more
+appropriate, so all direct superordinate nodes hear the updates.
 
-\begin{figure}[!ht]
-	\includegraphics[width=\textwidth]{img/cluster_protocol.pdf}
-	\caption{Cluster setup between a supernode and two subnodes}
-	\label{fig:cluster}
-\end{figure}
-% TODO: mention figure in text
+\subsubsection{CAP theorem}
+The CAP theorem \cite{wp:cap} states that it is impossible for a distributed
+computer system to simultaneously provide consistency, availability, and
+network partition tolerance. In the face of a network partition, one has to
+chose between availability and consistency. Because sub trees of a Roadster
+cluster must be autonomous, availability is chosen.
+
+Eventual consistency is guaranteed by restricting write access to the owning
+node, and recovering from a network partition when communication is restored is
+done by simply reinitiating the DIM synchronization process.
 
 \subsection{Node Typology Definition}
+A cluster's node topology has to be defined somewhere. This can be done using a
+\gls{DSL} and then put into a static file (e.g. \sh{topology_conf.rb}) shared
+on all nodes of a Roadster cluster. Each actor could then read the file at
+startup, just like it's done for other configuration pieces of a Roadster node.
+\autoref{lst:dsl:topo:no-ha} shows how such a configuration snippet might look.
 
-\begin{itemize}
-	\item node topology in DSL, static file (e.g. topology\_conf.rb) shared on all nodes, read by each actor on startup
-	\item specific config file on each node (conf.rb) knows its own place in topology (through \rb{conf.system_id})
-	\item maybe a HA pair is one DIM object, has one name, but two IP addresses (primary and backup, in order)
-\end{itemize}
+To let the actors of a node know which node they belong to, an additoinal line
+has to be added to the specific configuration file (\sh{conf.rb}), e.g.
+\rb{conf.system_id = "nodes.root"}. Using that information, the topology
+created using the DSL can be walked like a tree to find the correct node and
+important information like its neighbor nodes.
 
-% TODO: shorten and and wrap into a figure
+A HA node pair could be one DIM object which has one name but two IP addresses
+(primary and backup, in that order). Direct subnodes can use that information
+to connect to the correct superordinate node during normal operation and also
+when the primary node is unavailable. The respective DSL snippet is shown in
+\autoref{lst:dsl:topo:with-ha}.
+
+Not every node in a cluster is the same: Some are only connected with other
+nodes, some also talk to field devices. To define different node roles, a
+syntax as shown in \autoref{lst:dsl:topo:with-roles} is possible.
+
+\begin{figure}[]
 \begin{lstlisting}[style=customruby]
 # * basic method to add a node: #add_node(ID, south_facing_bind_endpoint)
 # * it takes a block for defining subnodes
-
-##################
-# without HA:
 
 conf.nodes do |map|
   map.add_node("root", "tcp://10.0.0.1:5000") do |map|
@@ -304,10 +273,13 @@ conf.system_id = "nodes.root.subnode_a"
 #=> north facing COMM actor's bind port is 5001
 #=> south facing COMM actor's bind port is 5000
 #=> north facing COMM actor will connect to "root" node on "tcp://10.0.0.1:5000"
+\end{lstlisting}
+\caption{DSL example without HA}
+\label{lst:dsl:topo:no-ha}
+\end{figure}
 
-#####################
-# later with HA:
-
+\begin{figure}[]
+\begin{lstlisting}[style=customruby]
 conf.nodes do |map|
   map.add_ha_pair("root", "tcp://10.0.0.1:5000", "tcp://10.0.0.2:5000") do |map|
     map.add_node("subnode_a", "tcp://10.0.0.10:5000")
@@ -325,10 +297,16 @@ conf.system_id = "nodes.root.subnode_a"
 
 # for primary root:
 conf.system_id = "nodes.root[primary]"
+\end{lstlisting}
+\caption{DSL example with HA}
+\label{lst:dsl:topo:with-ha}
+\end{figure}
 
-############
-# within ba-roadster-app's lib/domain/domain.rb file:
-#
+% ############
+% # within ba-roadster-app's lib/domain/domain.rb file:
+% #
+\begin{figure}[]
+\begin{lstlisting}[style=customruby]
 # Idea for node topology definition and assigning roles (features/adapters) to
 # diffent kinds of nodes.
 
@@ -357,10 +335,23 @@ module Roadster
   end # Domain::Model
 end # Roadster
 \end{lstlisting}
+\caption{DSL example with HA and roles}
+\label{lst:dsl:topo:with-roles}
+\end{figure}
 
 
 \subsection{Message Routing}
-TODO message routing (end-to-end routing with identity/identities as prepended message frame?, should be simpler and more efficient than hop-by-hop routing)\\
+Messages need to be sent from an actor on one node to an actor on another node. The best place to put this logic is the CORE actor which already does this for messages exchanged within a node. It needs to be extended to know about nodes and their actors, not only actors on the current node. Then messages can be passed around hop-by-hop.
+
+In case a message is sent in \emph{Dialog} mode, this implicates Russian doll routing: At every hop, a new dialog is started which expects an immediate response, which will subsequently be passed back and complete the open dialogs.
+
+\subsubsection{Example}
+When a user of the root node's web UI wants to change a value on a field device
+connected to the root node's subordinate node, a command is sent from the
+browser to the web UI's COMM actor. From there it's sent via the CORE actor out
+on the south-facing CLUSTER actor to the subordinate node. There it's routed
+via the CORE actor to the correct COMM actor, where the command can actually be
+executed on the field device.
 
 %----------------------------------------------------------------------------
 \section{High Availability}\label{sec:meth:ha}
@@ -385,15 +376,14 @@ able to handle. According to the requirements, these are exactly:
 		or even just someone accidentally pulling the power plug.
 
 	\item [Network failure]
-		This only includes the failure of the link between the two HA
-		peers. Interestingly, this limitation applies to both single
-		level and multi level HA.
+		This only includes the failure of the link connecting a HA node
+		to the rest of the cluster.  Interestingly, this limitation applies to both
+		single level and multi level HA.
 \end{description}
-
 
 Failures that won't be covered include:
 \begin{description}
-	\item [Failure of the link between a subnode one of the supernodes:]
+	\item [Failure of the link between a subnode one of its supernodes:]
 
 		This can't be handled since the two HA peers would have to
 		continually share the number of subnodes connected to them, and
@@ -411,19 +401,40 @@ Failures that won't be covered include:
 \end{description}
 
 \subsection{What's Needed}
-TODO A simple HA protocol => Binary Star\\
+TODO A simple HA protocol: Binary Star\\
 TODO maybe we need to extend binary star to handle other kinds of network failures?\\
 TODO new actor: COMM BSTAR\\
 
 \subsection{Binary Star in a Nutshell}
-TODO explain binary star\\
-TODO two conditions (no heartbeats, and vote)\\
+Two HA peer nodes are started either as primary or as backup. After an initial
+handshake, the primary one becomes active, the backup node becomes passive. The
+two continually exchange heartbeats. Clients always connect to the primary's endpoint first.
+
+The passive node takes over when the following two conditions are met:
+
+\begin{enumerate}
+\item no life signs from the active node
+\item connection requests from clients
+\end{enumerate}
+
+The second condition is to prevent the split-brain syndrome and thus can be
+thought of as an external vote for the node to actually initiate the failover.
+This works because clients will always try to connect to the primary node's
+endpoint first, then move on to the backup node's endpoint. In the
+\gls{zguide}, this algorithm is explained as the \emph{Lazy Pirate} pattern,
+one of the \emph{Reliable Request-Reply Patterns}.
 
 \subsection{Failover}
 In case the currently active node goes down, the two conditions will be met.
 This means that the passive node starts accepting snapshot requests (ICANHAZ
 messages) and updates the DIM, so every other node will know about the new,
 active node. This is needed for the message routing to work.
+
+It's important to mention that a dedicated, direct link from one HA node to its
+peer actually worsens high availability. In case the non-dedicated link from
+the primary HA node goes down, meaning the HA node is effectively offline and
+unavailable for subnodes, the failover won't happen since heartbeats are still
+exchanged with the HA peer node over the dedicated link.
 
 \subsubsection{Alarm Generation}
 When a failover happens, we want to create a \rb{Case} (alarm) in the DIM, so
@@ -450,7 +461,7 @@ TODO useful for upgrades (maybe in Discussion)\\
 
 \subsection{Dangerous corner case: Backup node active, dedicated link goes down, and there are new/reconnecting clients}
 TODO this will lead to split-brain syndrome (maybe in Discussion)\\
-TODO in general: dedicated link for HA pair communication is dangerous!!\\
+TODO in general: dedicated link for HA pair communication is dangerous!\\
 
 \subsection{Single Level}
 This is different from what's described in the zguide because the concept of
@@ -511,7 +522,8 @@ initiated.
 
 %----------------------------------------------------------------------------
 \section{Persistence Synchronization}\label{sec:meth:psync}
-The persisted data needs to be bubbled up towards the root node.
+The persisted data and updates to it, handled by the STORAGE actor, need to
+bubble up and collected in the root node.
 
 \subsection{Aspects}
 There are multiple aspects involved in persistence synchronization:
@@ -545,7 +557,11 @@ A big drawback is that the synchronization doesn't happen in real-time. This
 doesn't seem to fit well into the overall Roadster architecture, which is
 completely event-driven (no polls or "sleeps").
 
-TODO another drawback: computing the diff might be heavy (depending on DB)
+Another drawback is efficiency. This variant will periodically cause the
+subnode's database to be searched for all keys. Depending on the size of the
+database and the efficiency of searching through keys, this could be a lot of
+wasted resources or even cause bottle necks when interacting with the STOR
+actor.
 
 In case the supernode is a HA pair, this variant would generate duplicated
 traffic. To avoid this, another pair of sockets has to be introduced to
@@ -554,7 +570,7 @@ protocol, and more moving parts overall.
 
 Overall, this variant is very simple, but doesn't offer some features we'd
 normally expect from a framework like Roadster. The fruits are hanging low;
-achieving real-time synchronization is easy.
+achieving real-time synchronization and better efficiency is easy.
 
 \subsubsection{PUSH-PULL}
 This variant avoids the delays introduced by the polling mechanism of the first variant.

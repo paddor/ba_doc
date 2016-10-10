@@ -79,14 +79,20 @@ teacher whose opinions we highly value. Due to his polite parlance, discussing
 project matters, both of the management and the technical kind, has always been
 an enrichment.
 
-\subsection{Open-Source Engagement}
-TODO spread of CZTop and proof of its design\\
-TODO creation of cztop-patterns (as mentioned in the Mgmt Summary)\\
+\subsection{Open-Source engagement}
+Getting the chance to use \gls{cztop} and watch it perform definitely adds to
+the motivation as well. Its software design has yet to be proven in more
+serious settings.
+
+Another personal goal is to create a reusable open-source library as a
+byproduct. The intention is that the library makes certain \zmq-based
+communication protocols readily available for other developers facing the same
+problems.
 
 \section{Initial Situation}
 
 \subsection{mindclue GmbH}
-The company mindclue GmbH, located in Ziegelbr\"ucke, provides its partner
+The company mindclue GmbH, located in Ziegelbr\"ucke GL, provides its partner
 REMTEC AG with complete \gls{SCADA} applications. These are then used to control and
 monitor operation and safety equipment found in national freeways, water
 supply systems, as well as in energy facilities and many other specialized
@@ -109,11 +115,13 @@ A Roadster installation combines the following responsibilities:
 	\item providing a modern web UI for interaction with operational and executive personnel
 \end{itemize}
 
-\subsubsection{AS - UeLS}
-Roadster ist einer von vielen AS Knoten eines UeLS. Die Kommunikation
-zwischen AS und AR geschieht über "OPC UA".
-%TODO .... include graphics as_detail and overall system
-
+Among others, subordinate field devices include \glspl{PLC} and emergency information systems.
+These are interacted with over numerous propietary and/or
+standardized protocols. Superordinate systems interact with Roadster over
+protocols including \gls{SOAP} and \gls{OPC} \gls{UA}. They purpose is to
+collect and aggregate information from larger regions. At the top of the
+hiearchy are the ASTRA and MINSTRA which combine the information of all
+subsystems and provide a nationwide overview.
 
 \subsection{\zmq}
 \emph{For a more detailed introduction, see \autoref{ch:zmq}.}
@@ -174,7 +182,7 @@ additional functionality such as a reactor, a simple actor implementation, as
 well as utilities for certificate and authentication handling, and LAN node
 discovery. This is the recommended way of using \zmq nowadays.
 
-\subsection{Software Architecture}
+\subsection{Software architecture}
 TODO more\\
 
 As mentioned earlier, Roadster is event-driven and built on the Actor model, meaning it exhibits a
@@ -199,9 +207,11 @@ Every Roadster node runs a group of actors:
 
 	\item [COMM:]
 		A bunch of COMM actors communicate with the outside world of a
-		node. This can be different kind of \glspl{PLC} or higher level
-		monitoring systems. Each COMM actor uses an adapter
-		specifically written for a single communication protocol.
+		node. It typically either acts as a client of various kinds of
+		subordinate field devices, or as a server to superordinate
+		systems. To communicate with subordinate systems, a COMM actor
+		uses an adapter specifically written for the communication
+		protocol in place.
 
 	\item [STORAGE:]
 		This actor is used when information needs to be persisted, such
@@ -265,33 +275,118 @@ internally. They reside in the messaging communication layer, and include:
 	\item [\gls{SMP}:]\hfill\\
 		Used to suppress the generation of certain \glspl{case}, e.g.
 		when a sensor is defect and repeatedly causes cases.
-	\item [\gls{CTP}:]\hfill\\
-		Used for asynchronous command execution with feedback.
+	\item [\gls{PCP}:]\hfill\\
+		Used for asynchronous command execution via COMM peers with feedback.
 	\item [\gls{LOG}:]\hfill\\
 		Used for system logging.
 \end{description}
 
 Every actor in Roadster uses a subset of these protocols to perform its job.
 
-% Fire+Forget: no guarantee of correct processing. E.g. DIM updates from COMM to CORE
-% TODO: Dialogs: immediate answer, synchronous looking code (but still handled with async messaging). E.g. creating a user session
+Passing messages from actor to actor happens in one of two modes:
+\begin{description}
+\item [Fire \& Forget:]
+No guarantee of correct processing, e.g. DIM updates from COMM to CORE. This
+doesn't mean there are no other mechanisms in place to ensure reliability.
+
+\item [Dialog:] An immediate answer is expected, e.g. when creating a user
+session. Sending a message like this looks like it's a synchronous call, even
+though it's handled asynchronously under the hood\footnote{This is done by
+wrapping the affected code in a Ruby \rb{Fiber}, which is similar to a thread
+but allows for cooperative scheduling as opposed to preemtive.} Any protocol
+can make use of this primitive.
+\end{description}
+
+\subsubsection{DIM}
+The \gls{DIM} is a data structure that lives inside every actor of a Roadster
+node. Every actor builds it when starting up by reading the configuration
+files. Updates to certain parts\footnote{Namely instances of the meta-model
+classes \rb{Case}, \rb{DataItem}, and \rb{Session}} within it are replicated
+across all actors. An updated item is marked dirty\footnote{It is marked dirty
+by setting its \rb{@lifecycle_state = "updated"}} so it is subsequently synchronized
+via the \gls{CSP}.
+
+\subsubsection{Existing CSP in a nutshell}
+\emph{This is a brief introduction/refresher for the Clone State Pattern
+implemented by Roadster, which is used for the DIM synchronization. Although Roadster actually sends serialized instances
+of CSP message classes to fulfill this protocol, for better readability the
+\gls{zguide}'s canonical nomenclature of \gls{clone-pattern} messages will be used.}
+
+The existing \gls{CSP} is closely related to the \gls{clone-pattern} from the \gls{zguide}. Its
+goal is to keep a state (a list of key-value pairs) in sync across a set of
+participants. To greatly reduce the complexity, it's not decentralized: There's
+a server part which serves as the single source of truth.
+
+The server uses a ROUTER, a PULL, and a PUB socket; each client a DEALER, a
+PUSH, and a SUB socket. The protocol consists of three distinct messages flows:
+
+\begin{description}
+	\item [Snapshots:]
+		Requesting and receiving the complete, current snapshot of the
+		state (all key-value pairs). This happens via a
+		ROUTER/DEALER pair of sockets. The request message consists solely of
+		the humorously named ICANHAZ command. The response is the
+		complete set of KVSET messages so a late-joining (or previously
+		disconnected) client can rebuild the current snapshot.
+
+	\item [Upstream updates:]
+		Updates always originate from clients and are sent to the
+		server via a PUSH/PULL pair of sockets. These are KVSET messages.
+
+	\item [Downstream updates:]
+		After being applied to the server's copy of the state,
+		updates get a sequence number and are published back to all
+		clients. This happens via the PUB socket and
+		uses KVPUB messages.
+\end{description}
+
+By making all updates go through the server, a total order is enforced,
+which is crucial to keep the state consistent across all clients.
+
+To avoid risking a gap between requesting the current snapshot and subscribing
+to updates, a client actually subscribes to the updates first, then gets the
+snapshot, and then starts reading the updates from the socket (which has been
+queueing updates in the meantime, if any). Updates that are older or the same
+age as the received snapshot are skipped, and only successive updates are
+applied (tested by comparing the sequence numbers).
+
+Because message loss via the third message flow (PUB-SUB) is unlikely but
+theoretically possible, the client checks for gaps in the sequence number of
+each KVPUB message. If a gap is detected, the current state is discarded and a
+complete resynchronization happens. This is brutal, but is very simple and thus
+robust; there's no complexity that would leave room for nasty corner cases.
+
+Keys can be treated hierarchically (e.g. \sh{topic.subtopic.key}) and thus, a
+client can optionally subscribe to only a particular subtree. This is useful
+when the number of client grows and not all of the state needs to be on every
+client. In that case, the topic of interest is sent by the client along with
+the ICANHAZ message.
+
 
 \section{Goals}
-TODO preprocessed mandatory goals\\
-TODO retrospective, diff with initial goals\\
+% TODO preprocessed mandatory goals\\
+% TODO retrospective, diff with initial goals\\
 
-To summarize the goals from the Task Description in \autoref{ch:task-desc}:
+To summarize the mandatory goals from the Task Description in \autoref{ch:task-desc}:
 
 \begin{enumerate}
-	\item Extending communication protocols to support clustering
-	\item Extending communication protocols to add high availability
+	\item Getting familiar with Roadster
+	\item Extending the communication protocols to support clustering
+	\item Extending the communication protocols to add high availability
 \end{enumerate}
 
-An implication of the above goals is secure inter-node communication in a Roadster cluster. This is also to mitigate common security concerns with SCADA systems which are becoming more and more open due to standardization. To quote wikipedia:
+The optional goals are:
 
-TODO move this part somewhere else, a section dedicated to security in SCADA systems
+\begin{enumerate}
+	\item Encryption of the communication
+	\item Providing of the highly available \gls{OPC} \gls{UA} server interface
+\end{enumerate}
+
+Secure inter-node communication within a Roadster cluster is important to
+mitigate common security concerns with SCADA systems which are becoming more
+and more open due to standardization. To quote wikipedia:
+
 \begin{quote}
-
 ``In particular, security researchers are concerned about:
 	\begin{itemize}
 		\item the lack of concern about security and authentication in the design, deployment and operation of some existing SCADA networks
@@ -300,15 +395,3 @@ TODO move this part somewhere else, a section dedicated to security in SCADA sys
 		\item the belief that SCADA networks are secure because they are disconnected from the Internet.''
 	\end{itemize}
 \end{quote}
-
-\subsection*{Optional Goals}
-TODO optional goals
-
-\begin{enumerate}
-	\item Encryption of the communication
-	\item Providing of the highly available \gls{OPC} \gls{UA} server interface
-\end{enumerate}
-
-
-TODO The Eight Fallacies of Distributed Computing
-https://blogs.oracle.com/jag/resource/Fallacies.html

@@ -124,63 +124,26 @@ hiearchy are the ASTRA and MINSTRA which combine the information of all
 subsystems and provide a nationwide overview.
 
 \subsection{\zmq}
-\emph{For a more detailed introduction, see \autoref{ch:zmq}.}
-
 To understand Roadster's architecture and the rest of this document, it's
-helpful to understand the basics of \zmq (sometimes written as ZeroMQ or simply
-ZMQ) first. This is a brief introduction to \zmq for the unfamiliar reader.
+helpful to understand the basics of \zmq first. This is a brief introduction to
+\zmq for the unfamiliar reader. What follows is a quote from the \gls{zguide}
+which does a fairly good job at describing \zmq in a 100 words:
 
-\zmq is a \gls{MOM} implemented as an open source library, that is, it doesn't
-require a dedicated broker. Instead, it offers sockets with an abstract
-interface similar to \acrshort{BSD} sockets. Different types of sockets are used for
-different messaging patterns such as request-reply, publish-subscribe, and
-push-pull.
+\begin{quote}
+``ZeroMQ (also known as \zmq, 0MQ, or zmq) looks like an embeddable networking
+library but acts like a concurrency framework. It gives you sockets that carry
+atomic messages across various transports like in-process, inter-process, TCP,
+and multicast. You can connect sockets N-to-N with patterns like fan-out,
+pub-sub, task distribution, and request-reply. It's fast enough to be the
+fabric for clustered products. Its asynchronous I/O model gives you scalable
+multicore applications, built as asynchronous message-processing tasks. It has
+a score of language APIs and runs on most operating systems.  ZeroMQ is from
+iMatix and is LGPLv3 open source.''
+\end{quote}
 
-A single socket can bind/connect to multiple endpoints, which allows \zmq to
-use round-robbin on the sender side, and fair-queueing on the receiver side,
-where applicable. It doesn't matter whether the communication happens
-in-process (between threads), inter-process (e.g. over \glspl{unix-domain-socket}), or
-inter-node (e.g. over \acrshort{TCP}/\acrshort{PGM}/\acrshort{TIPC}), since the transport is completely
-abstracted away. The same goes for connection handling; an arbitrary amount of
-connections is handled over a single socket and reconnecting after short
-network failures is done transparently.
+Roadster uses \zmq to carry messages between its processes.
 
-\zmq is lightweight and provides extremely low latencies, which means it can
-also be used as the fabric of concurrent applications, e.g. for the actor
-model. In case of the TCP transport, it incorporates advanced techniques such
-as smart message batching to achieve significantly higher throughputs than with
-raw TCP or other \gls{MOM} solutions \cite[Figure 2, Middleware evaluation and
-prototyping, p.~4]{cern:new-cmw}.
-
-To build a solution with \zmq, its sockets are used as building blocks to
-design custom message flows. Certain patterns are used to achieve reliability
-with respect to the failure types that need to be addressed in particular.  The
-zguide\footnote{\url{http://zguide.zeromq.org/}} explains best practices,
-including commonly needed, resilient messaging patterns.
-
-The above characteristics make \zmq a valuable asset when it comes to building
-robust, distributed high-performance systems.
-
-\subsubsection{Transport Security}
-Since version 4.0, \zmq boasts state of the art encryption and authentication,
-based on the excellent and highly renown
-\gls{nacl}\footnote{\url{http://nacl.cr.yp.to}} library.
-
-\subsubsection{Data Serialization}
-Data serialization is outside the scope of \zmq. To fill the gap, one typically
-uses another library such as MsgPack\footnote{\url{http://msgpack.org}},
-Protocol
-Buffers\footnote{\url{https://developers.google.com/protocol-buffers/}}, or
-even a programming language's built-in object serialization
-support\footnote{such as Ruby's marshalling support:
-\url{http://ruby-doc.org/core/Marshal.html}}.
-
-\subsubsection{CZMQ}
-\gls{czmq} is a high-level abstraction layer for \zmq. It makes working with the \zmq
-library more expressive and allows for better portability. It also provides
-additional functionality such as a reactor, a simple actor implementation, as
-well as utilities for certificate and authentication handling, and LAN node
-discovery. This is the recommended way of using \zmq nowadays.
+For a more detailed introduction, see \autoref{ch:zmq}.
 
 \subsection{Software architecture}
 As mentioned earlier, Roadster is event-driven and built on the Actor model, meaning it exhibits a

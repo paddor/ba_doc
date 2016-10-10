@@ -200,13 +200,11 @@ Regarding testing, the following requirements exist:
 \subsection{Security}
 \emph{This is optional. Also, this requirement has the lowest priority not
 because it's insignificant, but because it's easy to enable transport level
-security on ZMQ sockets.}
+security on \zmq sockets.}
 
-The communication between a given set of Roadster nodes must be secured using
-encryption.
-% TODO: wait for Andy's answer on #9
-% TODO common concern about SCADA systems lacking security\\
-
+The inter-node communication of a Roadster cluster must be secured using
+encryption. \zmq offers server authentication at a minimum, if encryption is
+enabled. Client authentication is not needed at this stage.
 
 \subsection{Coding Guidelines}
 The coding guidelines desired by the client are basically the ones written down

@@ -25,6 +25,17 @@
 \newacronym{IoT}{IoT}{Internet of Things}
 \newacronym{SSD}{SSD}{Solid State Disk}
 \newacronym{RAID}{RAID}{redundant array of independent disks}
+\newacronym{FEDRO}{FEDRO}{Federal Roads Office}
+\newacronym{IETF}{IETF}{Internet Engineering Task Force}
+\newacronym{RFC}{RFC}{Request for Comments}
+\newacronym{IEC}{IEC}{International Electrotechnical Commission}
+
+% German
+\newacronym{ASTRA}{ASTRA}{Bundesamt f\"ur Strassen}
+\newacronym{LTA}{LTA}{Leittechnikanlage}
+\newacronym{AR}{AR}{Abschnittsrechner}
+\newacronym{AS}{AS}{Anlagesystem}
+\newacronym{LR}{LR}{Leitrechner}
 
 % Roadster terminology
 \newacronym{DIM}{DIM}{Domain Information Model}
@@ -69,6 +80,13 @@
 	description={A fairly simple hot-standby and failover mechanism to
 		achieve high availability between two servers, described as a reliable
 		request-reply pattern in the \gls{zguide}}
+}
+\newglossaryentry{hot-standby}{
+	name={hot standby},
+	description={A method of high availability by introducing redundancy,
+where the secondary system is also up and running, but just doesn't process
+requests before the primary system fails. Failover time is typically a few
+seconds.}
 }
 
 
@@ -134,4 +152,30 @@ opposed to an external dependency). Implemented Daniel J. Bernstein et al.
 \newglossaryentry{libsodium}{
 	name={libsodium},
 	description={A portable and installable variant of \gls{nacl}. \url{https://libsodium.org}}
+}
+\newglossaryentry{websocket}{
+	name={WebSocket},
+	description={A protocol for full-duplex communication between web
+browsers and web servers, standardized by the \gls{IETF} as \gls{RFC} 6455 in
+2011}
+}
+
+\newglossaryentry{opc-ua}{
+	name={OPC UA},
+	description={\gls{OPC} gls{UA}: A set of modern standards for industrial control systems, based on cross platform webservices and other modern technology}
+}
+
+\newglossaryentry{iec-104}{
+	name={IEC 60870-5-104},
+	description={A \gls{IEC} transmission protocol used by SCADA applications in power system automation that enables communication via standard networks}
+}
+
+\newglossaryentry{modbus-tcp}{
+	name={Modbus TCP},
+	description={The TCP-based variant of Modbus, a \emph{de facto}
+	standard serial communication protocol used to connect electronic devices}
+}
+\newglossaryentry{isa95}{
+	name={ISA-95},
+	description={An international standard for developing an automated interface between enterprise and control systems. \url{https://en.wikipedia.org/wiki/ANSI/ISA-95}}
 }

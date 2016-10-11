@@ -87,10 +87,19 @@ problems.
 
 \subsection{mindclue GmbH}
 The company mindclue GmbH, located in Ziegelbr\"ucke GL, provides its partner
-REMTEC AG with complete \gls{SCADA} applications. These are then used to control and
-monitor operation and safety equipment found in national freeways, water
-supply systems, as well as in energy facilities and many other specialized
-fields. To build these customized applications, their in-house creation
+REMTEC AG with complete \gls{SCADA}\footnote{SCADA software resides in level 2 of the enterprise levels (0--4) modeled by the \gls{isa95} standard, \url{https://en.wikipedia.org/wiki/Enterprise_control}} applications. These are then used to
+supervise and control operation and safety equipment found in:
+% ISA95 “levels”
+
+\begin{itemize}
+\item national freeways, e.g. emergency phones
+\item tunnels, e.g. lights and ventilation
+\item water supply systems
+\item energy facilities
+\item many other specialized fields
+\end{itemize}
+
+To build these customized applications, their in-house creation
 Roadster, a next-generation SCADA framework, is used.
 
 \subsection{Roadster}
@@ -105,17 +114,68 @@ A Roadster installation combines the following responsibilities:
 	\item interaction with subordinate field devices (monitoring \& controlling)
 	\item persisting data (e.g. certain sensor data, and events)
 	\item sophisticated alarm (\emph{case}) management
-	\item providing an interface (\gls{OPC} \gls{UA}) to superordinate systems
-	\item providing a modern web UI for interaction with operational and executive personnel
+	\item providing a machine-to-machine interface to superordinate systems
+	\item providing a modern, customized web UI for interaction with operational and executive personnel
 \end{itemize}
 
-Among others, subordinate field devices include \glspl{PLC} and emergency information systems.
-These are interacted with over numerous propietary and/or
-standardized protocols. Superordinate systems interact with Roadster over
-protocols including \gls{SOAP} and \gls{OPC} \gls{UA}. They purpose is to
-collect and aggregate information from larger regions. At the top of the
-hiearchy are the ASTRA and MINSTRA which combine the information of all
-subsystems and provide a nationwide overview.
+Among others, the field devices include various kinds of \glspl{PLC}\footnote{an example
+is the SIMATIC S7-1500 by Siemens AG,
+\url{http://w3.siemens.com/mcms/programmable-logic-controller/en/advanced-controller/s7-1500/Pages/default.aspx}}
+as well as emergency call systems\footnote{an example is the NIS ComNode by Trans Data
+Management AG,
+\url{http://trans-data.com/en/k2-categories/item/149-niscomnode}}.
+These are interacted with over numerous propietary and standardized protocols.
+
+\subsubsection{System integration}
+This section briefly describes the big picture of Roadster's place within the typical system hierarchy and
+relationship with superordinate systems.
+
+Superordinate systems act as clients of a Roadster instance, communicating over
+protocols including \gls{SOAP} and \gls{opc-ua}. Their purpose is to
+collect and aggregate supervisory information from larger regions. At the top of the
+hiearchy are the \gls{FEDRO} (German: \gls{ASTRA}) which combine the information of all
+subsystems to provide a nationwide overview.
+
+\begin{figure}[]
+	\includegraphics[width=\textwidth]{img/overall_system.pdf}
+	\caption{Roadster's place within the overall system}
+	\label{fig:roadster:overallsys}
+\end{figure}
+
+\autoref{fig:roadster:overallsys} illustrates the overall system. The line
+style meanings also apply to the remaining physical topology illustrations. The acronyms
+used, which are part of the \gls{FEDRO} terminology, don't have official
+English translations; not even the department itself was able to help with
+translations on request, so they were left unchanged. A brief description
+follows, from the bottom up:
+
+\begin{description}
+	\item [ Field devices: ] \hfill\\
+	Field devices are various kinds of \glspl{PLC} and other subordinate systems
+	used to supervise and control industrial processes. Communication with them
+	happens over protocols such as \gls{modbus-tcp}, \gls{iec-104}, and
+	\gls{opc-ua}.
+
+	\item [ \gls{AS}: ] \hfill\\
+	This is Roadster's domain, or of course the one of another product with similar
+	functionality. An AS is responsible for one facility (e.g. emergency call system,
+	lighting system, fire alarm system, video monitoring system, ventilation
+	system, power supply system, train signaling system).
+
+	\item [ \gls{AR}: ] \hfill\\
+	The superordinate system of the collection of all AS found in one larger
+	facility such as a tunnel. With the results of this bachelor thesis, this
+	\emph{could} be Roadster's domain as well.
+
+	\item [ \gls{LR}: ] \hfill\\
+	The superordinate system of the collection of all AR found in a region such as
+	Z\"urich. As with AR, this \emph{could} be Roadster's domain as well.
+
+	\item [ \gls{LTA}: ] \hfill\\
+	This collective term comprises both the levels of AR and LR. For
+	simplicity and readability's sake, this will be referred to as
+	\emph{superordinate systems} for the remainder of this document.
+\end{description}
 
 \subsubsection{Typical hardware}
 Roadster typically runs on entry-level rack server hardware powered by an
@@ -164,25 +224,26 @@ traditional concurrency problems.
 Every Roadster node runs a group of actors:
 
 \begin{description}
-	\item [CORE:]
+	\item [CORE:]\hfill\\
 		It is responsible to start the other actors. It also plays a
 		key role in keeping state in all actors synchronized, being the
 		source of truth.
 
-	\item [COMM:]
+	\item [COMM:]\hfill\\
 		A bunch of COMM actors communicate with the outside world of a
 		node. It typically either acts as a client of various kinds of
 		subordinate field devices, or as a server to superordinate
 		systems. To communicate with subordinate systems, a COMM actor
-		uses an adapter specifically written for the communication
-		protocol in place.
+		utilizes an adapter specifically written for the communication
+		protocol in place. The webserver\footnote{The webserver \emph{Thin} is utilized, \url{http://code.macournoyer.com/thin/}} for the web UI also runs in a
+		COMM actor.
 
-	\item [STORAGE:]
+	\item [STORAGE:]\hfill\\
 		This actor is used when information needs to be persisted, such
 		as time series or event journals. It's the interface to a
 		key-value store.
 
-	\item [LOGGER:]
+	\item [LOGGER:]\hfill\\
 		This actor collects logging data and sends it to whatever
 		target is configured, be it STDOUT, a file, or a syslog server.
 \end{description}
@@ -214,8 +275,12 @@ explains the layers from top (most abstracted) to bottom:
 
 	\item [Reactor layer:]\hfill\\
 		This layer forms the base, which is where the \zmq sockets and
-		WebSockets used. In case of COMM actors, there can also be raw
-		TCP sockets, e.g. to interact with certain \glspl{PLC}.
+		\glspl{websocket} are utilized. It is powered by an
+		event-loop\footnote{EventMachine is used as a high-performance event-loop to
+		manage large numbers of sockets and timers,
+		\url{https://github.com/eventmachine/eventmachine}}. Sockets used by COMM actors
+		to communicate with various field devices are also integrated into this
+		event-loop.
 \end{description}
 
 \begin{figure}[]
@@ -233,7 +298,7 @@ internally. They reside in the messaging communication layer, and include:
 	\item [\gls{CSP}:]\hfill\\
 		Used to synchronize state between the actors.
 	\item [\gls{ACP}:]\hfill\\
-		Used to control the application state, e.g. things like shutdown.
+		Used to control the application state, e.g. shutdown.
 	\item [\gls{PDP}:]\hfill\\
 		Used when data needs to be persisted.
 	\item [\gls{SMP}:]\hfill\\
@@ -250,11 +315,12 @@ Every actor in Roadster uses a subset of these protocols to perform its job.
 Passing messages from actor to actor, which are nothing but serialized Ruby
 objects, happens in one of two modes:
 \begin{description}
-\item [Fire \& Forget:]
+\item [Fire \& Forget:]\hfill\\
 No guarantee of correct processing, e.g. DIM updates from COMM to CORE. This
 doesn't mean there are no other mechanisms in place to ensure reliability.
 
-\item [Dialog:] An immediate answer is expected, e.g. when creating a user
+\item [Dialog:]\hfill\\
+An immediate answer is expected, e.g. when creating a user
 session. Sending a message like this looks like it's a synchronous call, even
 though it's handled asynchronously under the hood\footnote{This is done by
 wrapping the affected code in a Ruby \rb{Fiber}, which is similar to a thread
@@ -344,7 +410,7 @@ The optional goals are:
 
 \begin{enumerate}
 	\item Encryption of the communication
-	\item Providing of the highly available \gls{OPC} \gls{UA} server interface
+	\item Providing of the highly available \gls{opc-ua} server interface
 \end{enumerate}
 
 Secure inter-node communication within a Roadster cluster is important to

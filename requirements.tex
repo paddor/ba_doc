@@ -24,41 +24,7 @@ non-functional requirements.
 
 \subsection{Cluster}
 Roadster must be able to run on multiple nodes in a hierarchical topology,
-forming a distributed computing cluster.
-
-Extending the \gls{CSP} to keep the \gls{DIM} in sync across all nodes is a central
-part of the clustering functionality. This means replicating the
-items within the DIM that are marked "dirty" (updated, but not synchronized yet) onto all other actors on all other nodes.
-
-According to
-the Data Model class diagram, these should only be instances of one of three
-classes (marked yellow in the diagram):
-\begin{itemize}
-	\item \rb{DataItem}
-	\item \rb{Session}
-	\item \rb{Case}
-\end{itemize}
-
-In addition to that, there needs to be a message routing mechanism so a user
-of one node's web UI can send a command to another node where it will be
-executed. An example for this is a forced value in the DIM to ignore the
-actually measured value reported by a device in case the device is known to be
-wrong. The common case where the command is issued at a higher level in the node
-topology is priority. E.g. in a setup with a root node and two
-subnodes A and B, issuing a command on A for B has a low priority.
-
-It's important that every node subtree can live on autonomously even if the
-link to its supernode or the supernode itself fails.
-
-The above requirements imply that changes to the DIM can only be done by the
-respective node. In other words, a node can only change its own values. It
-cannot change values of supernodes, nor is it allowed to change values of
-subnodes directly. This is to ensure that each node is its own source of truth
-for all other nodes in the setup.
-
-
-\subsubsection{Topologies}
-The typical topology setups include:
+forming a distributed computing cluster. Typical node topologies include:
 
 \begin{description}
 	\item [ Single level, single node ] \hfill\\
@@ -66,22 +32,11 @@ The typical topology setups include:
 		to do. Consisting of only one node, it's not actually a
 		cluster. This is illustrated in \autoref{fig:topo:sl:noha}.
 
-	\item [ Multi level, without \gls{HA} ] \hfill\\
+	\item [ Multi level ] \hfill\\
 		This is the most basic cluster setup. There is a root node, and
 		two subnodes. Each subnode is directly connected to a field device such as a
 		PLC or an emergency phone. This is illustrated in
 		\autoref{fig:topo:ml:noha}.
-
-	\item [ Single level \gls{HA} ] \hfill\\
-		This is when there are exactly two nodes, both of them
-		connected to the same PLC. There are two nodes for redundancy. This is illustrated in
-		\autoref{fig:topo:sl:ha}.
-
-	\item [ Multi level, \gls{HA} at root only ] \hfill\\
-		There can be multiple levels in the hierarchy, such as two or
-		three (anything else is considered exotic), and there's a HA
-		cluster at the root. An example of this setup is illustrated in
-		\autoref{fig:topo:ml:ha}.
 \end{description}
 
 \begin{figure}[]
@@ -96,6 +51,68 @@ The typical topology setups include:
 	\caption{Physical cluster topology example: supernode, two subnodes, a field device each}
 	\label{fig:topo:ml:noha}
 \end{figure}
+
+\subsubsection{DIM synchronization}
+Extending the \gls{CSP} to keep the \gls{DIM} in sync across all nodes is a central
+part of the clustering functionality. This means replicating the
+items within the DIM that are marked "dirty" (updated, but not synchronized yet) onto all other actors on all other nodes.
+
+According to
+the Data Model class diagram, these should only be instances of one of three
+classes (marked yellow in the diagram):
+\begin{itemize}
+	\item \rb{DataItem}
+	\item \rb{Session}
+	\item \rb{Case}
+\end{itemize}
+
+\subsubsection{Message routing}
+In addition to that, there needs to be a message routing mechanism so a user
+of one node's web UI can send a command to another node where it will be
+executed. An example for this is a forced value in the DIM to ignore the
+actually measured value reported by a device in case the device is known to be
+wrong. The common case where the command is issued at a higher level in the node
+topology is priority. E.g. in a setup with a root node and two
+subnodes A and B, issuing a command on A for B has a low priority.
+
+\subsubsection{Autonomy}
+It's important that every node subtree can keep up the operation autonomously even if the
+link to its supernode or the supernode itself fails. This means that updates to
+the \gls{DIM} are allowed even when the supernode is unavailable. After the
+recovery from the outage, the \gls{DIM} synchronization shall be reinitiated so
+all pending updates are shared to all other nodes (through the supernode).
+
+\subsubsection{Access restriction}
+The above requirements imply that changes to the \gls{DIM} can only be done by the
+respective node. In other words, a node can only change its own values. It
+cannot change values of supernodes, nor is it allowed to change values of
+subnodes directly. This is to ensure that each node is its own source of truth
+to all other nodes in the setup. Only the responsible node can enforce a single
+sequence of updates to its part of the DIM, which is necessary to guarantee
+consistency \cite[Chapter 5, Reliable Pub-Sub (Clone Pattern), Republishing
+Updates from Clients]{zmq:zguide}.
+
+
+\subsection{High availability}
+Roadster must be able to run in certain high availability setups. Achieving
+this is done by adding redundant Roadster nodes. There must be two distinct
+\gls{HA} modes available: Single level and multi level. These determine at
+which level (at the bottom or at root of the toplogy) redundancy is added.
+
+The following additional topology setups must be supported:
+\begin{description}
+	\item [ Single level \gls{HA} ] \hfill\\
+		This is when there are exactly two nodes, both of them
+		connected to the same PLC. There are two nodes for redundancy. This is illustrated in
+		\autoref{fig:topo:sl:ha}.
+
+	\item [ Multi level, \gls{HA} at root only ] \hfill\\
+		There can be multiple levels in the hierarchy, such as two or
+		three (anything else is considered exotic), and there's a HA
+		cluster at the root. An example of this setup is illustrated in
+		\autoref{fig:topo:ml:ha}.
+\end{description}
+
 \begin{figure}[]
 	\center
 	\includegraphics[width=0.5\textwidth]{img/topo_sl_ha.pdf}
@@ -121,8 +138,10 @@ The following exotic cases can be ignored:
 	a subordinate node connected to some field device.
 \end{description}
 
+The following sections contain the concrete requirements about the two
+different \gls{HA} levels.
 
-\subsection{Single level HA}
+\subsubsection{Single level}
 This is where each of the two nodes forming a HA unit is directly connected to a number of
 subsystems such as \glspl{PLC}, forming two redundant network paths to each
 subsystem. Both nodes are able to interact with the subsystems to perform
@@ -140,7 +159,7 @@ failures that need to be handled include:
 \end{itemize}
 
 
-\subsection{Multi level HA}
+\subsubsection{Multi level HA}
 This is where a node pair is the parent of one or more subnodes.
 
 The types of failures that need to be handled include:

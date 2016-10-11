@@ -171,11 +171,11 @@ functionality to Roadster involves the following aspects:
 	\label{fig:cluster}
 \end{figure}
 
-\subsubsection{Fallacies of Distributed Computing}
+\subsubsection{Fallacies of distributed computing}
 At this place, it is worth noting the common fallacies encountered in
 distributed computing, as explained on \cite{dcomp:fallacies}.
 
-\subsection{DIM Synchronization}
+\subsection{DIM synchronization}
 The following is a list of things that are missing before the requirements can be fulfilled:
 \begin{itemize}
 \item it has to work across several nodes
@@ -231,7 +231,7 @@ Eventual consistency is guaranteed by restricting write access to the owning
 node, and recovering from a network partition when communication is restored is
 done by simply reinitiating the DIM synchronization process.
 
-\subsection{Node Typology Definition}
+\subsection{Node typology definition}
 A cluster's node topology has to be defined somewhere. This can be done using a
 \gls{DSL} and then put into a static file (e.g. \sh{topology_conf.rb}) shared
 on all nodes of a Roadster cluster. Each actor could then read the file at
@@ -328,7 +328,7 @@ end # Roadster
 \end{lstlisting}
 
 
-\subsection{Message Routing}
+\subsection{Message routing}
 Messages need to be sent from an actor on one node to an actor on another node. The best place to put this logic is the CORE actor which already does this for messages exchanged within a node. It needs to be extended to know about nodes and their actors, not only actors on the current node. Then messages can be passed around hop-by-hop.
 
 In case a message is sent in \emph{Dialog} mode, this implicates Russian doll routing: At every hop, a new dialog is started which expects an immediate response, which will subsequently be passed back and complete the open dialogs.
@@ -342,7 +342,7 @@ via the CORE actor to the correct COMM actor, where the command can actually be
 executed on the field device.
 
 %----------------------------------------------------------------------------
-\section{High Availability}\label{sec:meth:ha}
+\section{High availability}\label{sec:meth:ha}
 If Roadster is going to be run in a cluster setup, measures need to be taken to
 mitigate the risk of failure, since many nodes are more likely to fail than a
 single node (unless they add redundancy). Availability shall be ensured by
@@ -353,7 +353,7 @@ fully functional backup node in addition to the primary one.
 Run together in a hot-standby cluster, the passive node's responsibility is to
 take over in case the active one goes down.
 
-\subsection{Defining Reliability}
+\subsection{Defining reliability}
 When speaking about reliability, it's worth listing the failures we want to be
 able to handle. According to the requirements, these are exactly:
 
@@ -429,7 +429,7 @@ the primary HA node goes down, meaning the HA node is effectively offline and
 unavailable for subnodes, the failover won't happen since heartbeats are still
 exchanged with the HA peer node over the dedicated link.
 
-\subsubsection{Alarm Generation}
+\subsubsection{Alarm generation}
 When a failover happens, it makes sense to create a \rb{Case} (alarm) in the
 DIM, so the outage is visible to operational personnel in one of the web UIs.
 The same applies to the case where the passive node goes down, although it
@@ -441,7 +441,7 @@ Once repaired, it's restarted with the exact same configuration --- either prima
 or backup. Since there's already an active node (either the primary one,
 or the backup one), the newly repaired node will become the new passive node.
 
-\subsubsection{Failover from Backup to Primary}
+\subsubsection{Failover from backup to primary node}
 Once failed over, the newly actve backup node stays active. It does so until it
 fails itself, at which point the now repaired, up and running primary node will
 take over. This works because the \gls{bstar} operates symmetrically
@@ -450,14 +450,14 @@ make the primary node the new active one without a failure. This is key. If a
 node goes down, the failover happens automatically, but anything else will
 require human interaction.
 
-\subsection{Side benefit: Rolling Upgrades}
+\subsection{Side benefit: Rolling upgrades}
 TODO useful for upgrades (maybe in Discussion)\\
 
 \subsection{Dangerous corner case: Backup node active, dedicated link goes down, and there are new/reconnecting clients}
 TODO this will lead to split-brain syndrome (maybe in Discussion)\\
 TODO in general: dedicated link for HA pair communication is dangerous!\\
 
-\subsection{Single Level}
+\subsection{Single level}
 This is different from what's described in the \gls{zguide} because the concept of
 client requests is missing here (field devices don't request anything from Roadster nodes).  What can be
 done instead is periodically sending life signs from one node to the other
@@ -516,7 +516,7 @@ illustrated in \autoref{fig:ml:ha}.
 \end{figure}
 
 %----------------------------------------------------------------------------
-\section{Persistence Synchronization}\label{sec:meth:psync}
+\section{Persistence synchronization}\label{sec:meth:psync}
 The persisted data and updates to it, handled by the STORAGE actor, need to
 bubble up and collected in the root node.
 
@@ -661,7 +661,7 @@ any kind of authentication service to be plugged in.
 %TODO briefly describe \zmq's security features, what's left for us to decide (key destribution, if at all)\\
 
 
-\section{OPC UA Interface: High Availability}\label{sec:meth:opc-ua}
+\section{OPC UA Interface: High availability}\label{sec:meth:opc-ua}
 TODO This is the optional goal.\\
 TODO explain new opportunity for OPC UA HA server\\
 TODO describe whatever needs to be described\\

@@ -31,12 +31,12 @@ messaging patterns.
 The above characteristics make \zmq a valuable asset when it comes to building
 robust, distributed high-performance systems.
 
-\subsubsection{Transport Security}
+\section{Transport Security}
 Since version 4.0, \zmq boasts state of the art encryption and authentication,
 based on the excellent and highly renown
 \gls{nacl}\footnote{\url{http://nacl.cr.yp.to}} library.
 
-\subsubsection{Data Serialization}
+\section{Data Serialization}
 Data serialization is outside the scope of \zmq. To fill the gap, one typically
 uses another library such as MsgPack\footnote{\url{http://msgpack.org}},
 Protocol
@@ -45,7 +45,7 @@ even a programming language's built-in object serialization
 support\footnote{such as Ruby's marshalling support:
 \url{http://ruby-doc.org/core/Marshal.html}}.
 
-\subsubsection{CZMQ}
+\section{CZMQ}
 \gls{czmq} is a high-level abstraction layer for \zmq. It makes working with the \zmq
 library more expressive and allows for better portability. It also provides
 additional functionality such as a reactor, a simple actor implementation, as

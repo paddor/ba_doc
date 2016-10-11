@@ -63,8 +63,8 @@ The typical topology setups include:
 \begin{description}
 	\item [ Single level, single node ] \hfill\\
 		This is the legacy setup and is what Roadster is already able
-		to do. Consisting of only one node, it's not actually a cluster.
-		% TODO: illustration
+		to do. Consisting of only one node, it's not actually a
+		cluster. This is illustrated in \autoref{fig:topo:sl:noha}.
 
 	\item [ Multi level, without \gls{HA} ] \hfill\\
 		This is the most basic cluster setup. There is a root node, and
@@ -74,23 +74,40 @@ The typical topology setups include:
 
 	\item [ Single level \gls{HA} ] \hfill\\
 		This is when there are exactly two nodes, both of them
-		connected to the same PLC. There are two nodes for redundancy.
-		% TODO: illustration
+		connected to the same PLC. There are two nodes for redundancy. This is illustrated in
+		\autoref{fig:topo:sl:ha}.
 
 	\item [ Multi level, \gls{HA} at root only ] \hfill\\
 		There can be multiple levels in the hierarchy, such as two or
 		three (anything else is considered exotic), and there's a HA
-		cluster at the root.
-		% TODO: illustration
+		cluster at the root. An example of this setup is illustrated in
+		\autoref{fig:topo:ml:ha}.
 \end{description}
 
+\begin{figure}[]
+	\center
+	\includegraphics[width=0.25\textwidth]{img/topo_sl_noha.pdf}
+	\caption{Physical legacy example: a single node and a field device each}
+	\label{fig:topo:sl:noha}
+\end{figure}
 \begin{figure}[]
 	\center
 	\includegraphics[width=0.5\textwidth]{img/topo_ml_noha.pdf}
 	\caption{Physical cluster topology example: supernode, two subnodes, a field device each}
 	\label{fig:topo:ml:noha}
 \end{figure}
-
+\begin{figure}[]
+	\center
+	\includegraphics[width=0.5\textwidth]{img/topo_sl_ha.pdf}
+	\caption{Physical cluster topology example: a HA node pair and a field device}
+	\label{fig:topo:sl:ha}
+\end{figure}
+\begin{figure}[]
+	\center
+	\includegraphics[width=0.5\textwidth]{img/topo_ml_ha.pdf}
+	\caption{Physical cluster topology example: root HA, two subnodes, a field device each}
+	\label{fig:topo:ml:ha}
+\end{figure}
 
 The following exotic cases can be ignored:
 

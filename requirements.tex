@@ -57,9 +57,8 @@ Extending the \gls{CSP} to keep the \gls{DIM} in sync across all nodes is a cent
 part of the clustering functionality. This means replicating the
 items within the DIM that are marked "dirty" (updated, but not synchronized yet) onto all other actors on all other nodes.
 
-According to
-the Data Model class diagram, these should only be instances of one of three
-classes (marked yellow in the diagram):
+According to the meta model in \autoref{fig:roadster:meta-model}, these are exactly
+the instances of one of the following three classes (marked yellow in the class diagram):
 \begin{itemize}
 	\item \rb{DataItem}
 	\item \rb{Session}

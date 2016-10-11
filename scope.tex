@@ -155,7 +155,7 @@ Roadster uses \zmq to carry messages between its processes.
 For a more detailed introduction, see \autoref{ch:zmq}.
 
 \subsection{Software architecture}
-As mentioned earlier, Roadster is event-driven and built on the Actor model, meaning it exhibits a
+As mentioned earlier, Roadster is event-driven\footnote{\url{https://en.wikipedia.org/wiki/Event-driven_programming}} and built on the Actor model, meaning it exhibits a
 shared-nothing architecture. Each Roadster node runs a number of Ruby processes
 which communicate via \zmq sockets. The key here is communication:
 

@@ -186,22 +186,22 @@ The following is a list of things that are missing before the requirements can b
 There are multiple choices when it comes to what exactly of the DIM should be synchronized:
 
 \begin{description}
-	\item [Variant 1. Sync self-subtree only:] \hfill
-		\begin{itemize}
-			\item always sync on self-subtree only
-			\item con: no copy of remaining tree
-		\end{itemize}
+	\item [Variant 1. Sync self-subtree only] \hfill\\
+	Always sync on subtree only, which means a node only knows the DIM part of
+	itself. The big disadvantage is that it won't have a copy of the rest of the
+	DIM, which can be useful to inspect variables on neighboring nodes, especially
+	when they're unreachable.
 
-	\item [Variant 2. Sync complete tree:] \hfill
-		\begin{itemize}
-			\item always sync on complete tree
-			\item get snapshot and merge own subtree
-		\end{itemize}
+	\item [Variant 2. Sync complete tree] \hfill\\
+	Always sync on complete tree, which means getting the snapshot from the
+	supernode and merge the own subtree into it, replacing whatever subtree is
+	already there. This works because of the autonomy requirement for nodes and
+	their subnodes. This variant is very easy to implement at first.
 
-	\item [Variant 3. Either sync on subtree or complete tree:] \hfill
-		\begin{itemize}
-			\item make it configurable: either sync on subtree or complete tree
-		\end{itemize}
+	\item [Variant 3. Either sync on subtree or complete tree] \hfill\\
+	Make it configurable: Either sync on subtree or on complete tree. The
+	toplogy DSL would allow to specify this property for each node. This is
+	the best of both worlds, but more effort.
 \end{description}
 
 Variant 2 will be the first step. Variant 3 will be the second step, if at all.
@@ -210,6 +210,7 @@ Since COMM actors are used to communicate with things outside of a node, new COM
 actors will have to be introduced: One kind that is south-facing to communicate
 with subnodes, and another one that is north-facing for communication with
 supernodes. They will be named COMM CLUSTER NORTH and COMM CLUSTER SOUTH.
+% TODO: better names, maybe SFACE and NFACE
 
 Their responsibility is the inter-node synchronization of the DIM, similarly to
 what's happening in the existing CSP within a single node.
@@ -224,7 +225,7 @@ appropriate, so all direct superordinate nodes hear the updates.
 The CAP theorem \cite{wp:cap} states that it is impossible for a distributed
 computer system to simultaneously provide consistency, availability, and
 network partition tolerance. In the face of a network partition, one has to
-chose between availability and consistency. Because sub trees of a Roadster
+chose between availability and consistency. Because subtrees of a Roadster
 cluster must be autonomous, availability is chosen.
 
 Eventual consistency is guaranteed by restricting write access to the owning
@@ -388,12 +389,17 @@ Failures that won't be covered include:
 		to be met for a failover.
 \end{description}
 
-\subsection{What's Needed}
-TODO A simple HA protocol: Binary Star\\
-TODO maybe we need to extend binary star to handle other kinds of network failures?\\
-TODO new actor: COMM BSTAR\\
+The \gls{zguide} describes a very simple mechanism to achieve this kind of high
+availability with exactly two redundant nodes: The Binary Star pattern. It
+provides a set of clients a highly available service by running two server
+nodes in a hot-standby setup. It is simple and thus very robust, avoids the
+split-brain syndrome, and is fairly easy to implement, even as reusable
+code. The implementation could be contained within a new kind of COMM actor
+called BSTAR. This makes sense since it talks to the outside world.
 
-\subsection{Binary Star in a Nutshell}
+% TODO maybe we need to extend binary star to handle other kinds of network failures?\\
+
+\subsection{Binary Star in a nutshell}
 Two HA peer nodes are started either as primary or as backup. After an initial
 handshake, the primary one becomes active, the backup node becomes passive. The
 two continually exchange heartbeats. Clients always connect to the primary's endpoint first.
@@ -408,9 +414,9 @@ The passive node takes over when the following two conditions are met:
 The second condition is to prevent the split-brain syndrome and thus can be
 thought of as an external vote for the node to actually initiate the failover.
 This works because clients will always try to connect to the primary node's
-endpoint first, then move on to the backup node's endpoint. In the
-\gls{zguide}, this algorithm is explained as the \emph{Lazy Pirate} pattern,
-one of the \emph{Reliable Request-Reply Patterns}.
+endpoint first, then move on to the backup node's endpoint. This algorithm is
+explained in \cite[Chapter 4 - Reliable Request-Reply Patterns, Client-Side
+Reliability (Lazy Pirate Pattern)]{zmq:zguide}.
 
 \subsection{Failover}
 In case the currently active node goes down, the two conditions will be met.
@@ -425,14 +431,15 @@ unavailable for subnodes, the failover won't happen since heartbeats are still
 exchanged with the HA peer node over the dedicated link.
 
 \subsubsection{Alarm Generation}
-When a failover happens, we want to create a \rb{Case} (alarm) in the DIM, so
-the outage is visible to a user in one of the web UIs. Also, in case the
-passive node goes down, which doesn't have an immediate effect on availability,
-we also want to create a \rb{Case}. This is so the user can act upon the alarm
-and e.g. initiate field forces to inspect the failed node and repair it.
+When a failover happens, it makes sense to create a \rb{Case} (alarm) in the
+DIM, so the outage is visible to operational personnel in one of the web UIs.
+The same applies to the case where the passive node goes down, although it
+doesn't have an immediate effect on availability.  This is so the operational
+personnel can act upon the alarm and e.g. initiate field forces to inspect the
+failed node and repair it.
 
-Once repaired, it's started with the exact same configuration (either primary
-or backup) again. Since there's already an active node (either the primary one,
+Once repaired, it's restarted with the exact same configuration --- either primary
+or backup. Since there's already an active node (either the primary one,
 or the backup one), the newly repaired node will become the new passive node.
 
 \subsubsection{Failover from Backup to Primary}

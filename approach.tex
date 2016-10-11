@@ -381,16 +381,16 @@ Failures that won't be covered include:
 		decision can't be done reliably, which could lead to the
 		dreaded split brain syndrome.
 
-	\item [Failure of the link between a HA peer node and the PLC]
+	\item [Failure of the link between a HA peer node and the field device]
 		The \gls{bstar} algorithm won't initiate a failover since the
 		active is still alive and is able to tell the passive node so.
-		The missing life signs via the PLC could cause an alarm, but no
+		The missing life signs via the field device could cause an alarm, but no
 		failover, since they're only half of the conditions that have
 		to be met for a failover.
 \end{description}
 
 The \gls{zguide} describes a very simple mechanism to achieve this kind of high
-availability with exactly two redundant nodes: The Binary Star pattern. It
+availability with exactly two redundant nodes: The \gls{bstar}. It
 provides a set of clients a highly available service by running two server
 nodes in a hot-standby setup. It is simple and thus very robust, avoids the
 split-brain syndrome, and is fairly easy to implement, even as reusable
@@ -459,10 +459,10 @@ TODO this will lead to split-brain syndrome (maybe in Discussion)\\
 TODO in general: dedicated link for HA pair communication is dangerous!\\
 
 \subsection{Single Level}
-This is different from what's described in the zguide because the concept of
-client requests is missing here (PLCs don't request anything).  What can be
+This is different from what's described in the \gls{zguide} because the concept of
+client requests is missing here (field devices don't request anything from Roadster nodes).  What can be
 done instead is periodically sending life signs from one node to the other
-through the PLC by updating some designated memory block. This can actually be
+through the field device by updating some designated memory block. This can actually be
 done by both the active and the passive node, which reduces code complexity.
 
 The passive node will check the active node's life signs periodically as well.
@@ -471,49 +471,50 @@ This would satisfy the second condition of the \gls{bstar} for a
 failover to take place. The first condition would be the missing heartbeats
 which are normally transmitted through the network link.
 
-TODO new actor: COMM PLCVOTER\\
+TODO new actor: COMM BSTARVOTER (or maybe directly into CORE actor)
 
 \begin{figure}[]
 	\includegraphics[width=\textwidth]{img/SL-HA_bstar.pdf}
-	\caption{Single level HA setup between a HA pair and a PLC}
+	\caption{Single level HA setup between a HA pair and a field device (PLC)}
 	\label{fig:sl-ha}
 \end{figure}
 % TODO: mention figure in text
 
 \subsubsection{Caveats}
 Special attention needs to be paid when it comes to writing these life signs. A
-na\"ive developer might implement the COMM PLCVOTER so it autonomously causes
-life signs to be written PLC. This works as long as the failures only affect
+na\"ive developer might implement the COMM BSTARVOTER so it autonomously causes
+life signs to be written on the field device. This works as long as the failures only affect
 the hardware. But what if a software error happens in the CORE or BSTAR actor?
-They'd crash or hang, while the PLCVOTER happily sends out life signs, which it
+They'd crash or hang, while the BSTARVOTER happily sends out life signs, which it
 obviously shouldn't be doing at that moment.
 
-A better implementation would have the PLCVOTER poll the BSTAR via the CORE
+A better implementation would have the BSTARVOTER poll the BSTAR via the CORE
 router whether it's still alive, and only send out a life sign in case it gets
 an answer. This way, the BSTAR and the CORE actor are being tested for
 responsiveness. We'll call the two messages being sent back and forth "DEAD?"
 and "ALIVE!".
 
-\subsubsection{Node---PLC Link Failure}
+\subsubsection{Link failure between Roadster node and field device}
 TODO describe why this won't cause a failover and thus can't be handled, as
 mentioned above\\
 
-\subsubsection{Supporting Different PLCs}
+\subsubsection{Supporting different field devices}
 TODO: adapter
 
 \subsection{Multi Level}
 This kind of \gls{HA} setup is closely related to the \gls{bstar} described
-in the \gls{zguide}, meaning that there will be actual requests from client on the
-passive node in case the active node fails. These requests will count as votes
-to fulfill the second condition that has to be met for a failover to be
-initiated.
+in \cite[Chapter 4 - Reliable Request-Reply Patterns, High-Availability Pair
+(Binary Star Pattern)]{zmq:zguide}. This means that the passive node would
+actually receive requests from clients in case the active node fails, which
+simplifies the implementation. These requests will count as votes to fulfill
+the second condition that has to be met for a failover to be initiated. This is
+illustrated in \autoref{fig:ml:ha}.
 
 \begin{figure}[]
 	\includegraphics[width=\textwidth]{img/ML-HA_bstar.pdf}
 	\caption{Multi level HA setup between a HA pair and a number of client nodes}
-	\label{fig:ml-ha}
+	\label{fig:ml:ha}
 \end{figure}
-% TODO: mention figure in text
 
 %----------------------------------------------------------------------------
 \section{Persistence Synchronization}\label{sec:meth:psync}

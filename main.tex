@@ -11,7 +11,15 @@
 \usepackage{hyperref}
 \usepackage{xspace} % space, but not before punctuation
 \usepackage[hypcap]{caption} % link to top of tables and figures, not to bottom caption
-%\usepackage[parfill]{parskip} % no idented first line of each paragraph
+
+% paragraph spacing, no indentation, with normal list spacing
+\usepackage[parfill]{parskip} % no idented first line of each paragraph
+\usepackage{enumitem}
+\newlength\docparskip
+\parskip=10pt
+\setlength{\docparskip}{\parskip}
+\setlist{nosep, itemsep=5pt, parsep=0pt, before={\parskip=5pt}, after={}}
+
 \usepackage{amssymb} % for \checkmark
 \usepackage{textgreek} % for \textMu
 \usepackage{enumitem} % for \begin{itemize}[label={...}]
@@ -35,7 +43,7 @@ block=none]{biblatex}
 	unicode=true,
 	colorlinks=true,linkcolor=blue,
 	pdftitle={Roadster High Availability},
-	pdfsubject={Extension of a SCADA Framework to support High Availability and Security},
+	pdfsubject={Extension of a SCADA Framework to support High Availability and Authenticated Encryption},
 	pdfauthor={Patrik Wenger, Manuel Schuler},
 	pdfkeywords={ruby} {zmq} {czmq} {cztop} {high availability} {security} {encryption} {UPC UA} {SCADA} {C++},
 }
@@ -72,9 +80,9 @@ block=none]{biblatex}
 \vspace{50mm}
 {\scshape\Large Bachelor thesis\\}
 \vspace{2cm}
-{\huge\bfseries Extension of a SCADA Framework to support High Availability and Security\\}
+{\huge\bfseries Extension of a SCADA Framework to support High Availability and Authenticated Encryption\\}
 \vspace{1cm}
-{\huge\bfseries \#Ruby \#\O{}MQ\\}
+{\huge\bfseries \#Ruby \#\O{}MQ \#NaCl\\}
 \vspace{2cm}
 {\Large\itshape Patrik Wenger, Manuel Schuler\\}
 \vfill
@@ -98,26 +106,28 @@ block=none]{biblatex}
 \pagenumbering{roman}
 
 % Introduction
-TODO introduction
+% TODO introduction
 
 % Approach and Technologies
-TODO approach and technologies
+% TODO approach and technologies
 
 % Result
-TODO result
+% TODO result
 
 \end{abstract}
 %-----------------------------------------------------------------------------
 
 \chapter*{Declaration of Originality}
-We hereby confirm that we are the sole authors of this document and the
-described changes to the Roadster framework and libraries developed.
+We hereby confirm that we are the sole authors of this document, the
+described changes to the Roadster framework, and libraries developed as a
+byproduct. Unless stated differently, all illustrations in this document are
+our creations.
 
-TODO any usage agreements or license
+% TODO any usage agreements or license
 %\includepdf[width=\textwidth,pages=1,pagecommand=\section{Permissions},trim=1.9cm 3cm 2cm 2cm,clip]{vereinbarung.pdf}
 
 \chapter*{Acknoledgements}
-TODO anyone we'd like to thank
+% TODO anyone we'd like to thank
 
 Special thanks to Pieter Hintjens {\textdagger} (3 December 1962 -- 4 October
 2016) for his amazing work and contagious passion within the \zmq and
@@ -134,6 +144,7 @@ family. Rest in peace.
 \pagebreak
 \pagenumbering{arabic}
 \setcounter{page}{1}
+\setcounter{secnumdepth}{4}
 
 %-----------------------------------------------------------------------------
 \part{Management Summary}\label{part:mgmtsummary}

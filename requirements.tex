@@ -19,17 +19,45 @@ descending order:
 The following sections explain the requirements in greater detail.
 
 \section{Functional}
-Below are the functional requirements, as opposed to the non-functional
-requirements.
-
+This section elucidates the functional requirements, as opposed to the
+non-functional requirements.
 
 \subsection{Cluster}
-This requirement is to allow running Roadster on multiple nodes in a
-hierarchical topology.
+Roadster must be able to run on multiple nodes in a hierarchical topology,
+forming a distributed computing cluster. Typical node topologies include:
 
+\begin{description}
+	\item [ Single level, single node ] \hfill\\
+		This is the legacy setup and is what Roadster is already able
+		to do. Consisting of only one node, it's not actually a
+		cluster. This is illustrated in \autoref{fig:topo:sl:noha}.
+
+	\item [ Multi level ] \hfill\\
+		This is the most basic cluster setup. There is a root node, and
+		two subnodes. Each subnode is directly connected to a field device such as a
+		PLC or an emergency phone. This is illustrated in
+		\autoref{fig:topo:ml:noha}.
+\end{description}
+
+\begin{figure}[]
+	\center
+	\includegraphics[width=0.25\textwidth]{img/topo_sl_noha.pdf}
+	\caption{Physical legacy example: a single node and a field device each}
+	\label{fig:topo:sl:noha}
+\end{figure}
+\begin{figure}[]
+	\center
+	\includegraphics[width=0.5\textwidth]{img/topo_ml_noha.pdf}
+	\caption{Physical cluster topology example: supernode, two subnodes, a field device each}
+	\label{fig:topo:ml:noha}
+\end{figure}
+
+\subsubsection{DIM synchronization}
 Extending the \gls{CSP} to keep the \gls{DIM} in sync across all nodes is a central
-part of the clustering functionality. This means synchronizing the
-items within the DIM that have \rb{@lifecycle_status = "updated"}. According to
+part of the clustering functionality. This means replicating the
+items within the DIM that are marked "dirty" (updated, but not synchronized yet) onto all other actors on all other nodes.
+
+According to
 the Data Model class diagram, these should only be instances of one of three
 classes (marked yellow in the diagram):
 \begin{itemize}
@@ -38,72 +66,113 @@ classes (marked yellow in the diagram):
 	\item \rb{Case}
 \end{itemize}
 
-In addition to that, there needs to be some kind of message routing so a user
+\subsubsection{Message routing}
+In addition to that, there needs to be a message routing mechanism so a user
 of one node's web UI can send a command to another node where it will be
 executed. An example for this is a forced value in the DIM to ignore the
 actually measured value reported by a device in case the device is known to be
-wrong.
+wrong. The common case where the command is issued at a higher level in the node
+topology is priority. E.g. in a setup with a root node and two
+subnodes A and B, issuing a command on A for B has a low priority.
 
-It's important that every node subtree can live on autonomously even if the
-link to its supernode or the supernode itself fails.
+\subsubsection{Autonomy}
+It's important that every node subtree can keep up the operation autonomously even if the
+link to its supernode or the supernode itself fails. This means that updates to
+the \gls{DIM} are allowed even when the supernode is unavailable. After the
+recovery from the outage, the \gls{DIM} synchronization shall be reinitiated so
+all pending updates are shared to all other nodes (through the supernode).
 
-The above requirements imply that changes to the DIM can only be done by the
+\subsubsection{Access restriction}
+The above requirements imply that changes to the \gls{DIM} can only be done by the
 respective node. In other words, a node can only change its own values. It
 cannot change values of supernodes, nor is it allowed to change values of
 subnodes directly. This is to ensure that each node is its own source of truth
-for all other nodes in the setup.
+to all other nodes in the setup. Only the responsible node can enforce a single
+sequence of updates to its part of the DIM, which is necessary to guarantee
+consistency \cite[Chapter 5, Reliable Pub-Sub (Clone Pattern), Republishing
+Updates from Clients]{zmq:zguide}.
 
 
-\subsubsection{Typical Usecases}
-The typical use cases include:
+\subsection{High availability}
+Roadster must be able to run in certain high availability setups. Achieving
+this is done by adding redundant Roadster nodes. There must be two distinct
+\gls{HA} modes available: Single level and multi level. These determine at
+which level (at the bottom or at root of the toplogy) redundancy is added.
 
+The following additional topology setups must be supported:
 \begin{description}
-	\item [ Single level, single node ]
-		This is the legacy setup and is what Roadster is already able to do.
-
-	\item [ Single level \gls{HA} ]
+	\item [ Single level \gls{HA} ] \hfill\\
 		This is when there are exactly two nodes, both of them
-		connected to the same PLC. There are two nodes for redundancy.
+		connected to the same PLC. There are two nodes for redundancy. This is illustrated in
+		\autoref{fig:topo:sl:ha}.
 
-	\item [ Multi level, \gls{HA} at root only ]
+	\item [ Multi level, \gls{HA} at root only ] \hfill\\
 		There can be multiple levels in the hierarchy, such as two or
 		three (anything else is considered exotic), and there's a HA
-		cluster at the root.
+		cluster at the root. An example of this setup is illustrated in
+		\autoref{fig:topo:ml:ha}.
 \end{description}
 
-The exotic cases which can be ignored, if need be, include:
+\begin{figure}[]
+	\center
+	\includegraphics[width=0.5\textwidth]{img/topo_sl_ha.pdf}
+	\caption{Physical cluster topology example: a HA node pair and a field device}
+	\label{fig:topo:sl:ha}
+\end{figure}
+\begin{figure}[]
+	\center
+	\includegraphics[width=0.5\textwidth]{img/topo_ml_ha.pdf}
+	\caption{Physical cluster topology example: root HA, two subnodes, a field device each}
+	\label{fig:topo:ml:ha}
+\end{figure}
 
-\begin{itemize}
-	\item Multi level, HA at bottom
-	\item Multi level, HA in the middle
-\end{itemize}
+The following exotic cases can be ignored:
 
+\begin{description}
+	\item [ Multi level, \gls{HA} at bottom ] \hfill\\
+	A single root node at the top and a subordinate HA pair each connected
+	to the same field device.
 
-\subsection{Single Level HA}
-This is where there's a node pair directly connected to a PLC. Both nodes have
-read\slash write access to the PLC, but only one of the nodes (the active one)
-must do so. The nodes must automatically find consensus on who's active. The
+	\item [ Multi level, \gls{HA} in the middle ] \hfill\\
+	A single root node at the top, a subordinate HA pair, which in turn has
+	a subordinate node connected to some field device.
+\end{description}
+
+The following sections contain the concrete requirements about the two
+different \gls{HA} levels.
+
+\subsubsection{Single level}
+This is where each of the two nodes forming a HA unit is directly connected to a number of
+subsystems such as \glspl{PLC}, forming two redundant network paths to each
+subsystem. Both nodes are able to interact with the subsystems to perform
+operation tasks (e.g. reading sensor data, writing down configurations), but
+only one of them (the active one) must do so.
+
+The two nodes must automatically find consensus on which one is currently active. The
 passive one must automatically take over in case the active one is confirmed to
-be dead.\\
-
-The kinds of failures that need to be handled include:
+be dead. Certain memory ranges can be used by the nodes to help find consensus
+without interfering with normal operation of the subsystem. The kinds of
+failures that need to be handled include:
 \begin{itemize}
 	\item Hardware/software failure on the primary node
-	\item Failure of the link between the two nodes
+	\item Failure of one of the redundant networking paths connecting the subsystem to the two nodes
 \end{itemize}
 
 
-
-\subsection{Multi Level HA}
+\subsubsection{Multi level HA}
 This is where a node pair is the parent of one or more subnodes.
 
-The kinds of failures that need to be handled include:
+The types of failures that need to be handled include:
 \begin{itemize}
-	\item Hardware/software failure on the primary node
-	\item Failure of the link between the two nodes
+	\item Software failure on the primary node, like an application or OS crash
+	\item Hardware failure on the primary node, like a defect power supply
+	\item Failure of the network link connecting a node to the cluster
 \end{itemize}
 
-\subsection{Persistence Synchronization}
+All three failure types listed above can collectively be called \emph{crash},
+as their effects are the same from the point of view of the cluster.
+
+\subsection{Persistence synchronization}
 This is about the synchronization of persisted data, which is currently stored
 in TokyoCabinet databases on a Roadster node. With the clustering, this is
 still true: Every node will have its own key-value store. Updates for persisted
@@ -125,18 +194,6 @@ are shared only towards the root node (thus "bubbling up").
 100\% consistency is not an absolute requirement for persistence synchronization.
 However, it is mandatory that updates make it to the root node within 30 seconds.
 
-\subsection{Security}
-\emph{This is optional.}
-
-The communication between a given set of Roadster nodes must be secured using
-encryption.
-% TODO: wait for Andy's answer on #9
-% TODO common concern about SCADA systems lacking security\\
-
-This requirement comes last not because it's insignificant, but because it's
-easy to enable transport level security on ZMQ sockets, and it would just
-interfere with the previous development if that turns out to be difficult.
-
 \subsection{OPC UA HA}
 \emph{This is optional.}
 
@@ -146,29 +203,38 @@ p.~96]{opc-ua:behavior:server-redundancy}.
 
 % ---------------------------------------------------------------------------
 \section{Use Cases}
-% TODO intro
+The use cases are briefly described here. These should simply describe common
+scenarios based on the requirements above. They can later be turned into
+concrete testing scenarios.
 
 \subsection{UC01: Cluster}
-% TODO
+A root node R has two subnodes A and B. A user connected to the root node's web
+UI wants to suppress a case repeatedly generated on subnode A. The DIM shall be
+kept in sync across all nodes.
 
 \subsection{UC02: Hardware failure at top}
-% TODO
+A subnode A is connected to a root-level HA pair (nodes R1 and R2). The active
+HA peer (R1) crashes. R2 is supposed to take over as soon as subnode A fails
+over to R2.
 
 \subsection{UC03: Hardware failure at bottom}
-% TODO
+A HA pair is connected to a field device. The active nodes crashes. The passive
+one has to notice and take over to ensure continued monitoring of and access to
+the field device.
 
 \subsection{UC04: Persistence synchronization}
-% TODO
-
-\subsection{UC05: Security}
-% TODO
+A root node R has two subnodes A and B. Persisted data on A has to bubble up to
+root, even after temporary failure of the link between them. Root eventually
+contains the union of all subnodes' persisted data.
 
 \subsection{UC05: OPC-UA HA}
-% TODO
-
+A HA pair provides an OPC UA interface. On failover, the superordinate system
+shall continue to interact with the leftover HA peer.
 
 % ---------------------------------------------------------------------------
 \section{Non-Functional Requirements}
+The following subsections illustrate the non-functional requirements.
+
 \subsection{Simplicity}
 The two reoccuring patterns that surfaced during the requirements gathering
 meeting were:
@@ -184,11 +250,20 @@ meeting were:
 
 
 \subsection{Testing}
+Regarding testing, the following requirements exist:
 \begin{itemize}
-	\item we write unit tests for our own contributions
-	\item we test the integrated result in a close-to-reality setup
+	\item the student's contributions are verified with at least unit tests
+	\item use cases shall be integration tested in a close-to-reality setup
 \end{itemize}
 
+\subsection{Security}
+\emph{This is optional. Also, this requirement has the lowest priority not
+because it's insignificant, but because it's easy to enable transport level
+security on \zmq sockets.}
+
+The inter-node communication of a Roadster cluster must be secured using
+encryption. \zmq offers server authentication at a minimum, if encryption is
+enabled. Client authentication is not needed at this stage.
 
 \subsection{Coding Guidelines}
 The coding guidelines desired by the client are basically the ones written down

@@ -1,13 +1,12 @@
 % vim: ft=tex
 \chapter{Approach}
-TODO what have we done to arrive at the goal (should be reproducible)\\
-TODO this is probably what we know as "Concept"\\
-
+This chapter describes the approach taken by the students to fulfill the
+requirements. Possible variants as well as the final choices are explained here.
 
 \section{Getting familiar with Roadster}
-The client gave a short introduction into Roadster's code base during the first
+The client gave a short introduction into Roadster's code base during the meeting in the first
 week of this thesis. Although quite overwhelming, the first impression was that
-the code is clean, makes use of useful abstractions and has loosely coupled
+the code is clean, makes good use of abstractions and has loosely coupled
 classes. API documentation is scarce though.
 
 TODO: describe approach of getting more familiar with Roadster, e.g. during prototyping
@@ -48,9 +47,9 @@ More details about the integration test scenarios can be found in \autoref{ch:re
 
 \subsection{Continous integration}
 \gls{CI} helps us prevent integration problems also known as \emph{integration
-hell}. Each push to the repository will trigger a CI check, which will run a
+hell}. Each push to the repository will trigger a CI build using a predefined
 build script. This will install Roadster's dependencies, an example app built
-with Roadster, and finally Roadster's test suites.
+with Roadster, and run finally Roadster's test suites.
 
 \subsection{System test}
 Systemtests dienen dazu die Applikation unter realen Bediengungen zu testen. Um eine fast realitätsnah

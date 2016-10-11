@@ -116,7 +116,7 @@ TODO system tests at end of construction\\
 TODO use travis-ci.com OR GitLab CI (self-hosted on HSR VM)\\
 
 %----------------------------------------------------------------------------
-\section{Port to new \zmq library}\label{sec:meth:port}
+\section{Port to new \zmq library}\label{sec:approach:port}
 Porting Roadster to a new \zmq library early on makes sense for the following reasons:
 
 \begin{itemize}
@@ -152,7 +152,7 @@ an appropriate exception if needed.
 This was about an hour's work.
 
 %----------------------------------------------------------------------------
-\section{Cluster}\label{sec:meth:cluster}
+\section{Cluster}\label{sec:approach:cluster}
 A Roadster cluster is illustrated in \autoref{fig:cluster}. Adding cluster
 functionality to Roadster involves the following aspects:
 \begin{itemize}
@@ -342,7 +342,7 @@ via the CORE actor to the correct COMM actor, where the command can actually be
 executed on the field device.
 
 %----------------------------------------------------------------------------
-\section{High availability}\label{sec:meth:ha}
+\section{High availability}\label{sec:approach:ha}
 If Roadster is going to be run in a cluster setup, measures need to be taken to
 mitigate the risk of failure, since many nodes are more likely to fail than a
 single node (unless they add redundancy). Availability shall be ensured by
@@ -516,7 +516,7 @@ illustrated in \autoref{fig:ml:ha}.
 \end{figure}
 
 %----------------------------------------------------------------------------
-\section{Persistence synchronization}\label{sec:meth:psync}
+\section{Persistence synchronization}\label{sec:approach:psync}
 The persisted data and updates to it, handled by the STORAGE actor, need to
 bubble up and collected in the root node.
 
@@ -642,26 +642,19 @@ gives an unstable link more time to recover before any data loss happens.
 TODO: describe reasonable default setting, in case we change ZMQ's default.
 
 
-\section{Security}\label{sec:meth:security}
-Encrypted communication can be achieved using \zmq's transport encryption,
-which is completely transparent to the application. It uses the \gls{libsodium}
-library to do this, although there's also the possibility to do it using
-\gls{tweetnacl} to avoid the additional dependency. The handshake is designed
-to be immune against flooding, using encrypted and authenticated cookies, so
-the server does not have to allocate any resources before the handshake is
-completed.
+\section{Security}\label{sec:approach:security}
+The simplest variant of enabling transport security, as described in
+\autoref{sec:zmq:security} is to allow any client to connect. The clients still
+have to be in possession of the server side's public key. Depending on the
+number of levels in the node hierarchy, that or those public keys can be
+distributed conveniently and safely through the node topology configuration
+file. Public keys are only 40 characters long in \gls{Z85} notation.
 
-Server authentication is always done, by specifying the server's public key on
-the client side socket.  Client authentication is optional. If done, the server
-side socket will talk to an additional socket responsible to authenticate
-clients by their public keys. The protocol between these two sockets is called
-\gls{ZAP}. Completely abstracting the authentication in another socket allows
-any kind of authentication service to be plugged in.
+Only the server's public key has to be distributed on the respective client nodes
+securely and in advance, which might be considered inconvenient, depending on
+the number of nodes and distribution method.
 
-%TODO briefly describe \zmq's security features, what's left for us to decide (key destribution, if at all)\\
-
-
-\section{OPC UA Interface: High availability}\label{sec:meth:opc-ua}
+\section{OPC UA Interface: High availability}\label{sec:approach:opc-ua}
 TODO This is the optional goal.\\
 TODO explain new opportunity for OPC UA HA server\\
 TODO describe whatever needs to be described\\

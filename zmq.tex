@@ -31,10 +31,34 @@ messaging patterns.
 The above characteristics make \zmq a valuable asset when it comes to building
 robust, distributed high-performance systems.
 
-\section{Transport security}
-Since version 4.0, \zmq boasts state of the art encryption and authentication,
-based on the excellent and highly renown
-\gls{nacl}\footnote{\url{http://nacl.cr.yp.to}} library.
+\section{Transport security}\label{sec:zmq:security}
+Since version 4.0 (released in October 2013), \zmq boasts strong encryption and
+authentication, based on the excellent and highly renown
+\gls{libsodium}\footnote{There's also the possibility to do it using
+\gls{tweetnacl} which avoids the additional dependency.}. The protocol used
+(CurveZMQ) is described in \cite{zmq:curvezmq}.
+
+Transport encryption is completely transparent to the application . The
+security handshake is designed to be highly resilient against
+\glspl{ddos-attack} attacks using encrypted and authenticated cookies, so the
+server doesn't actually allocate any memory before the handshake is completed,
+and key generation is very cheap \cite[p.~2]{djb:ed25519} with
+Curve25519\footnote{\url{https://en.wikipedia.org/wiki/Curve25519}} \gls{ECC}.
+
+To enable, one socket is designated as the server, the other as the client.
+Server authentication is always performed. This means that nodes running the
+client sockets must be in possession of the server's public key.
+
+Client authentication is optional. If desired --- meaning not just any client
+is allowed to connect --- the clients' public keys (either shared by all
+clients, or a unique key for each client) must be already available to the node
+running the server sockets. The server socket actually talks to another,
+designated socket to do authentication. The protocol used between them is
+\gls{ZAP}. Completely abstracting the authentication in another socket allows
+any kind of authentication service to be easiliy plugged in. It's also trivial
+to write such a ZAP handler to register new client public keys somewhere to be
+checked and confirmed by a human, which simplifies the process of adding new
+client public keys.
 
 \section{Data serialization}
 Data serialization is outside the scope of \zmq. To fill the gap, one typically

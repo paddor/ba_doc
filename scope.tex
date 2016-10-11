@@ -329,13 +329,21 @@ can make use of this primitive.
 \end{description}
 
 \subsubsection{DIM}
-The \gls{DIM} is a data structure that lives inside every actor of a Roadster
+The \acrfull{DIM} is a tree data structure that lives inside every actor of a Roadster
 node. Every actor builds it when starting up by reading the configuration
 files. Updates to certain parts\footnote{Namely instances of the meta-model
 classes \rb{Case}, \rb{DataItem}, and \rb{Session}} within it are replicated
 across all actors. An updated item is marked dirty\footnote{It is marked dirty
 by setting its \rb{@lifecycle_state = "updated"}} so it is subsequently synchronized
-via the \gls{CSP}.
+via the \gls{CSP}. \autoref{fig:roadster:meta-model} is the class diagram of
+all the classes whose instances constitute the DIM.
+
+\begin{figure}[]
+	\includegraphics[trim=1.5cm 1cm 1cm 1cm, clip=true, width=0.9\textwidth]{img/meta_model.pdf}
+	\source{Andy Rohr}
+	\caption{Roadster's Meta Model (used for the DIM)}
+	\label{fig:roadster:meta-model}
+\end{figure}
 
 \subsubsection{Existing CSP in a nutshell}
 \emph{This is a brief introduction/refresher for the Clone State Pattern

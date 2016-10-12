@@ -654,6 +654,80 @@ Only the server's public key has to be distributed on the respective client node
 securely and in advance, which might be considered inconvenient, depending on
 the number of nodes and distribution method.
 
+% amplification attacks, message size, ...
+
+% TODO: variant with central ZAP server: bad, because of lost autonomy
+
+\subsection{Key generation and distribution procedure}
+The following procedure can be followed to generate the required keys in
+advance and make them available through the shared configuration file:
+
+\begin{enumerate}
+	\item for all nodes that will have sockets that will act as CURVE servers (i.e. all non-leaf nodes)
+	\begin{enumerate}
+		\item generate key pair and save it on the respective node
+		\item for each direct subnode
+		\begin{enumerate}
+			\item put a copy of the public key (in Z85 notion) into that node's block within the shared topology configuration file
+		\end{enumerate}
+	\end{enumerate}
+\end{enumerate}
+
+\subsubsection{Client authentication}
+In case client authentication is actually desired, the clients' keys also have
+to be generated in advance, and the public key files for each subnode of a
+supernode in question have to be stored into a directory. That directory can
+then be specified to the \rb{CZTop::Authenticator} actor.
+
+\subsection{In code}
+\autoref{lst:auth:any} shows how to start an authentication handler which
+allows any client to connect, effectively only allowing authenticated
+encryption, but not a true client authentication. What it actually does is
+start an in-process thread to which can be communicated via a PAIR-PAIR socket
+pair (it's a CZMQ actor\footnote{CZMQ provides a very simple actor framework
+based on threads communicating over \zmq sockets,
+\url{http://api.zeromq.org/czmq3-0:zactor}}). The thread calls a
+function\footnote{The function is \cpp{zauth()} and is described along
+with its capabilities here: \url{http://api.zeromq.org/czmq3-0:zauth}} (passed
+as a function pointer at actor creation) provided by CZMQ, which understands
+the \gls{ZAP}, different security mechanisms (NULL, PLAIN, and CURVE) and is
+capable of reading client public keys from a directory on the file system and
+even listens to changes in that directory.
+
+\begin{lstlisting}[style=customruby,caption={Starting an authentication handler that allows any clients}, label={lst:auth:any}]
+##
+# on the supernode:
+
+authenticator = CZTop::Authenticator.new
+authenticator.verbose!
+authenticator.curve # use CURVE mechanism, but allow any
+
+##
+# start the server sockets
+# ...
+server_cert = CZTop::Certificate.load("/path/to/private_key")
+pub = CZTop::Socket::PUB.new
+pub.CURVE_server!(server_cert)
+pub.bind("tcp://*:1234")
+
+#############################################################################
+
+##
+# on the subnode:
+
+server_cert = CZTop::Certificate.load("/path/to/server_public_key")
+client_cert = begin
+  CZTop::Certificate.load("/path/to/client_private_key")
+rescue Errno::ENOENT # file doesn't exist
+  CZTop::Certificate.new.save("/path/to/client_private_key") # generate
+  retry
+end
+
+sub = CZTop::Socket::SUB.new
+sub.CURVE_client!(client_cert, server_cert)
+sub.bind("tcp://*:1234")
+\end{lstlisting}
+
 \section{OPC UA Interface: High availability}\label{sec:approach:opc-ua}
 TODO This is the optional goal.\\
 TODO explain new opportunity for OPC UA HA server\\

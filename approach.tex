@@ -521,6 +521,12 @@ There are multiple aspects involved in persistence synchronization:
 		This not only matters when the supernode is a HA pair (multi
 		level), but also when it's at the bottom of the node hieararchy
 		(single level).
+
+		% TODO
+		\large\color{red} What about that last case? We need to synchronize
+		east-west. Something similar as with Binary Star, where updates
+		go into a \emph{pending} queue on the passive node until
+		confirmed by the active node?
 \end{description}
 
 \subsection{Variants}
@@ -549,6 +555,8 @@ traffic. To avoid this, another pair of sockets has to be introduced to
 synchronize persistence between a HA pair. This also means designing another
 protocol, and more moving parts overall.
 
+% TODO: SL-HA
+
 Overall, this variant is very simple, but doesn't offer some features we'd
 normally expect from a framework like Roadster. The fruits are hanging low;
 achieving instantaneous synchronization and better efficiency is easy.
@@ -568,7 +576,7 @@ Procedure (for each subnode):
 	\item during low-traffic times, we can send HUGZ as heartbeats
 \end{enumerate}
 
-This seems nice at first, but PUSH socket's send buffer will fill up when the
+This seems nice at first, but the PUSH socket's send buffer will fill up when the
 connection is interrupted.  This isn't bad in and of itself, because when it's
 full (and writes start to block), we can just destroy the socket and
 reinitialize and start syncing anew (from ICANHAZ) after a certain timeout.
@@ -579,6 +587,8 @@ is part of its normal operation.
 So we'd have to introduce logic to recognize whether the PUSH
 socket is just temporarily full (e.g. during delta transmission), or
 permanently full (e.g. the supernode or the link to it is down).
+
+% TODO: SL-HA
 
 Another disadvantage is that there needs to be another channel to synchronize
 persistence updates to the other HA peer, if there is one. This means another
@@ -606,6 +616,8 @@ Procedure (for each subnode):
 		\end{enumerate}
 	\item supernode starts reading updates, possibly skipping the first few (based on timestamp)
 \end{enumerate}
+
+% TODO: SL-HA
 
 \subsection{Chosen Variant}
 We'll most likely go with the PUB-SUB variant, since it's simple and is similar to

@@ -114,7 +114,7 @@ A Roadster installation combines the following responsibilities:
 	\item interaction with subordinate field devices (monitoring \& controlling)
 	\item persisting data (e.g. certain sensor data, and events)
 	\item sophisticated alarm (\emph{case}) management
-	\item providing a machine-to-machine interface to superordinate systems
+	\item providing a machine-to-machine interface to higher level systems
 	\item providing a modern, customized web UI for interaction with operational and executive personnel
 \end{itemize}
 
@@ -127,10 +127,13 @@ Management AG,
 These are interacted with over numerous propietary and standardized protocols.
 
 \subsubsection{System integration}
-This section briefly describes the big picture of Roadster's place within the typical system hierarchy and
-relationship with superordinate systems.
+This section briefly describes the big picture of Roadster's place within
+typical production environments and its relationship with other systems.
 
-Superordinate systems act as clients of a Roadster instance, communicating over
+In some deployments, Roadster has no higher-level client systems. The only
+clients would be its human users. % TODO where usually? water supply systems?
+
+In other deployments, there are higher level systems which act as clients of a Roadster instance, communicating over
 protocols including \gls{SOAP} and \gls{opc-ua}. Their purpose is to
 collect and aggregate supervisory information from larger regions. At the top of the
 hiearchy are the \gls{FEDRO} (German: \gls{ASTRA}) which combine the information of all
@@ -142,7 +145,7 @@ subsystems to provide a nationwide overview.
 	\label{fig:roadster:overallsys}
 \end{figure}
 
-\autoref{fig:roadster:overallsys} illustrates the overall system. The line
+\autoref{fig:roadster:overallsys} illustrates the typical, overall system. The line
 style meanings also apply to the remaining physical topology illustrations. The acronyms
 used, which are part of the \gls{FEDRO} terminology, don't have official
 English translations; not even the department itself was able to help with
@@ -163,18 +166,18 @@ follows, from the bottom up:
 	system, power supply system, train signaling system).
 
 	\item [ \gls{AR}: ] \hfill\\
-	The superordinate system of the collection of all AS found in one larger
+	The higher level system of the collection of all AS found in one larger
 	facility such as a tunnel. With the results of this bachelor thesis, this
 	\emph{could} be Roadster's domain as well.
 
 	\item [ \gls{LR}: ] \hfill\\
-	The superordinate system of the collection of all AR found in a region such as
+	The higher level system of the collection of all AR found in a region such as
 	Z\"urich. As with AR, this \emph{could} be Roadster's domain as well.
 
 	\item [ \gls{LTA}: ] \hfill\\
 	This collective term comprises both the levels of AR and LR. For
 	simplicity and readability's sake, this will be referred to as
-	\emph{superordinate systems} for the remainder of this document.
+	\emph{client} for the remainder of this document.
 \end{description}
 
 \subsubsection{Typical hardware}
@@ -232,9 +235,8 @@ Every Roadster node runs a group of actors:
 	\item [COMM:]\hfill\\
 		A bunch of COMM actors communicate with the outside world of a
 		node. It typically either acts as a client of various kinds of
-		subordinate field devices, or as a server to superordinate
-		systems. To communicate with subordinate systems, a COMM actor
-		utilizes an adapter specifically written for the communication
+		field devices, or as a server to the client. To communicate with field devices, a COMM actor
+		utilizes the appropriate adapter specifically written for the communication
 		protocol in place. The webserver\footnote{The webserver \emph{Thin} is utilized, \url{http://code.macournoyer.com/thin/}} for the web UI also runs in a
 		COMM actor.
 

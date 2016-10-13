@@ -35,7 +35,7 @@ directory of Roadster's code base.
 
 \subsection{Integration tests}
 Integration tests verify the interaction between the individual components.
-To test core features like cluster, high availability, and persistence
+To test core features like federation, high availability, and persistence
 synchronization, integration tests have been written. Multiple nodes can be
 simulated easily by starting them as different process groups. This is possible
 since \zmq completely abstracts the transport away.
@@ -136,8 +136,8 @@ an appropriate exception if needed.
 This was about an hour's work.
 
 %----------------------------------------------------------------------------
-\section{Cluster}\label{sec:approach:cluster}
-A Roadster cluster is illustrated in \autoref{fig:cluster}. Adding cluster
+\section{Federation}\label{sec:approach:federation}
+A Roadster federation is illustrated in \autoref{fig:federation}. Adding federation
 functionality to Roadster involves the following aspects:
 \begin{itemize}
 	\item node topology DSL
@@ -150,9 +150,9 @@ functionality to Roadster involves the following aspects:
 \end{itemize}
 
 \begin{figure}[]
-	\includegraphics[width=\textwidth]{img/cluster_protocol.pdf}
-	\caption{Cluster setup between a supernode and two subnodes}
-	\label{fig:cluster}
+	\includegraphics[width=\textwidth]{img/federation_protocol.pdf}
+	\caption{Federation between a supernode and two subnodes}
+	\label{fig:federation}
 \end{figure}
 
 \subsubsection{Fallacies of distributed computing}
@@ -192,8 +192,7 @@ Variant 2 will be the first step. Variant 3 will be the second step, if at all.
 Since COMM actors are used to communicate with things outside of a node, new COMM
 actors will have to be introduced: One kind that is south-facing to communicate
 with subnodes, and another one that is north-facing for communication with
-supernodes. They will be named COMM CLUSTER NORTH and COMM CLUSTER SOUTH.
-% TODO: better names, maybe SFACE and NFACE
+supernodes. They will be named COMM FEDNF and COMM FEDSF. % TODO explain meaning and benefits
 
 Their responsibility is the inter-node synchronization of the DIM, similarly to
 what's happening in the existing CSP within a single node.
@@ -201,24 +200,24 @@ what's happening in the existing CSP within a single node.
 To send KVSET updates from one actor to the CORE actor, PUSH-PULL sockets are
 used. However, similar to the \gls{CHP} described in the \gls{zguide}, this
 mechanism here needs to be able to handle replication to one or two (in case of
-HA) superordinate nodes. That means using PUB-SUB messaging for is more
-appropriate, so all direct superordinate nodes hear the updates.
+HA) supernodes. That means using PUB-SUB messaging for is more
+appropriate, so all direct supernodes hear the updates.
 
 \subsubsection{CAP theorem}
 The CAP theorem \cite{wp:cap} states that it is impossible for a distributed
 computer system to simultaneously provide consistency, availability, and
 network partition tolerance. In the face of a network partition, one has to
-chose between availability and consistency. Because subtrees of a Roadster
-cluster must be autonomous, availability is chosen.
+chose between availability and consistency. Because subsystems of a Roadster
+federation must be autonomous, availability is chosen.
 
 Eventual consistency is guaranteed by restricting write access to the owning
 node, and recovering from a network partition when communication is restored is
 done by simply reinitiating the DIM synchronization process.
 
-\subsection{Node typology definition}
-A cluster's node topology has to be defined somewhere. This can be done using a
+\subsection{Node topology definition}
+The federation topology has to be defined somewhere. This can be done using a
 \gls{DSL} and then put into a static file (e.g. \sh{topology_conf.rb}) shared
-on all nodes of a Roadster cluster. Each actor could then read the file at
+on all nodes of a Roadster federation. Each actor could then read the file at
 startup, just like it's done for other configuration pieces of a Roadster node.
 \autoref{lst:dsl:topo:no-ha} shows how such a configuration snippet might look.
 
@@ -230,15 +229,15 @@ important information like its neighbor nodes.
 
 A HA node pair could be one DIM object which has one name but two IP addresses
 (primary and backup, in that order). Direct subnodes can use that information
-to connect to the correct superordinate node during normal operation and also
+to connect to the correct supernode during normal operation and also
 when the primary node is unavailable. The respective DSL snippet is shown in
 \autoref{lst:dsl:topo:with-ha}.
 
-Not every node in a cluster is the same: Some are only connected with other
-nodes, some also talk to field devices. To define different node roles, a
+Not every node in a federation has the same role: Some are only connected with other
+nodes, some directly communicate with field devices. To define different node roles, a
 syntax as shown in \autoref{lst:dsl:topo:with-roles} is possible.
 
-\begin{lstlisting}[style=customruby,caption={Cluster DSL example without HA}, label={lst:dsl:topo:no-ha}]
+\begin{lstlisting}[style=customruby,caption={Federation DSL example without HA}, label={lst:dsl:topo:no-ha}]
 # * basic method to add a node: #add_node(ID, south_facing_bind_endpoint)
 # * it takes a block for defining subnodes
 
@@ -258,7 +257,7 @@ conf.system_id = "nodes.root.subnode_a"
 #=> north facing COMM actor will connect to "root" node on "tcp://10.0.0.1:5000"
 \end{lstlisting}
 
-\begin{lstlisting}[style=customruby, caption={Cluster DSL example with HA}, label={lst:dsl:topo:with-ha}]
+\begin{lstlisting}[style=customruby, caption={Fedreation DSL example with HA}, label={lst:dsl:topo:with-ha}]
 conf.nodes do |map|
   map.add_ha_pair("root", "tcp://10.0.0.1:5000", "tcp://10.0.0.2:5000") do |map|
     map.add_node("subnode_a", "tcp://10.0.0.10:5000")
@@ -281,7 +280,7 @@ conf.system_id = "nodes.root[primary]"
 % ############
 % # within ba-roadster-app's lib/domain/domain.rb file:
 % #
-\begin{lstlisting}[style=customruby, caption={Cluster DSL example with HA and roles}, label={lst:dsl:topo:with-roles}]
+\begin{lstlisting}[style=customruby, caption={Federation DSL example with HA and roles}, label={lst:dsl:topo:with-roles}]
 # Idea for node topology definition and assigning roles (features/adapters) to
 # diffent kinds of nodes.
 
@@ -321,13 +320,13 @@ In case a message is sent in \emph{Dialog} mode, this implicates Russian doll ro
 When a user of the root node's web UI wants to change a value on a field device
 connected to the root node's subordinate node, a command is sent from the
 browser to the web UI's COMM actor. From there it's sent via the CORE actor out
-on the south-facing CLUSTER actor to the subordinate node. There it's routed
+on the FEDSF actor to the subordinate node. There it's routed
 via the CORE actor to the correct COMM actor, where the command can actually be
 executed on the field device.
 
 %----------------------------------------------------------------------------
 \section{High availability}\label{sec:approach:ha}
-If Roadster is going to be run in a cluster setup, measures need to be taken to
+If Roadster is going to be run in a federation, measures need to be taken to
 mitigate the risk of failure, since many nodes are more likely to fail than a
 single node (unless they add redundancy). Availability shall be ensured by
 adding redundancy on certain levels of the node hierarchy (e.g. at the bottom
@@ -349,7 +348,7 @@ able to handle. According to the requirements, these are exactly:
 
 	\item [Network failure]
 		This only includes the failure of the link connecting a HA node
-		to the rest of the cluster.  Interestingly, this limitation applies to both
+		to the rest of the federation.  Interestingly, this limitation applies to both
 		single level and multi level HA.
 \end{description}
 

@@ -1,13 +1,16 @@
 Feature: Federation
-	//TODO
-	
-	Scenario: Configuration is loaded
-		Given a configuration available on all nodes
+
+	# TODO
+
+	Scenario: Configuration loading
+		Given a static configuration file available on all nodes
 		When nodes are starting
-		Then configuration will be loaded
+		Then configuration will be loaded in each actor
 		
 Feature: DIM Synchronization
-	//TODO
+
+	# TODO
+	
 	Background:
 		Given a configuration available on all nodes
 		And subnodes A, B have a network link to a root node R	
@@ -18,7 +21,7 @@ Feature: DIM Synchronization
 		When connections between subnodes and root node are established
 		Then synchronization between the pairs (A,R), (B,R) happens bidirectionally
 		And the DIM is eventually synchronized across all nodes A, B, R
-	
+
 	Scenario: continuous DIM Synchronization
 		Given root node R is running
 		And connections between subnodes and root node are established
@@ -33,15 +36,16 @@ Feature: DIM Synchronization
 		Then synchronization between the pairs (B,R) happens bidirectionally
 
 Feature: Command Routing
-	//TODO 
-	
+
+	# TODO 
+
 	Background:
 		Given a configuration available on all nodes
-		And subnodes A, B have a network link to a root node R	
-		And nodes A, B Are running
+		And subnode A has a network link to a root node R
+		And nodes A, R are running
 		
-	Scenario: Send command from R to B
+	Scenario: Send command from R to A
 		Given user is logged in on the R UI
-		When User sends a commend from the R UI to B Node
-		Then Commend routed throug the Nodes to B
-		And commend will be executed on Node B
+		When User sends a command from the R UI to A
+		Then Command is routed to A
+		And command is executed on node A

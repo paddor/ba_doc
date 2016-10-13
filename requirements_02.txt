@@ -9,7 +9,7 @@
   - don't mix
 * formal spec of protocols (unprotocols, ABNF, ...)
 * owner node for DIM objects
-  - subtree of nodes
+  - subfederation of nodes
   - owner attr of an object points to one of these nodes in the DIM
 * if not complete DIM is shared everywhere, what part of it is shared? (subsets)
   - objects owned by root + objects owned by subnode

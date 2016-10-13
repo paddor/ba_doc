@@ -1,6 +1,6 @@
 % vim: ft=tex
 \chapter{Requirements}
-The requirements gathered during the first meeting with the client are
+The requirements gathered during the first and second meeting with the client are
 explained in this chapter. These are more concrete than the ones listed in the
 Task Description in \autoref{ch:task-desc}.
 
@@ -8,11 +8,10 @@ First of all, these are the priorities from the client's point of view in
 descending order:
 
 \begin{enumerate}
-\item Clustering
-\item Single-level \gls{HA}
-\item Multi-level \gls{HA}
+\item Federation
+\item \gls{HA}
 \item Persistence synchronization
-\item Security (optional)
+\item Encryption (optional)
 \item OPC UA \gls{HA} (optional)
 \end{enumerate}
 
@@ -22,18 +21,19 @@ The following sections explain the requirements in greater detail.
 This section elucidates the functional requirements, as opposed to the
 non-functional requirements.
 
-\subsection{Cluster}
-Roadster must be able to run on multiple nodes in a hierarchical topology,
-forming a distributed computing cluster. Typical node topologies include:
+\subsection{Federation}
+Roadster will need to be run on multiple nodes in a hierarchical topology,
+forming a distributed computing architecture. The root node would then act as
+the client-facing server. Typical node topologies include:
 
 \begin{description}
 	\item [ Single level, single node ] \hfill\\
 		This is the legacy setup and is what Roadster is already able
-		to do. Consisting of only one node, it's not actually a
-		cluster. This is illustrated in \autoref{fig:topo:sl:noha}.
+		to do. It consists of a single node. This is illustrated in
+		\autoref{fig:topo:sl:noha}.
 
 	\item [ Multi level ] \hfill\\
-		This is the most basic cluster setup. There is a root node, and
+		This is the most basic federation setup. There is a root node, and
 		two subnodes. Each subnode is directly connected to a field device such as a
 		PLC or an emergency phone. This is illustrated in
 		\autoref{fig:topo:ml:noha}.
@@ -48,13 +48,13 @@ forming a distributed computing cluster. Typical node topologies include:
 \begin{figure}[]
 	\center
 	\includegraphics[width=0.5\textwidth]{img/topo_ml_noha.pdf}
-	\caption{Physical cluster topology example: supernode, two subnodes, a field device each}
+	\caption{Physical federation topology example: supernode, two subnodes, a field device each}
 	\label{fig:topo:ml:noha}
 \end{figure}
 
 \subsubsection{DIM synchronization}
 Extending the \gls{CSP} to keep the \gls{DIM} in sync across all nodes is a central
-part of the clustering functionality. This means replicating the
+part of the federation functionality. This means replicating the
 items within the DIM that are marked "dirty" (updated, but not synchronized yet) onto all other actors on all other nodes.
 
 According to the meta model in \autoref{fig:roadster:meta-model}, these are exactly
@@ -66,7 +66,7 @@ the instances of one of the following three classes (marked yellow in the class 
 \end{itemize}
 
 \subsubsection{Message routing}
-In addition to that, there needs to be a message routing mechanism so a user
+There needs to be a message routing mechanism so a user
 of one node's web UI can send a command to another node where it will be
 executed. An example for this is a forced value in the DIM to ignore the
 actually measured value reported by a device in case the device is known to be
@@ -115,13 +115,15 @@ The following additional topology setups must be supported:
 \begin{figure}[]
 	\center
 	\includegraphics[width=0.5\textwidth]{img/topo_sl_ha.pdf}
-	\caption{Physical cluster topology example: a HA node pair and a field device}
+	% TODO: update illustration to include multiple field devices
+	\caption{Federation example: a HA cluster and redundantly connected field devices}
 	\label{fig:topo:sl:ha}
 \end{figure}
 \begin{figure}[]
 	\center
 	\includegraphics[width=0.5\textwidth]{img/topo_ml_ha.pdf}
-	\caption{Physical cluster topology example: root HA, two subnodes, a field device each}
+	% TODO: update illustration to include multiple field devices
+	\caption{Federation example: HA cluster at root, two subnodes, each with field devices}
 	\label{fig:topo:ml:ha}
 \end{figure}
 
@@ -169,11 +171,11 @@ The types of failures that need to be handled include:
 \end{itemize}
 
 All three failure types listed above can collectively be called \emph{crash},
-as their effects are the same from the point of view of the cluster.
+as their effects are the same from the point of view of the whole federation.
 
 \subsection{Persistence synchronization}
 This is about the synchronization of persisted data, which is currently stored
-in TokyoCabinet databases on a Roadster node. With the clustering, this is
+in \gls{tc} databases on a Roadster node. With the federation functionality, this is
 still true: Every node will have its own key-value store. Updates for persisted
 data must only flow from south to north (towards the root node), so the root
 node can collect and maintain a replication of the persisted data of all
@@ -186,7 +188,7 @@ be initiatd. Sending just the delta should be possible since keys in the
 database contain timestamps.
 
 This is not the same as \gls{CHP} (\gls{DIM} synchronization), as the DIM is shared across
-all nodes and is a relatively small data structure. The TokyoCabinet databases
+all nodes and is a relatively small data structure. The \gls{tc} databases
 can possibly contain large amounts of data (in the hundreds of megabytes) and
 are shared only towards the root node (thus "bubbling up").
 
@@ -213,7 +215,7 @@ The use cases are briefly described here. These should simply describe common
 scenarios based on the requirements above. They can later be turned into
 concrete testing scenarios.
 
-\subsection{UC01: Cluster}
+\subsection{UC01: Federation}
 A root node R has two subnodes A and B. A user connected to the root node's web
 UI wants to suppress a case repeatedly generated on subnode A. The DIM shall be
 kept in sync across all nodes.
@@ -262,14 +264,14 @@ Regarding testing, the following requirements exist:
 	\item use cases shall be integration tested in a close-to-reality setup, either automatically or manually
 \end{itemize}
 
-\subsection{Security}
+\subsection{Encryption}
 \emph{This is optional. Also, this requirement has the lowest priority not
 because it's insignificant, but because it's easy to enable transport level
 security on \zmq sockets later on.}
 
-The inter-node communication of a Roadster cluster must be secured using
-encryption. \zmq performs server authentication at a minimum, if encryption is
-enabled. Client authentication is not needed at this stage.
+The inter-node communication of a Roadster federation must be secured using
+encryption. \zmq offers modern, authenticated encryption and performs server authentication at a minimum if when transport security is
+enabled. Client authentication is favored, but not an absolute requirement.
 
 \subsection{Coding Guidelines}
 The coding guidelines desired by the client are basically the ones written down

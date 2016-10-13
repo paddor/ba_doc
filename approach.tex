@@ -730,15 +730,12 @@ sub.bind("tcp://*:1234")
 \end{lstlisting}
 
 \section{OPC UA Interface: High availability}\label{sec:approach:opc-ua}
-TODO This is the optional goal.\\
-TODO explain new opportunity for OPC UA HA server\\
-TODO describe whatever needs to be described\\
+The OPC UA standard seems pretty complicated. And given that the requirement
+isn't concrete yet, no possible solution has been worked out yet.
 
+In case it's non-transparent server redundancy, \cite[6.4.2.4 Non-transparent
+Redundancy, p.~96]{opc-ua:behavior:server-redundancy} describes the exact
+behavior.
 
-\cite[6.4.2.4 Non-transparent Redundancy, p.~96]{opc-ua:behavior:server-redundancy} describes the exact behavior.
-
-\begin{itemize}
-	\item study standard
-	\item use Andy's gem
-	\item according to Andy, this should be a simple thing
-\end{itemize}
+% TODO study standard
+% TODO use Andy's gem (it "should be a simple thing")

@@ -200,6 +200,13 @@ A given \gls{HA} pair needs to provide an OPC UA Server Redundancy interface,
 as described in \cite[6.4.2.4 Non-transparent Redundancy,
 p.~96]{opc-ua:behavior:server-redundancy}.
 
+% FIXME
+{\large\color{red}Actually the students, as well as the client, are unsure whether the
+non-transparent variant of server redundancy is the correct choice for the
+requirements of the Ceneri Base Tunnel. It looks like the non-transparent
+variant is needed, where the client (superordinate systems) perform the
+failover (similar to the Lazy Pirate pattern).}
+
 % ---------------------------------------------------------------------------
 \section{Use cases}
 The use cases are briefly described here. These should simply describe common

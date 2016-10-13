@@ -363,6 +363,10 @@ Failures that won't be covered include:
 		passive. Since the link between them could fail as well, this
 		decision can't be done reliably, which could lead to the
 		dreaded split brain syndrome.
+		% TODO: this protocol extension should be possible, communicate
+		% number of fully synchronized clients, if it stays 0 for 3
+		% cycles & ICANHAZ requests are coming, backup shall take over
+
 
 	\item [Failure of the link between a HA peer node and the field device]
 		The \gls{bstar} algorithm won't initiate a failover since the

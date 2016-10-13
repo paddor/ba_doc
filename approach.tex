@@ -52,68 +52,52 @@ build script. This will install Roadster's dependencies, an example app built
 with Roadster, and run finally Roadster's test suites.
 
 \subsection{System test}
-Systemtests dienen dazu die Applikation unter realen Bediengungen zu testen. Um eine fast realitätsnah
-Umgebung zu erschaffen, kam mininet, jnettop und fake SPS Steuerungen zum Einsatz.
+System tests are designed to test the application under close-to-reality conditions.
+To create a realistic environment, we use Mininet, Jnettop and fake \glspl{PLC}.
 \begin{description}
-	\item [Mininet:]
-		Mininet erlaubt es adhoc VirtuelMachine's zu starten, 
-		welche einen gemeinsamen Kernel teilen.
-		Dies ermöglicht es auf einem Rechner viele Nodes/Rechner zu starten. 
-		Mittels mininet können auch Verbindungen zwischen Nodes getrennt werden
-		um Netzwerkprobleme zu simulieren. 
-	\item [jnettop:]
-		jnettop simuliert Netzkapazitätprobleme auf den einzelnen Verbindungen.
-	\item [fake sps:]
-		Fake SPS Steuerungen sind einfache Scripts, welche auf Anfragen antworten.
+	\item [Mininet:]\hfill\\
+		Mininet allows creating virtual networks instantaneously. It
+		relies on Linux cgroups and network namespaces to isolate the
+		\glspl{VM}, the very same primitives used by Docker.
+		Mininet can also simulate link/connectivity problems between nodes.
+	\item [Jnettop:]\hfill\\
+		Jnettop simulates network capacity problems on the individual
+		network connections between the nodes. % FIXME: sure? I think it's only for viewing.
+	\item [Fake:]\hfill\\
+		Fake \glspl{PLC} are simple scripts that respond to requests.
 \end{description}
 
-Alle Ereignise wurden in Logdateien gespeichert, welche für die Auswertung des Ergebnis gebraucht wurden. 
-Mit einem Ruby Programm wurden diese Logdateien auf korrektheit überprüft.
-Alle Systemtests wurden manuell nach jeder construction phase ausgeführt.\\
-\\
-System tests are designed to test the application under real conditions. 
-To create an almost realistic environment we used mininet, jnettop and fake \gls{PLC} controls for deployment.
-\begin{description}
-	\item [Mininet:]
-		Mininet allows adhoc start VirtuelMachine's, which share a common kernel.
-		This makes it possible on a computer to start many nodes / hosts. 
-		Mininet can also simulated connection problems between nodes.
-	\item [jnettop:]
-		jnettop simulated network capacity problems on the individual network connections between the nodes.
-	\item [fake sps:]
-		Fake \gls{PLC} controls are simple scripts that respond to requests.
-\end{description}
-
-All events were stored in log files, which were used for the evaluation of the result. 
-A Ruby program checked these log files on correctness. All system tests were performed manually 
-after each construction iteration.
+All events are stored in log files which are subsequently used for the
+evaluation of the test result.  A Ruby program checks these log files for
+correctness. All system tests are performed manually after each construction
+iteration.
 
 \subsubsection{Test scenarios}
-Die Testszenarien enthalten primär nur mögliche Bediengungen wie sie in einer realen Situation anzutreffen sind. Aus wissenschaftlichen Interesse wurden weitere Szenarien
-getestet, welche den Extremfall abbilden sollten.\\
-\\
-The test scenarios only includes possible combinations as they are encountered in a real situation. From scientific interest
-we added more test scenarios, which reflected the extreme cases.
+The test scenarios primarily test situations encountered in the real world. Out
+of scientific interest, more test scenarios, which reflect more extreme cases,
+have been added.
+% FIXME: Maybe we should stick to the 5 use cases
 \begin{description}
-	\item [ML-HA:]
-		Multi Layer mit zwei ebenen. Die erste Ebene enthält ein Node, 
-		welches die Steuerungen überwacht. Die zweite Eben hat einen Primary und Backup.
-	\\TODO ...
-	\item [SL-HA:]
-		Single Layer. Ein Primay und Backup Node welche beide direkt mit der Steuerungen verbunden sind.
-		\\TODO ...
+	\item [ Multi level HA: ]\hfill\\
+		Two levels in the node hieararchy: At bottom level is a node
+		that supervises a \gls{PLC}. The upper level contains a primary
+		and a secondary node in a HA setup.
+		% TODO ...
+	\item [ Single level HA: ]\hfill\\
+		A primary and a backup node in a HA setup, both directly
+		connected to a \gls{PLC}.
+		% TODO ...
 \end{description}
-Persistence wird bei allen Tests mit geprüft, da sie zu Non functional requirements gehört und bei allen Szenarien aktiv ist.
-\\TODO Extremfall ... 3 Ebenen mit 1 ebe
-\\
-Testszenarien enthalten die Konfiguration von Mininet und den einzelnen Nodes. 
-Der Ablauf der Szenarios wurde im Detail beschrieben um die Ergebnisse reproduzierbar zu machen.
 
+Persistence synchronization is tested for all scenarios. % TODO: persistence is NOT part of NFRs
 
-TODO work out methodology (maybe with mininet, shell scripts, and analyze logs retrospectively)\\
-TODO integration tests at the end of every iteration\\
-TODO system tests at end of construction\\
-TODO use travis-ci.com OR GitLab CI (self-hosted on HSR VM)\\
+The test scenarios contain configurations for mininet and the particular Roadster nodes.
+The procedure of each scenario is described in detail below to make the results reproducible.
+
+% TODO work out methodology (maybe with mininet, shell scripts, and analyze logs retrospectively)
+% TODO integration tests at the end of every iteration
+% TODO system tests at end of construction
+% TODO setup GitLab CI (self-hosted on HSR VM)
 
 %----------------------------------------------------------------------------
 \section{Port to new \zmq library}\label{sec:approach:port}

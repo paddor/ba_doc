@@ -1,0 +1,49 @@
+* formal requirements/features (cucumber/gherkin style) this week
+  - as a user, given bla, when foo, then I wanna be able to keep on working
+* better illustrations: multiple field devices, superordinate systems as client
+* streamline terminology
+  - "cluster" for HA
+  - "subtree" only for DIM
+  - "subsystem" only for system topology
+  - "client" (also in illustration) only for actual clients
+  - don't mix
+* formal spec of protocols (unprotocols, ABNF, ...)
+* owner node for DIM objects
+  - subtree of nodes
+  - owner attr of an object points to one of these nodes in the DIM
+* if not complete DIM is shared everywhere, what part of it is shared? (subsets)
+  - objects owned by root + objects owned by subnode
+* comments in PDF
+* duplex ICANHAZ, KVSET, KVPUB between all neighboring nodes
+* 3 TC DBs:
+  - parameters: default value from config, values from TC DB, 1 file, every param is also owned by some node, user passwords are owned by root
+  - event journal: UUID in name, TCT (table), timestamp field, history of cases, object updated, no timestamp in name, request oldest non-finished case from owner
+  - time series: pure KV, from DIM, 1 file per serie, timestamp in name, north-traffic only, bubble DELETESs
+* binary star client on top, ml and sl !!!
+  - no life signs over field devices
+  - develop HA with OPC-UA in mind
+* diagnoal HA (HA 2.0)
+  - passive stays sync (DIM, persistent data) by acting as supernode
+  - no connection to field device
+  - sl and ml can be handled the same
+* describe possible scenarios where failover will work and will not work
+  - as complete as possible
+  - maybe gherkin style
+  - dedicated link is possible, typically not
+* OPC-UA
+  - design with OPC-UA in mind
+  - document how to implement the various redundancy techniques
+
+* typical depoloyment: ASTRA, with AR/LR on top
+  - could also be standalone
+
+* cluster => federation
+* ha setup/pair => cluster
+
+
+* client authentication is wanted
+
+
+
+* recycable sockets for different flows/protocols???????
+  - recycle

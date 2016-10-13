@@ -508,17 +508,19 @@ bubble up and collected in the root node.
 There are multiple aspects involved in persistence synchronization:
 
 \begin{description}
-	\item [Delta:]
-		How does one get the initial delta of updates since last
+	\item [Initial synchronization:]
+		How does one get the initial delta of updates since the last
 		synchronization?
 
-	\item [Updates:]
+	\item [Continuous synchronization:]
 		Further updates, one-by-one. This is only needed in
-		case the solution aims for real-time synchronization.
+		case the solution aims for instantaneous synchronization.
 
 	\item [HA peer sync:]
-		How does the inactive HA peer get updated? Of
-		course, this only matters when the supernode is HA pair.
+		How is the passive HA peer node updated?
+		This not only matters when the supernode is a HA pair (multi
+		level), but also when it's at the bottom of the node hieararchy
+		(single level).
 \end{description}
 
 \subsection{Variants}
@@ -532,7 +534,7 @@ thing about this variant is that the subnode only has to do one thing, which is
 responding to requests from the supernode(s); it doesn't have to proactively
 send any updates after sending the an initial delta.
 
-A big drawback is that the synchronization doesn't happen in real-time. This
+A big drawback is that the synchronization doesn't happen instantaneously. This
 doesn't seem to fit well into the overall Roadster architecture, which is
 completely event-driven (no polls or "sleeps").
 
@@ -549,7 +551,7 @@ protocol, and more moving parts overall.
 
 Overall, this variant is very simple, but doesn't offer some features we'd
 normally expect from a framework like Roadster. The fruits are hanging low;
-achieving real-time synchronization and better efficiency is easy.
+achieving instantaneous synchronization and better efficiency is easy.
 
 \subsubsection{PUSH-PULL}
 This variant avoids the delays introduced by the polling mechanism of the first variant.

@@ -53,16 +53,13 @@ with Roadster, and run finally Roadster's test suites.
 
 \subsection{System test}
 System tests are designed to test the application under close-to-reality conditions.
-To create a realistic environment, we use Mininet, Jnettop and fake \glspl{PLC}.
+To create a realistic environment, Mininet and fake \glspl{PLC} are used.
 \begin{description}
 	\item [Mininet:]\hfill\\
 		Mininet allows creating virtual networks instantaneously. It
 		relies on Linux cgroups and network namespaces to isolate the
 		\glspl{VM}, the very same primitives used by Docker.
 		Mininet can also simulate link/connectivity problems between nodes.
-	\item [Jnettop:]\hfill\\
-		Jnettop simulates network capacity problems on the individual
-		network connections between the nodes. % FIXME: sure? I think it's only for viewing.
 	\item [Fake:]\hfill\\
 		Fake \glspl{PLC} are simple scripts that respond to requests.
 \end{description}

@@ -1,5 +1,81 @@
 % vim: ft=tex
 \chapter{Project Plan}
+\section{Timetable}
+\subsection{Estimated time}
+The projekt span is from 19.09 until 23.12. We expect 26 hours work per week which is a total of
+320 hours per group member.
+
+\begin{table}[H]
+  \centering
+  \scriptsize
+  \caption{Timetable}
+  \begin{tabular}{|p{80mm}|p{15mm}|}
+    \hline 	\bf Project duration & 14 weeks \\ \hline
+	\bf count of workers & 2 \\ \hline
+	\bf time per worker & 26 hours per week \\ \hline
+	% TODO set time
+	\bf Total estimated time (without weighted damage) & XX \\ \hline
+	% TODO set time
+	\bf Total estimated time (inclusive weighted damage) & XX \\ \hline
+	\bf Project start & 19.09.2016 \\ \hline
+	\bf Project end & 23.12.2016 \\ \hline
+  \end{tabular} \\
+\end{table}
+
+\subsection{Time Tracking}
+All schedulings are done with Everhour and with git. Git includes all issues and Everhour is used for the time capturing (should / is ).
+
+\subsection{Infrastructure}
+\begin{table}[H]
+  \centering
+  \scriptsize
+  \caption{Timetable}
+  \begin{tabular}{|p{25mm}|p{30mm}|}
+    \hline 	\bf Servername & sinv-56092.edu.hsr.ch \\ \hline
+	\bf ip address & 152.96.56.92 \\ \hline
+	\bf os & Ubuntu 14.04 LTS \\ \hline
+	\bf VM EndofLife & 03.03.2017 \\ \hline
+	\bf CPU & 1 vCPU max. 2.2 GHz \\ \hline
+	\bf RAM & 1 GB \\ \hline
+	\bf Disk drive & 15 GB \\ \hline
+  \end{tabular} \\
+\end{table}
+
+\subsection{Tools}
+\begin{table}[H]
+  \centering
+  \scriptsize
+  \caption{Timetable}
+  \begin{tabular}{|p{50mm}|p{15mm}|p{15mm}|}
+    \hline 	\bf Use & Name & Version \\ \hline
+	\bf IDE & vim, ruby mine &  \\ \hline
+	\bf version control system & git & 2.* \\ \hline
+	\bf project management  & git, everhoour &  \\ \hline
+  \end{tabular} \\
+\end{table}
+
+\subsection{Quality Measure}
+
+\subsubsection{Documentation Review}
+The project partner reads important sentences as well it will be disscused in the weekly stand up meetings.
+
+
+\subsubsection{Meeting Minutes}
+Meeting minutes include the participant, agenda items, decisions and todos. Manuel Schuler take over this task and logs erverything.
+Every meeting minutes is saved on the github wiki site 24 hours before the meeting start and after the meeting it will be updated with the new information.
+
+\subsubsection{Git Policy}
+It's only allowed to push if all ruby spec tests pass.
+% TODO to be defined..
+
+
+\subsection{Meeting}
+Meetings are agreed in consultation with the lecturer or the customer. 
+The meeting minutes is kept, the individual agenda items, decisions and todos.
+The project team makes one Weekly standup meeting - place in early / mid-week and serves only as a short exchange of information, 
+review last week, recap the week goals, problems and plenary for questions or suggestions.
+
+
 \section{Risks}
 There were X risks that have been identified by the end of the Inception phase.
 The risks have a total damage of xxx hours. The total damaged hours multiplied
@@ -15,7 +91,7 @@ the unweighted damage must be adapted immediately. Moreover, it's possible for a
 be completely ruled out, or that a new risk arises. All these points need to be discussed in
 the team and tracked accordingly.
 
-\subsection{Listed Risks}
+\section{Listed Risks}
 \begin{tabular}[t]{@{}>{\raggedright}p{0.45\textwidth}}
   \textbf{\textit{P = Probability}}
   \begin{enumerate}[topsep=0pt,itemsep=-2pt,leftmargin=13pt]
@@ -71,70 +147,61 @@ The delay is specified in days. One day equals 16 man-hours.
 		& \cellcolor{yellow!50}1
 		& \cellcolor{yellow!50}3
 		& check with client	(done)
-		& extract and run affected ZMQ \\
-
-
-		    & 		 	& \cellcolor{yellow!50}		& \cellcolor{yellow!50}		& 			& sockets in their own process 	\\
-		    & 	& \cellcolor{yellow!50}		& \cellcolor{yellow!50}		&					& 								\\
-		    & 				& \cellcolor{yellow!50}		& \cellcolor{yellow!50}		&					& delay: 1-2 days				\\ \hline
+		& extract and run affected ZMQ \newline sockets in their own process \newline delay: 1-2 days \\ \hline
+	R02 
+		& wrong protocols chosen / protocol design flaw
+		& \cellcolor{red!50}3
+		& \cellcolor{red!50}5
+		& architecture \newline reviews prototypes
+		& fix (reevaluate reengineer, redesign) \newline delay: 8-12 days	\\ \hline
+	R03 
+		& ZMQ communication patterns (such as Binary Star) are difficult to implement as clean, reusable code
+		& \cellcolor{yellow!50}2 
+		& \cellcolor{yellow!50}4 
+		& use software engineering knowhow to aim for clean, reusable prototypes
+		& nice solution: \newline build more iteratively, step by step \newline delay: 2-4 days \newline \newline dirty solution: 
+		\newline customized solution built right into Roadster, not as a public gem \newline delay: 1-2 days \\ \hline
+	R04	
+		& CZTop design flaws/limitations
+		& \cellcolor{yellow!50}2
+		& \cellcolor{yellow!50}2
+		& check functionality in the elaboration phase
+		& adapt CZtop \newline delay: 1-2 days \\ \hline		
+	R05 
+		& CZMQ changes API
+		& \cellcolor{yellow!50}1
+		& \cellcolor{yellow!50}3
+		& (hope)
+		& adapt CZTop, change CZTop adapter in Roadster, or just don't upgrade CZMQ (use a commit before the breaking change) \newline delay: 1-2 days \\ \hline
+	R06 
+		& wrong time estimations
+		& \cellcolor{orange!50}4
+		& \cellcolor{orange!50}3
+		& use time well during planning, and define clear milestones
+		& If possible, change the duration of the individual project phases. Otherwise, drop planned features
+		(starting with the optional goal) \newline delay: 4-5 days \\ \hline		
+	R07 
+		& managing multiple Projects (at least one per repo) on Github too painful
+		& \cellcolor{yellow!50}4
+		& \cellcolor{yellow!50}1
+		& setup project structure in the elaboration phase
+		& partial solution: \newline CodeTree (can't seem to be used for private repos like Roadster itself (maybe yes! see  mindclue/roadster\#5) \newline
+		\newline complete solution: \newline Use a single Project which just has cards that link to issues from other repos. 
+		Linking to "foreign" issues is additional effort but should be straight forward using Github syntax (https://github.com/org/repo/issues/42)
+		\newline delay: 1 day \\ \hline
+	R08 
+		& Prolonged loss of a team member
+		& \cellcolor{yellow!50}2
+		& \cellcolor{yellow!50}3
+		& Track absences in meeting minutes.
+		& In a prolonged absence, move milestones and, if necessary, change the project scope. \newline delay: 3-10 days \\ \hline
 		
-	R02 & wrong protocols chosen /			& \cellcolor{red!50}3		& \cellcolor{red!50}5		& architecture 		& fix (reevaluate reengineer, redesign)	\\
-		& protocol design flaw				& \cellcolor{red!50}		& \cellcolor{red!50}		& reviews prototypes& 										\\
-		&									& \cellcolor{red!50} 		& \cellcolor{red!50} 		&					& delay: 8-12 days						\\ \hline
-		
-	R03 & ZMQ communication patterns		& \cellcolor{yellow!50}2 	& \cellcolor{yellow!50}4 	& use software 		& nice solution: 						\\
-		& (such as Binary Star) are 		& \cellcolor{yellow!50} 	& \cellcolor{yellow!50}		& engineering 		& build more iteratively, step by step 	\\
-		& difficult to implement as clean, 	& \cellcolor{yellow!50} 	& \cellcolor{yellow!50}		& knowhow to aim 	& 										\\
-		& reusable code						& \cellcolor{yellow!50} 	& \cellcolor{yellow!50}		& for clean, 		& delay: 2-4 days						\\ 
-		&									& \cellcolor{yellow!50} 	& \cellcolor{yellow!50}		& reusable prototypes & 										\\
-		&									& \cellcolor{yellow!50} 	& \cellcolor{yellow!50}		&					& dirty solution: 						\\
-		&									& \cellcolor{yellow!50} 	& \cellcolor{yellow!50}		&					& customized solution built right		\\
-		&									& \cellcolor{yellow!50} 	& \cellcolor{yellow!50}		&					& into Roadster, not as a public gem	\\
-		&									& \cellcolor{yellow!50} 	& \cellcolor{yellow!50}		&					& 										\\
-		&									& \cellcolor{yellow!50} 	& \cellcolor{yellow!50}		&					& delay: 1-2 days 						\\ \hline
-		
-	R04	& CZTop design flaws/limitations 	& \cellcolor{yellow!50}2	& \cellcolor{yellow!50}2 	& check functionality & adapt CZtop							\\
-		&									& \cellcolor{yellow!50}		& \cellcolor{yellow!50}		& in the elaboration &										\\
-		&									& \cellcolor{yellow!50}		& \cellcolor{yellow!50}		& phase				& delay: 1-2 days						\\ \hline
-		
-	R05 & CZMQ changes API  				& \cellcolor{yellow!50}1 	& \cellcolor{yellow!50}3 	& (hope) 			& adapt CZTop, change CZTop adapter 	\\
-		&					  				& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& 		 			& in Roadster, or just don't upgrade	\\
-		&					  				& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& 		 			& CZMQ (use a commit before the breaking change)	\\
-		&					  				& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& 		 			& 													\\
-		&					  				& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& 		 			& delay: 1-2 days 									\\ \hline	\\
-		
-	R06 & wrong time \newline estimations  			& \cellcolor{orange!50}4 	& \cellcolor{orange!50}3 	& use time well 	& If possible, change the duration 		\\
-		&									& \cellcolor{orange!50} 	& \cellcolor{orange!50} 	& during planning,	& of the individual project phases. 	\\
-		&									& \cellcolor{orange!50} 	& \cellcolor{orange!50} 	& and define 		& Otherwise, drop planned features 		\\
-		&									& \cellcolor{orange!50} 	& \cellcolor{orange!50} 	& clear milestones  & (starting with the optional goal)		\\
-		&									& \cellcolor{orange!50} 	& \cellcolor{orange!50} 	& 					& 										\\
-		&									& \cellcolor{orange!50} 	& \cellcolor{orange!50} 	& 					& delay: 4-5 days 						\\ \hline
-		
-	R07 & managing multiple Projects (at 	& \cellcolor{yellow!50}4 	& \cellcolor{yellow!50}1 	& setup project  	& partial solution: 					\\
-		& least one per repo) on Github 	& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& structure in the	& CodeTree (can't seem to be used for 	\\
-		& too painful						& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& elaboration phase & private repos  like Roadster itself	\\
-		& 									& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& 					& (maybe yes! see  mindclue/roadster 5) \\
-		& 									& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& 					&										\\
-		& 									& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& 					& complete solution: 					\\
-		& 									& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& 					& Use a single Project which just has cards	\\
-		& 									& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& 					& that link to issues from other repos. 	\\
-		& 									& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& 					& Linking to "foreign" issues is additional	\\
-		& 									& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& 					& effort but should be straight forward		\\
-		& 									& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& 					& using Github syntax ([org/repo 42](https://github.com/org/repo/issues/42)) \\
-		& 									& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& 					& 											\\
-		& 									& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& 					& delay: 1 day 								\\ \hline	
-		
-	R08 & Prolonged loss of a team member  	& \cellcolor{yellow!50}2  	& \cellcolor{yellow!50}3 	& Track absences in	& In a prolonged absence, move milestones	\\
-		&									& \cellcolor{yellow!50}  	& \cellcolor{yellow!50} 	& meeting minutes. 	& and, if necessary, change the project scope. \\
-		&									& \cellcolor{yellow!50}  	& \cellcolor{yellow!50} 	& 					&												\\
-		&									& \cellcolor{yellow!50}  	& \cellcolor{yellow!50} 	& 					& delay: 3-10 days 								\\ \hline	
-		
-	R09 & Failure to achieve the defined	& \cellcolor{yellow!50}1 	& \cellcolor{yellow!50}4 	& Continuous monitoring & Meeting convened as we still can transpose \\
-		& task in time 						& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	&  whether we are on 	& a large part of the required tasks 		\\
-		& 			 						& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	&  schedule and whether & within the prescribed period.				\\
-		& 			 						& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	&  all requirements 	&											\\
-		& 			 						& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	&  are met. 			& delay: 1-5 days 							\\ \hline
-		
+	R09 
+		& Failure to achieve the defined task in time
+		& \cellcolor{yellow!50}1
+		& \cellcolor{yellow!50}4
+		& Continuous monitoring whether we are on schedule and whether all requirements are met. 
+		& Meeting convened as we still can transpose a large part of the required task within the prescribed period. \newline delay: 1-5 days\\ \hline		
    \end{longtable}
 \end{center}
 
@@ -195,6 +262,7 @@ The delay is specified in days. One day equals 16 man-hours.
     \hline
   \end{tabular} \\
 \end{table}
+
 
 \section{Iterations \& Phases}
 \begin{center}

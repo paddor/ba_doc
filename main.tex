@@ -4,7 +4,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[a4paper]{geometry}
 \geometry{verbose, marginparwidth=15mm, marginparsep=3mm, tmargin=25mm}
-\usepackage[svgnames]{xcolor}
+\usepackage[svgnames, table]{xcolor}
 \usepackage{graphicx}
 \usepackage[hyphens]{url}
 \usepackage[flushmargin,hang]{footmisc}
@@ -19,6 +19,10 @@
 \parskip=10pt
 \setlength{\docparskip}{\parskip}
 \setlist{nosep, itemsep=5pt, parsep=0pt, before={\parskip=5pt}, after={}}
+
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{pgfgantt}
 
 \usepackage{amssymb} % for \checkmark
 \usepackage{textgreek} % for \textMu
@@ -183,8 +187,8 @@ contributions.
 % NOTE: time reports are kept online
 
 \chapter{Project Plan}
-TODO import project plan from wiki\\
-TODO import risks from wiki\\
+% TODO import project plan from wiki
+\include{risks}
 
 \include{zmq}
 \include{problems}

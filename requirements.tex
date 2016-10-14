@@ -55,7 +55,9 @@ the client-facing server. Typical node topologies include:
 This is formally specified in \autoref{lst:feature:federation}
 \lstinputlisting[style=customgherkin, caption={Formal federation feature}, label={lst:feature:federation}]{listings/features/federation/federation.feature}
 
-\subsubsection{DIM synchronization}
+\subsubsection{DIM extension}
+
+\paragraph{Synchronization}
 Extending the \gls{CSP} to keep the \gls{DIM} in sync across all nodes is a central
 part of the federation functionality. This means replicating the
 items within the DIM that are marked "dirty" (updated, but not synchronized yet) onto all other actors on all other nodes.
@@ -68,18 +70,17 @@ the instances of one of the following three classes (marked yellow in the class 
 	\item \rb{Case}
 \end{itemize}
 
-\paragraph{Access restriction}
+\paragraph{Access control}
 The above requirements imply that changes to the \gls{DIM} can only be done by the
-respective node. In other words, a node can only change its own values. It
-cannot change values of supernodes, nor is it allowed to change values of
-subnodes directly. This is to ensure that each node is its own source of truth
+respective node. In other words, a node can only change elements owned by itself. It
+cannot change elements of other nodes directly. This is to ensure that each node is its own source of truth
 to all other nodes in the setup. Only the responsible node can enforce a single
 sequence of updates to its part of the DIM, which is necessary to guarantee
 consistency \cite[Chapter 5, Reliable Pub-Sub (Clone Pattern), Republishing
 Updates from Clients]{zmq:zguide}.
 
-This is formally specified in \autoref{lst:feature:federation:dimsync}
-\lstinputlisting[style=customgherkin, caption={Formal DIM synchronization feature}, label={lst:feature:federation:dimsync}]{listings/features/federation/dim_synchronization.feature}
+These two aspects to the DIM extension are formally specified in \autoref{lst:feature:federation:dimsync}
+\lstinputlisting[style=customgherkin, caption={Formal DIM synchronization feature}, label={lst:feature:federation:dimsync}]{listings/features/federation/dim_extension.feature}
 
 \subsubsection{Autonomy}
 It's important that every node subtree can keep up the operation autonomously even if the

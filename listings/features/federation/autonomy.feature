@@ -8,6 +8,15 @@ Feature: Autonomy
     And subnodes S1 and S2 have a network link to root node R
     And nodes S1, S2, R are running
 
+  Scenario: Unreachable neighbor nodes
+    When link to neighboring node fails or neighboring node crashes
+    And neighboring node becomes unreachable
+    Then node continues to perform its assigned tasks
+    And field devices, if any, are still being monitored
+    And updates to the DIM are still possible
+    And data to persist, if any, is still being persisted
+    And the node's web UI stays accessible and functional
+
   Scenario: DIM synchronization after link failure recovery
     Given root node is running
     And connection between subnode S1 and root node R are established

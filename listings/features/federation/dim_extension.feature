@@ -6,7 +6,7 @@ Feature: DIM extension
   Background:
     Given a federation topology configuration available on all nodes
     And subnodes S1, S2 have a network link to root node R
-    And nodes S1, S2 Are running
+    And nodes S1, S2 are running
 
   Scenario: Initial DIM synchronization
     Given root node R starts

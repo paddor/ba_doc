@@ -64,8 +64,8 @@ This is formally specified in \autoref{lst:feature:federation}
 
 \paragraph{Synchronization}
 Extending the \gls{CSP} to keep the \gls{DIM} in sync across all nodes is a central
-part of the federation functionality. This means replicating the
-items within the DIM that are marked "dirty" (updated, but not synchronized yet) onto all other actors on all other nodes.
+part of the federation functionality. This means replicating updates to DIM entities
+to all other actors on the node (legacy behavior) and on all other nodes.
 
 According to the meta model in \autoref{fig:roadster:meta-model}, these are exactly
 the instances of one of the following three classes (marked yellow in the class diagram):
@@ -74,6 +74,9 @@ the instances of one of the following three classes (marked yellow in the class 
 	\item \rb{Session}
 	\item \rb{Case}
 \end{itemize}
+
+Instances of these entity classes are marked "dirty" when modified, but not
+synchronized yet.
 
 \paragraph{Access control}
 The above requirements imply that changes to the \gls{DIM} can only be done by the

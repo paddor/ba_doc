@@ -286,6 +286,11 @@ Regarding testing, the following requirements exist:
 	\item use cases shall be integration tested in a close-to-reality setup, either automatically or manually
 \end{itemize}
 
+\subsection{High availability for OPC UA}
+The high availability feature shall be design with \gls{opc-ua} in mind. It
+should be easy to adapt it to the various kinds of server redundancy specified
+in OPC-UA, including the transparent and non-transparent variants.
+
 \subsection{Encryption}
 \emph{This is optional. Also, this requirement has the lowest priority not
 because it's insignificant, but because it's easy to enable transport level

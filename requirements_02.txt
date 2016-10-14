@@ -7,7 +7,7 @@
   - "subsystem" only for system topology
   - "client" (also in illustration) only for actual clients
   - don't mix
-* formal spec of protocols (unprotocols, ABNF, ...)
+* formal spec of protocols (unprotocols, ABNF, RFC 2119, ...)
 * owner node for DIM objects
   - subfederation of nodes
   - owner attr of an object points to one of these nodes in the DIM

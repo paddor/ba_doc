@@ -73,20 +73,7 @@ iteration.
 The test scenarios primarily test situations encountered in the real world. Out
 of scientific interest, more test scenarios, which reflect more extreme cases,
 have been added.
-% FIXME: Maybe we should stick to the 5 use cases
-\begin{description}
-	\item [ Multi level HA: ]\hfill\\
-		Two levels in the node hieararchy: At bottom level is a node
-		that supervises a \gls{PLC}. The upper level contains a primary
-		and a secondary node in a HA setup.
-		% TODO ...
-	\item [ Single level HA: ]\hfill\\
-		A primary and a backup node in a HA setup, both directly
-		connected to a \gls{PLC}.
-		% TODO ...
-\end{description}
-
-Persistence synchronization is tested for all scenarios. % TODO: persistence is NOT part of NFRs
+% TODO: mention the Gherkin features
 
 The test scenarios contain configurations for mininet and the particular Roadster nodes.
 The procedure of each scenario is described in detail below to make the results reproducible.

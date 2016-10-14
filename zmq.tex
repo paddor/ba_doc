@@ -69,6 +69,13 @@ even a programming language's built-in object serialization
 support\footnote{such as Ruby's marshalling support:
 \url{http://ruby-doc.org/core/Marshal.html}}.
 
+\section{Language availability}
+Bindings or full-blown reimplementations of \zmq exist for a plethora of
+programming languages, including C, C++, Java, Ruby, Perl, Erlang, Python, Lua,
+Go, Tcl, PHP, and .Net. This allows for building distributed software systems
+using modern approaches like service-oriented architectures, where different
+parts may be implemented in different languages.
+
 \section{CZMQ}
 \gls{czmq} is a high-level abstraction layer for \zmq. It makes working with the \zmq
 library more expressive and allows for better portability. It also provides
@@ -77,9 +84,4 @@ well as utilities for certificate and authentication handling, and LAN node
 discovery. This is the recommended way of using \zmq nowadays, as it allows for
 much cleaner C code and also simplifies bindings for other languages.
 
-\section{Language availability}
-Bindings or full-blown reimplementations of \zmq exist for a plethora of
-programming languages, including C, C++, Java, Ruby, Perl, Erlang, Python, Lua,
-Go, Tcl, PHP, and .Net. This allows for building distributed software systems
-using modern approaches like service-oriented architectures, where different
-parts may be implemented in different languages.
+% TODO: CZTop

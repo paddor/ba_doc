@@ -52,6 +52,9 @@ the client-facing server. Typical node topologies include:
 	\label{fig:topo:ml:noha}
 \end{figure}
 
+This is formally specified in \autoref{lst:feature:federation}
+\lstinputlisting[style=customgherkin, caption={Formal federation feature}, label={lst:feature:federation}]{listings/features/federation/federation.feature}
+
 \subsubsection{DIM synchronization}
 Extending the \gls{CSP} to keep the \gls{DIM} in sync across all nodes is a central
 part of the federation functionality. This means replicating the
@@ -65,23 +68,7 @@ the instances of one of the following three classes (marked yellow in the class 
 	\item \rb{Case}
 \end{itemize}
 
-\subsubsection{Message routing}
-There needs to be a message routing mechanism so a user
-of one node's web UI can send a command to another node where it will be
-executed. An example for this is a forced value in the DIM to ignore the
-actually measured value reported by a device in case the device is known to be
-wrong. The common case where the command is issued at a higher level in the node
-topology is priority. E.g. in a setup with a root node and two
-subnodes A and B, issuing a command on A for B has a low priority.
-
-\subsubsection{Autonomy}
-It's important that every node subtree can keep up the operation autonomously even if the
-link to its supernode or the supernode itself fails. This means that updates to
-the \gls{DIM} are allowed even when the supernode is unavailable. After the
-recovery from the outage, the \gls{DIM} synchronization shall be reinitiated so
-all pending updates are shared to all other nodes (through the supernode).
-
-\subsubsection{Access restriction}
+\paragraph{Access restriction}
 The above requirements imply that changes to the \gls{DIM} can only be done by the
 respective node. In other words, a node can only change its own values. It
 cannot change values of supernodes, nor is it allowed to change values of
@@ -91,6 +78,30 @@ sequence of updates to its part of the DIM, which is necessary to guarantee
 consistency \cite[Chapter 5, Reliable Pub-Sub (Clone Pattern), Republishing
 Updates from Clients]{zmq:zguide}.
 
+This is formally specified in \autoref{lst:feature:federation:dimsync}
+\lstinputlisting[style=customgherkin, caption={Formal DIM synchronization feature}, label={lst:feature:federation:dimsync}]{listings/features/federation/dim_synchronization.feature}
+
+\subsubsection{Autonomy}
+It's important that every node subtree can keep up the operation autonomously even if the
+link to its supernode fails or the supernode itself fails. This means that updates to
+the \gls{DIM} are allowed even when the supernode is unavailable. After the
+recovery from the outage, the \gls{DIM} synchronization shall be reinitiated so
+all pending updates are shared to all other nodes (through the supernode).
+
+This is formally specified in \autoref{lst:feature:federation:autonomy}
+\lstinputlisting[style=customgherkin, caption={Formal autonomy feature}, label={lst:feature:federation:autonomy}]{listings/features/federation/autonomy.feature}
+
+\subsubsection{Command routing}
+There needs to be a command routing mechanism so a user
+of one node's web UI can send a command to another node where it will be
+executed. An example for this is a forced value in the DIM to ignore the
+actually measured value reported by a device in case the device is known to be
+wrong. The common case where the command is issued at a higher level in the node
+topology is priority. E.g. in a setup with a root node and two
+subnodes A and B, issuing a command on A for B has a low priority.
+
+This is formally specified in \autoref{lst:feature:federation:cmdrouting}
+\lstinputlisting[style=customgherkin, caption={Formal command routing feature}, label={lst:feature:federation:cmdrouting}]{listings/features/federation/command_routing.feature}
 
 \subsection{High availability}
 Roadster must be able to run in certain high availability setups. Achieving

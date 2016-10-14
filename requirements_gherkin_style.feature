@@ -1,6 +1,7 @@
 Feature: Federation
-
-	# TODO
+	In order to communicate between the federation
+	As a roadster federation member
+	I need to be able to know who I am and who are they others
 
 	Scenario: Configuration loading
 		Given a static configuration file available on all nodes
@@ -8,8 +9,9 @@ Feature: Federation
 		Then configuration will be loaded in each actor
 		
 Feature: DIM Synchronization
-
-	# TODO
+	In order to keep the DIM synced between the federation
+	As a roadster federation system
+	I need to be able to get actual DIM from each node
 	
 	Background:
 		Given a configuration available on all nodes
@@ -36,8 +38,9 @@ Feature: DIM Synchronization
 		Then synchronization between the pairs (B,R) happens bidirectionally
 
 Feature: Command Routing
-
-	# TODO 
+	In order to control other federation members field devices
+	As a roadster federation member
+	I need to be able to send commands from one federation to an other	
 
 	Background:
 		Given a configuration available on all nodes

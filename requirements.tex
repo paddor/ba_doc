@@ -214,50 +214,6 @@ are shared only towards the root node (thus "bubbling up").
 100\% consistency is not an absolute requirement for persistence synchronization.
 However, it is mandatory that updates make it to the root node within 30 seconds.
 
-\subsection{OPC UA HA}
-\emph{This is optional.}
-
-A given \gls{HA} pair needs to provide an OPC UA Server Redundancy interface,
-as described in \cite[6.4.2.4 Non-transparent Redundancy,
-p.~96]{opc-ua:behavior:server-redundancy}.
-
-% FIXME
-{\large\color{red}Actually the students, as well as the client, are unsure whether the
-non-transparent variant of server redundancy is the correct choice for the
-requirements of the Ceneri Base Tunnel. It looks like the non-transparent
-variant is needed where the client performs the
-failover (similar to the Lazy Pirate pattern).}
-
-% ---------------------------------------------------------------------------
-\section{Use cases}
-The use cases are briefly described here. These should simply describe common
-scenarios based on the requirements above. They can later be turned into
-concrete testing scenarios.
-
-\subsection{UC01: Federation}
-A root node R has two subnodes A and B. A user connected to the root node's web
-UI wants to suppress a case repeatedly generated on subnode A. The DIM shall be
-kept in sync across all nodes.
-
-\subsection{UC02: Hardware failure at top}
-A subnode A is connected to a root-level HA pair (nodes R1 and R2). The active
-HA peer (R1) crashes. R2 is supposed to take over as soon as subnode A fails
-over to R2.
-
-\subsection{UC03: Hardware failure at bottom}
-A HA pair is connected to a field device. The active nodes crashes. The passive
-one has to notice and take over to ensure continued monitoring of and access to
-the field device.
-
-\subsection{UC04: Persistence synchronization}
-A root node R has two subnodes A and B. Persisted data on A has to bubble up to
-root, even after temporary failure of the link between them. Root eventually
-contains the union of all subnodes' persisted data.
-
-\subsection{UC05: OPC-UA HA}
-A HA pair provides an OPC UA interface. On failover, the client
-shall continue to interact with the leftover HA peer.
-
 % ---------------------------------------------------------------------------
 \section{Non-functional requirements}
 The following subsections illustrate the non-functional requirements.

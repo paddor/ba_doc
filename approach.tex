@@ -296,9 +296,15 @@ end # Roadster
 
 
 \subsection{Message routing}
-Messages need to be sent from an actor on one node to an actor on another node. The best place to put this logic is the CORE actor which already does this for messages exchanged within a node. It needs to be extended to know about nodes and their actors, not only actors on the current node. Then messages can be passed around hop-by-hop.
+Messages need to be sent from an actor on one node to an actor on another node.
+The best place to put this logic is the CORE actor which already does this for
+messages exchanged within a node. It needs to be extended to know about nodes
+and their actors, not only actors on the current node. Then messages can be
+passed around hop-by-hop.
 
-In case a message is sent in \emph{Dialog} mode, this implicates Russian doll routing: At every hop, a new dialog is started which expects an immediate response, which will subsequently be passed back and complete the open dialogs.
+In case a message is sent in \emph{Dialog} mode, this implicates Russian doll
+routing: At every hop, a new dialog is started which expects an immediate
+response, which will subsequently be passed back and complete the open dialogs.
 
 \subsubsection{Example}
 When a user of the root node's web UI wants to change a value on a field device
@@ -310,6 +316,7 @@ executed on the field device.
 
 %----------------------------------------------------------------------------
 \section{High availability}\label{sec:approach:ha}
+% TODO: HA node => HA peer, backup node => backup peer (??), active peer, passive peer?
 If Roadster is going to be run in a federation, measures need to be taken to
 mitigate the risk of failure, since many nodes are more likely to fail than a
 single node (unless they add redundancy). Availability shall be ensured by
@@ -321,7 +328,7 @@ Run together in a hot-standby cluster, the passive node's responsibility is to
 take over in case the active one goes down.
 
 \subsection{Defining reliability}
-When speaking about reliability, it's worth listing the failures we want to be
+When speaking about reliability, it's worth listing the failures we want to be % FIXME
 able to handle. According to the requirements, these are exactly:
 
 \begin{description}
@@ -329,11 +336,13 @@ able to handle. According to the requirements, these are exactly:
 		This could be one of the actors crashing, the whole OS
 		crashing, or a fatal disk failure, irrecoverable memory error,
 		or even just someone accidentally pulling the power plug.
+		% TODO: more detailed
 
 	\item [Network failure]
 		This only includes the failure of the link connecting a HA node
 		to the rest of the federation.  Interestingly, this limitation applies to both
 		single level and multi level HA.
+		% TODO: more detailed
 \end{description}
 
 Failures that won't be covered include:
@@ -351,12 +360,13 @@ Failures that won't be covered include:
 		% cycles & ICANHAZ requests are coming, backup shall take over
 
 
-	\item [Failure of the link between a HA peer node and the field device]
+	\item [Failure of the link between a HA peer and the field device]
 		The \gls{bstar} algorithm won't initiate a failover since the
 		active is still alive and is able to tell the passive node so.
 		The missing life signs via the field device could cause an alarm, but no
 		failover, since they're only half of the conditions that have
 		to be met for a failover.
+		% TODO: more detailed
 \end{description}
 
 The \gls{zguide} describes a very simple mechanism to achieve this kind of high
@@ -367,10 +377,10 @@ split-brain syndrome, and is fairly easy to implement, even as reusable
 code. The implementation could be contained within a new kind of COMM actor
 called BSTAR. This makes sense since it talks to the outside world.
 
-% TODO maybe we need to extend binary star to handle other kinds of network failures?\\
+% TODO maybe we need to extend binary star to handle other kinds of network failures?
 
 \subsection{Binary Star in a nutshell}
-Two HA peer nodes are started either as primary or as backup. After an initial
+Two HA peers are started either as primary or as backup. After an initial
 handshake, the primary one becomes active, the backup node becomes passive. The
 two continually exchange heartbeats. Clients always connect to the primary's endpoint first.
 
@@ -389,16 +399,19 @@ explained in \cite[Chapter 4 - Reliable Request-Reply Patterns, Client-Side
 Reliability (Lazy Pirate Pattern)]{zmq:zguide}.
 
 \subsection{Failover}
-In case the currently active node goes down, the two conditions will be met.
+In case the currently active peer goes down, the two conditions will be met.
 This means that the passive node starts accepting snapshot requests (ICANHAZ
 messages) and updates the DIM, so every other node will know about the new,
 active node. This is needed for the message routing to work.
 
+% TODO: move down?
 It's important to mention that a dedicated, direct link from one HA node to its
 peer actually worsens high availability. In case the non-dedicated link from
 the primary HA node goes down, meaning the HA node is effectively offline and
 unavailable for subnodes, the failover won't happen since heartbeats are still
-exchanged with the HA peer node over the dedicated link.
+exchanged with the HA peer over the dedicated link.
+
+% TODO No client => no failover
 
 \subsubsection{Alarm generation}
 When a failover happens, it makes sense to create a \rb{Case} (alarm) in the
@@ -414,19 +427,59 @@ or the backup one), the newly repaired node will become the new passive node.
 
 \subsubsection{Failover from backup to primary node}
 Once failed over, the newly actve backup node stays active. It does so until it
-fails itself, at which point the now repaired, up and running primary node will
-take over. This works because the \gls{bstar} operates symmetrically
-after successful initialization. But it never automatically switches back to
+fails itself or is manually stopped. It never automatically switches back to
 make the primary node the new active one without a failure. This is key. If a
-node goes down, the failover happens automatically, but anything else will
+node becomes unreachable, the failover happens automatically, but anything else will
 require human interaction.
 
-\subsection{Side benefit: Rolling upgrades}
-TODO useful for upgrades (maybe in Discussion)\\
+Subsequently, when the previously broken, primary node has been repaired, it
+rejoins the \gls{bstar} cluster as the passive node. At that point, the backup
+node can be killed if need be, and the primary node will take over again.  This
+works because the \gls{bstar} operates symmetrically after a successful
+handshake during initialization.
 
-\subsection{Dangerous corner case: Backup node active, dedicated link goes down, and there are new/reconnecting clients}
-TODO this will lead to split-brain syndrome (maybe in Discussion)\\
-TODO in general: dedicated link for HA pair communication is dangerous!\\
+\subsection{Side benefit: Rolling upgrades}
+% TODO useful for upgrades (maybe in Discussion)
+
+\subsection{A note on dedicated links}
+The \gls{zguide} mentions that a dedicated link between the two HA peers
+(traditionally done with a crossover cable) is the best solution to prevent the
+split-brain syndrome. This is true. But in some cases, it could also prevent a
+failover from happening.
+
+Imagine the currently active peer's other network equipment fails, i.e. its NIC
+connected to the switch fails, or its switch port fails, then it's unreachable
+to the rest of the federation. In that case, a failover would be wanted. But it
+can't happen, since heartbeats are still exchanged with the passive node over
+the dedicated link. So it's a trade-off between risking the split-brain
+syndrome and not being able to perform a failover.
+
+\subsubsection{Extending \gls{bstar}}
+Of course the \gls{bstar} mechanism could be extended to
+communicate the number of fully connected clients. That way, a passive node
+could recognize the situation correctly, since it will get requests from
+clients which are trying to fallback to it since the active peer is
+unreachable. Knowing its active peer has zero connected clients, it could
+actually promote itself to the new active peer.
+
+For this to work, a way of counting fully connected (not just requesting)
+clients has to be introduced. Since \zmq abstracts connection handling
+completely away, this needs to be done using heartbeats, i.e. from the clients
+that are currently fully connected (i.e. registered to receive DIM updates).
+This number, or list of clients, could be communicated privately just between
+the two HA peers, along with the heartbeats, or it could be published via the
+DIM.
+
+Another thing that's needed is a HA peer's ability to step down from being the
+active node as soon as its peer promotes itself to the newly active peer. In
+the standard \gls{bstar} mechanism, this would be recognized as the split-brain
+syndrome and handled fatally.
+
+
+\subsubsection{Dangerous corner case}
+% TODO Backup node active, dedicated link goes down, and there are new/reconnecting clients}
+% TODO this will lead to split-brain syndrome (maybe in Discussion)
+% TODO in general: dedicated link for HA pair communication is dangerous!
 
 \subsection{Single level}
 This is different from what's described in the \gls{zguide} because the concept of
@@ -504,7 +557,7 @@ There are multiple aspects involved in persistence synchronization:
 		case the solution aims for instantaneous synchronization.
 
 	\item [HA peer sync:]
-		How is the passive HA peer node updated?
+		How is the passive HA peer updated?
 		This not only matters when the supernode is a HA pair (multi
 		level), but also when it's at the bottom of the node hieararchy
 		(single level).

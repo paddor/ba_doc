@@ -3,10 +3,10 @@ IMAGES := $(shell find img/ -type f)
 LISTINGS := $(shell find listings/ -type f)
 
 main.pdf: $(SOURCES) $(IMAGES) $(LISTINGS)
-	pdflatex -interactive=batchmode $<
+	pdflatex -interactive=batchmode -shell-escape $<
 	biber $(basename $@ .pdf)
 	makeglossaries $(basename $@ .pdf)
-	pdflatex -interactive=batchmode $<
+	pdflatex -interactive=batchmode -shell-escape $<
 
 .PHONY: all clean
 

@@ -58,7 +58,12 @@ the client-facing server. Typical node topologies include:
 \end{figure}
 
 This is formally specified in \autoref{lst:feature:federation}
-\lstinputlisting[style=customgherkin, caption={Formal federation feature}, label={lst:feature:federation}]{listings/features/federation/federation.feature}
+
+\begin{listing}
+	\inputminted{Gherkin}{listings/features/federation/federation.feature}
+	\caption{Formal federation feature}
+	\label{lst:feature:federation}
+\end{listing}
 
 \subsubsection{DIM extension}
 
@@ -91,7 +96,12 @@ consistency \cite[Chapter 5, Reliable Pub-Sub (Clone Pattern), Republishing
 Updates from Clients]{zmq:zguide}.
 
 These two aspects to the DIM extension are formally specified in \autoref{lst:feature:federation:dimsync}
-\lstinputlisting[style=customgherkin, caption={Formal DIM synchronization feature}, label={lst:feature:federation:dimsync}]{listings/features/federation/dim_extension.feature}
+
+\begin{listing}
+	\inputminted{Gherkin}{listings/features/federation/dim_extension.feature}
+	\caption{Formal DIM synchronization feature}
+	\label{lst:feature:federation:dimsync}
+\end{listing}
 
 \subsubsection{Autonomy}
 It's important that every node subtree can keep up the operation autonomously even if the
@@ -101,7 +111,12 @@ recovery from the outage, the \gls{DIM} synchronization shall be reinitiated so
 all pending updates are shared to all other nodes (through the supernode).
 
 This is formally specified in \autoref{lst:feature:federation:autonomy}
-\lstinputlisting[style=customgherkin, caption={Formal autonomy feature}, label={lst:feature:federation:autonomy}]{listings/features/federation/autonomy.feature}
+
+\begin{listing}
+	\inputminted{Gherkin}{listings/features/federation/autonomy.feature}
+	\caption{Formal autonomy feature}
+	\label{lst:feature:federation:autonomy}
+\end{listing}
 
 \subsubsection{Message routing}
 There needs to be a message routing mechanism so a user
@@ -113,7 +128,12 @@ topology is priority. E.g. in a setup with a root node and two
 subnodes A and B, issuing a command on A for B has a low priority.
 
 This is formally specified in \autoref{lst:feature:federation:cmdrouting}
-\lstinputlisting[style=customgherkin, caption={Formal message routing feature}, label={lst:feature:federation:cmdrouting}]{listings/features/federation/message_routing.feature}
+
+\begin{listing}
+	\inputminted{Gherkin}{listings/features/federation/message_routing.feature}
+	\caption{Formal message routing feature}
+	\label{lst:feature:federation:cmdrouting}
+\end{listing}
 
 \subsection{High availability}
 Roadster must be able to run in certain high availability setups. Achieving

@@ -221,7 +221,10 @@ Not every node in a federation has the same role: Some are only connected with o
 nodes, some directly communicate with field devices. To define different node roles, a
 syntax as shown in \autoref{lst:dsl:topo:with-roles} is possible.
 
-\begin{lstlisting}[style=customruby,caption={Federation DSL example without HA}, label={lst:dsl:topo:no-ha}]
+\begin{listing}
+	\caption{Federation DSL example without HA}
+	\label{lst:dsl:topo:no-ha}
+	\begin{minted}[bgcolor=bg]{Ruby}
 # * basic method to add a node: #add_node(ID, south_facing_bind_endpoint)
 # * it takes a block for defining subnodes
 
@@ -239,9 +242,13 @@ conf.system_id = "nodes.root.subnode_a"
 #=> north facing COMM actor's bind port is 5001
 #=> south facing COMM actor's bind port is 5000
 #=> north facing COMM actor will connect to "root" node on "tcp://10.0.0.1:5000"
-\end{lstlisting}
+	\end{minted}
+\end{listing}
 
-\begin{lstlisting}[style=customruby, caption={Fedreation DSL example with HA}, label={lst:dsl:topo:with-ha}]
+\begin{listing}
+	\caption{Fedreation DSL example with HA}
+	\label{lst:dsl:topo:with-ha}
+	\begin{minted}[bgcolor=bg]{Ruby}
 conf.nodes do |map|
   map.add_ha_pair("root", "tcp://10.0.0.1:5000", "tcp://10.0.0.2:5000") do |map|
     map.add_node("subnode_a", "tcp://10.0.0.10:5000")
@@ -259,12 +266,16 @@ conf.system_id = "nodes.root.subnode_a"
 
 # for primary root:
 conf.system_id = "nodes.root[primary]"
-\end{lstlisting}
+	\end{minted}
+\end{listing}
 
 % ############
 % # within ba-roadster-app's lib/domain/domain.rb file:
 % #
-\begin{lstlisting}[style=customruby, caption={Federation DSL example with HA and roles}, label={lst:dsl:topo:with-roles}]
+\begin{listing}
+	\caption{Federation DSL example with HA and roles}
+	\label{lst:dsl:topo:with-roles}
+	\begin{minted}[bgcolor=bg]{Ruby}
 # Idea for node topology definition and assigning roles (features/adapters) to
 # diffent kinds of nodes.
 
@@ -292,7 +303,8 @@ module Roadster
 
   end # Domain::Model
 end # Roadster
-\end{lstlisting}
+	\end{minted}
+\end{listing}
 
 
 \subsection{Message routing}
@@ -735,7 +747,10 @@ the \gls{ZAP}, different security mechanisms (NULL, PLAIN, and CURVE) and is
 capable of reading client public keys from a directory on the file system and
 even listens to changes in that directory.
 
-\begin{lstlisting}[style=customruby,caption={Starting an authentication handler that allows any clients}, label={lst:auth:any}]
+\begin{listing}
+	\caption{Starting an authentication handler that allows any clients}
+	\label{lst:auth:any}
+	\begin{minted}[bgcolor=bg]{Ruby}
 ##
 # on the supernode:
 
@@ -767,7 +782,8 @@ end
 sub = CZTop::Socket::SUB.new
 sub.CURVE_client!(client_cert, server_cert)
 sub.bind("tcp://*:1234")
-\end{lstlisting}
+	\end{minted}
+\end{listing}
 
 \section{OPC UA Interface: High availability}\label{sec:approach:opc-ua}
 The OPC UA standard seems pretty complicated. And given that the requirement

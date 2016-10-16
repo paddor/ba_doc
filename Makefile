@@ -5,6 +5,7 @@ LISTINGS := $(shell find listings/ -type f)
 main.pdf: $(SOURCES) $(IMAGES) $(LISTINGS)
 	pdflatex -interactive=batchmode -shell-escape $<
 	biber $(basename $@ .pdf)
+	rm *.glsdefs # allow incremental updates to the glossary entries
 	makeglossaries $(basename $@ .pdf)
 	pdflatex -interactive=batchmode -shell-escape $<
 

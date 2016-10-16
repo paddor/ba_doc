@@ -469,16 +469,27 @@ The optional goals are:
 	\item Providing of the highly available \gls{opc-ua} server interface
 \end{enumerate}
 
-Secure inter-node communication within a Roadster cluster is important to
+\subsection{Security concerns of SCADA applications}
+Secure inter-node communication within a Roadster federation is important to
 mitigate common security concerns with SCADA systems which are becoming more
-and more open due to standardization. To quote wikipedia:
+and more open due to standardization. To quote \cite[Security issues]{wp:scada}
+wikipedia:
 
 \begin{quote}
 ``In particular, security researchers are concerned about:
 	\begin{itemize}
-		\item the lack of concern about security and authentication in the design, deployment and operation of some existing SCADA networks
-		\item the belief that SCADA systems have the benefit of security through obscurity through the use of specialized protocols and proprietary interfaces
-		\item the belief that SCADA networks are secure because they are physically secured
-		\item the belief that SCADA networks are secure because they are disconnected from the Internet.''
+		\item the lack of concern about security and authentication in
+			the design, deployment and operation of some existing
+			SCADA networks
+		\item the belief that SCADA systems have the benefit of
+			security through obscurity through the use of
+			specialized protocols and proprietary interfaces
+		\item the belief that SCADA networks are secure because they
+			are physically secured
+		\item the belief that SCADA networks are secure because they
+			are disconnected from the Internet.''
 	\end{itemize}
 \end{quote}
+
+The goal is to provide a framework that makes it trivial to provide reasonably
+secure SCADA applications which are assumed to be running on insecure networks.

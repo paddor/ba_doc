@@ -302,9 +302,18 @@ in the popular Ruby style guide \cite{rb:style-guide}, with the following
 differences or special remarks:
 
 \begin{itemize}
-	\item method calls: only use parenthesis when needed, even with arguments (as opposed to \footnote{\url{https://github.com/bbatsov/ruby-style-guide\#method-invocation-parens}})
-	\item 2 blank lines before method definition (slightly extending \footnote{\url{https://github.com/bbatsov/ruby-style-guide\#empty-lines-between-methods}})
-	\item YARD API doc, 1 blank comment line before param documentation, one blank comment line before code (ignoring \footnote{\url{https://github.com/bbatsov/ruby-style-guide\#rdoc-conventions}})
-	\item Ruby 1.9 symbol keys are wanted (e.g. \rb{foo: "bar", baz: 42} instead of \rb{:foo => "bar", :baz => 42}, just like \footnote{\url{https://github.com/bbatsov/ruby-style-guide\#hash-literals}})
+	\item method calls: only use parenthesis when needed, even with
+		arguments (as opposed to
+		\footnote{\url{https://github.com/bbatsov/ruby-style-guide\#method-invocation-parens}})
+	\item 2 blank lines before method definition (slightly extending
+		\footnote{\url{https://github.com/bbatsov/ruby-style-guide\#empty-lines-between-methods}})
+	\item YARD API doc, 1 blank comment line before param documentation,
+		one blank comment line before code (ignoring
+		\footnote{\url{https://github.com/bbatsov/ruby-style-guide\#rdoc-conventions}})
+	\item Ruby 1.9 symbol keys are wanted
+		\begin{itemize}
+			\item e.g. \rb{foo: "bar", baz: 42} instead of \rb{:foo => "bar", :baz => 42}, just like
+			\footnote{\url{https://github.com/bbatsov/ruby-style-guide\#hash-literals}}
+		\end{itemize}
 	\item align multiple assignments so there's a column of equal signs
 \end{itemize}

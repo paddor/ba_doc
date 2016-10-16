@@ -570,7 +570,8 @@ There are multiple aspects involved in persistence synchronization:
 
 	\item [Continuous synchronization:]
 		Further updates, one-by-one. This is only needed in
-		case the solution aims for instantaneous synchronization.
+		case the solution aims for event-driven (meaning close to
+		instantaneous) synchronization.
 
 	\item [HA peer sync:]
 		How is the passive HA peer updated?
@@ -585,6 +586,11 @@ There are multiple aspects involved in persistence synchronization:
 		confirmed by the active node?
 \end{description}
 
+% TODO: how to find out delta?
+% - event journal: request oldest non-finished case from owner
+% - time series: north-traffic only, bubble DELETESs
+% - parameters: every param is also owned by some node, user passwords are owned by root
+
 \subsection{Variants}
 There are multiple variants to achieve the needed functionality.
 % NOTE: Client seems to favor polling.
@@ -596,7 +602,7 @@ thing about this variant is that the subnode only has to do one thing, which is
 responding to requests from the supernode(s); it doesn't have to proactively
 send any updates after sending the an initial delta.
 
-A big drawback is that the synchronization doesn't happen instantaneously. This
+A big drawback is that the synchronization only happens periodically. This
 doesn't seem to fit well into the overall Roadster architecture, which is
 completely event-driven (no polls or "sleeps").
 
@@ -615,7 +621,7 @@ protocol, and more moving parts overall.
 
 Overall, this variant is very simple, but doesn't offer some features we'd
 normally expect from a framework like Roadster. The fruits are hanging low;
-achieving instantaneous synchronization and better efficiency is easy.
+achieving event-driven synchronization and better efficiency is easy.
 
 \subsubsection{PUSH-PULL}
 This variant avoids the delays introduced by the polling mechanism of the first variant.
@@ -696,17 +702,32 @@ gives an unstable link more time to recover before any data loss happens.
 TODO: describe reasonable default setting, in case we change ZMQ's default.
 
 
-\section{Security}\label{sec:approach:security}
-The simplest variant of enabling transport security, as described in
-\autoref{sec:zmq:security} is to allow any client to connect. The clients still
-have to be in possession of the server side's public key. Depending on the
-number of levels in the node hierarchy, that or those public keys can be
-distributed conveniently and safely through the node topology configuration
-file. Public keys are only 40 characters long in \gls{Z85} notation.
+\section{Encryption}\label{sec:approach:encryption}
+It's fairly easy to enable transport security to secure the communication
+between \zmq sockets over an unsecure network.
+The simplest variant, as described in
+\autoref{sec:zmq:security}, is to do server authentication only and allow any client to connect.
 
-Only the server's public key has to be distributed on the respective client nodes
-securely and in advance, which might be considered inconvenient, depending on
-the number of nodes and distribution method.
+Because \zmq allows any order of the bind and connect actions to take place,
+and doesn't impose a specific action on each socket type, the meanins of
+"server" and "client" become blurry. Still, with respect to the CURVE security
+mechanism in \zmq, one of the two involved sockets needs to be designated as
+the CURVE server, and the other one as a CURVE client\footnote{This is a simple method
+call on each socket where the involved keys are passed as well.}. Based on the
+autonomy aspect of the federation, meaning the lower-level systems act as
+servers for the higher-level systems, the same schema is applied to the CURVE.
+
+Since client side authentification is wanted in addition to the server
+authentication always performed, both sides need to be in possession of the
+other side's public key.  Due to the nature of public keys, they can be
+distributed conveniently and safely through the federation topology
+configuration file. Curve25519 public keys are only 40 characters long in
+\gls{Z85} notation.
+
+Of course the public keys and the private keys are generated in pairs. However,
+distributing the private keys is less convenient, since they must be kept
+private. This can be done via SSH.
+
 
 % amplification attacks, message size, ...
 

@@ -32,6 +32,7 @@
 \newacronym{ECC}{ECC}{elliptic curve cryptography}
 \newacronym{ASCII}{ASCII}{American Standard Code for Information Interchange}
 \newacronym{SSH}{SSH}{Secure Shell}
+\newacronym{UUID}{UUID}{Universally unique identifier}
 
 % German
 \newacronym{ASTRA}{ASTRA}{Bundesamt f\"ur Strassen}
@@ -64,7 +65,7 @@
 	description={A compiled, imperative, very influential low-level
 		programming language, invented in the early 1970s as a Unix system
 		programming language. Compared to other languages, it very simple,
-		knows only a handful of primitives and keywords.}
+		knows only a handful of primitives and keywords}
 }
 \newglossaryentry{actor-model}{
 	name={Actor Model},
@@ -89,7 +90,7 @@
 	description={A method of high availability by introducing redundancy,
 where the secondary system is also up and running, but just doesn't process
 requests before the primary system fails. Failover time is typically a few
-seconds.}
+seconds}
 }
 
 
@@ -142,19 +143,18 @@ seconds.}
 
 \newglossaryentry{nacl}{
 	name={NaCl},
-	description={Networking and Cryptography Library. Modern, state-of-the-art cryptography library, created by the Daniel J. Bernstein. \url{https://nacl.cr.yp.to}}
+	description={Networking and Cryptography Library\footnote{\url{https://nacl.cr.yp.to}}. Modern, state-of-the-art cryptography library, created by the Daniel J. Bernstein}
 }
 
 \newglossaryentry{tweetnacl}{
 	name={TweetNaCl},
-	description={A compact, portable reimplementation of the NaCl in the
+	description={A compact, portable reimplementation\footnote{\url{http://tweetnacl.cr.yp.to}} of the NaCl in the
 form of 100 tweets, suited to be included it into one's trusted code base (as
-opposed to an external dependency). Implemented Daniel J. Bernstein et al.
-\url{http://tweetnacl.cr.yp.to}}
+opposed to an external dependency). Implemented Daniel J. Bernstein et al}
 }
 \newglossaryentry{libsodium}{
 	name={libsodium},
-	description={A portable and installable variant of \gls{nacl}. \url{https://libsodium.org}}
+	description={A portable and installable variant of \gls{nacl}\footnote{\url{https://libsodium.org}}}
 }
 \newglossaryentry{websocket}{
 	name={WebSocket},
@@ -180,7 +180,7 @@ browsers and web servers, standardized by the \gls{IETF} as \gls{RFC} 6455 in
 }
 \newglossaryentry{isa95}{
 	name={ISA-95},
-	description={An international standard for developing an automated interface between enterprise and control systems. \url{https://en.wikipedia.org/wiki/ANSI/ISA-95}}
+	description={An international standard\footnote{\url{https://en.wikipedia.org/wiki/ANSI/ISA-95}} for developing an automated interface between enterprise and control systems}
 }
 
 \newglossaryentry{ddos-attack}{
@@ -197,6 +197,15 @@ by flooding it with forged requests using a large number of source systems}
 \newglossaryentry{tc}{
 	name={TokyoCabinet},
 	description={a library to manage a key-value store in a single file (no server involved)}
+}
+\newglossaryentry{stdout}{
+	name={STDOUT},
+	description={the standard output channel of a Unix process (file descriptor 1)}
+}
+\newglossaryentry{gherkin}{
+	name={Gherkin},
+	description={A simple language to specify feature specifications in
+	steps such as Given, When, Then\footnote{\url{https://cucumber.io/docs/reference}}}
 }
 
 % TODO

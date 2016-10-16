@@ -20,13 +20,15 @@ First of all, these are the client's priorities:
 \item OPC UA \gls{HA} (optional)
 \end{enumerate}
 
-The following sections explain the requirements in greater detail.
+The following sections explain the requirements in greater detail, starting
+with the functional ones. The non-functional requirements are described in
+\autoref{sec:nfr}.
 
-\section{Functional}
-This section elucidates the functional requirements, as opposed to the
-non-functional requirements.
+The functional requirements are each described in prosa as understood by the
+students first and then formally in \gls{gherkin} style features. Those feature
+specifications will later be useful to deduce test cases.
 
-\subsection{Federation}
+\section{Federation}
 Roadster will need to be run on multiple nodes in a hierarchical topology,
 forming a distributed computing architecture. The root node would then act as
 the client-facing server. Typical node topologies include:
@@ -39,8 +41,8 @@ the client-facing server. Typical node topologies include:
 
 	\item [ Multi level ] \hfill\\
 		This is the most basic federation setup. There is a root node, and
-		two subnodes. Each subnode is directly connected to a field device such as a
-		PLC or an emergency phone. This is illustrated in
+		two subnodes. Each subnode is directly connected to a number of field devices such as
+		\glspl{PLC} or emergency phones. This is illustrated in
 		\autoref{fig:topo:ml:noha}.
 \end{description}
 
@@ -65,9 +67,9 @@ This is formally specified in \autoref{lst:feature:federation}
 	\label{lst:feature:federation}
 \end{listing}
 
-\subsubsection{DIM extension}
+\subsection{DIM extension}
 
-\paragraph{Synchronization}
+\subsubsection{Synchronization}
 % TODO: it needs to go both ways!
 Extending the \gls{CSP} to keep the \gls{DIM} in sync across all nodes is a central
 part of the federation functionality. This means replicating modifications to
@@ -86,14 +88,14 @@ classes (marked yellow in the class diagram):
 As described earlier, instances of these entity classes are marked "dirty" when
 modified until they are replicated.
 
-\paragraph{Access control}
-The above requirements imply that changes to the \gls{DIM} can only be done by the
-respective node. In other words, a node can only change objects owned by itself. It
-cannot change objects of other nodes directly. This is to ensure that each node is its own source of truth
-to all other nodes in the setup. Only the responsible node can enforce a single
+\subsubsection{Access control}
+The above requirements imply that modifications to the \gls{DIM} can only be done by the
+owning node. A node
+must not modify objects owned by other nodes directly. This is to ensure that each node is its own source of truth
+to all other nodes in the federation. Only the owner node can enforce a single
 sequence of updates to its part of the DIM, which is necessary to guarantee
-consistency \cite[Chapter 5, Reliable Pub-Sub (Clone Pattern), Republishing
-Updates from Clients]{zmq:zguide}.
+eventual consistency \cite[Chapter 5, Reliable Pub-Sub (Clone Pattern), Republishing
+Updates from Clients]{zmq:zguide} across all actors of all nodes.
 
 These two aspects to the DIM extension are formally specified in \autoref{lst:feature:federation:dimsync}
 
@@ -103,12 +105,12 @@ These two aspects to the DIM extension are formally specified in \autoref{lst:fe
 	\label{lst:feature:federation:dimsync}
 \end{listing}
 
-\subsubsection{Autonomy}
-It's important that every node subtree can keep up the operation autonomously even if the
+\subsection{Autonomy}
+It's important that every node (and its subnodes) can keep up the operation autonomously even if the
 link to its supernode fails or the supernode itself fails. This means that updates to
-the \gls{DIM} are allowed even when the supernode is unavailable. After the
+the \gls{DIM} must be possible even when neighboring nodes (including the supernode) are unavailable. After the
 recovery from the outage, the \gls{DIM} synchronization shall be reinitiated so
-all pending updates are shared to all other nodes (through the supernode).
+all pending updates are shared to all other nodes as per normal operation.
 
 This is formally specified in \autoref{lst:feature:federation:autonomy}
 
@@ -118,7 +120,7 @@ This is formally specified in \autoref{lst:feature:federation:autonomy}
 	\label{lst:feature:federation:autonomy}
 \end{listing}
 
-\subsubsection{Message routing}
+\subsection{Message routing}
 There needs to be a message routing mechanism so a user
 of one node's web UI can send a command (passed as a message) to another node where it will be
 executed. An example for this is a forced value in the DIM to ignore the
@@ -135,7 +137,7 @@ This is formally specified in \autoref{lst:feature:federation:cmdrouting}
 	\label{lst:feature:federation:cmdrouting}
 \end{listing}
 
-\subsection{High availability}
+\section{High availability}
 Roadster must be able to run in certain high availability setups. Achieving
 this is done by adding redundant Roadster nodes.
 
@@ -143,32 +145,41 @@ The following additional federation topologies must be supported:
 \begin{description}
 	\item [ Single level \gls{HA} ] \hfill\\
 		This is when there are exactly two nodes, both of them
-		connected to the same PLC. There are two nodes for redundancy. This is illustrated in
+		connected to the same set of field devices. The difference to a
+		non-redundant case is the added backup node, forming a HA
+		cluster. The field devices are thus connected to the HA cluster
+		using two redundant paths. Both HA peers are able to interact
+		with the field devices to perform operation tasks (e.g. reading
+		sensor data, writing down configurations), but only one of them
+		(the active one) must do so. This is illustrated in
 		\autoref{fig:topo:sl:ha}.
 
 	\item [ Multi level, \gls{HA} at root only ] \hfill\\
-		There can be multiple levels in the hierarchy, such as two or
-		three (anything else is considered exotic), and there's a HA
-		cluster at the root. An example of this setup is illustrated in
+		There can be multiple hierarchy levels within a Roadster federation, such as two or
+		three (anything else is considered exotic). Introducing
+		redundancy is done at the root level in the form of a HA
+		cluster, consisting of a primary and a backup node. An example of this setup is illustrated in
 		\autoref{fig:topo:ml:ha}.
 \end{description}
 
 \begin{figure}[]
 	\center
 	\includegraphics[width=0.5\textwidth]{img/topo_sl_ha.pdf}
-	% TODO: update illustration to include multiple field devices
+	% TODO: update illustration to include multiple field devices and "client"
 	\caption{Federation example: a HA cluster and redundantly connected field devices}
 	\label{fig:topo:sl:ha}
 \end{figure}
 \begin{figure}[]
 	\center
 	\includegraphics[width=0.5\textwidth]{img/topo_ml_ha.pdf}
-	% TODO: update illustration to include multiple field devices
+	% TODO: update illustration to include multiple field devices and "client"
 	\caption{Federation example: HA cluster at root, two subnodes, each with field devices}
 	\label{fig:topo:ml:ha}
 \end{figure}
 
-The following exotic cases can be ignored: % FIXME
+The following cases are more exotic and are outside the scope of this thesis;
+however, they should be kept in mind so a future extension to support them is
+feasible:
 
 \begin{description}
 	\item [ Multi level, \gls{HA} at bottom ] \hfill\\
@@ -180,63 +191,70 @@ The following exotic cases can be ignored: % FIXME
 	a subordinate node connected to some field device.
 \end{description}
 
-The following sections contain the concrete requirements about the two
-different \gls{HA} levels.
+At initialization, the two peers must automatically find consensus on which one
+is becomes active first.  At any time, only one of the two HA peers must be
+active (i.e. serving clients), and the other one must stay passive (i.e. ignore
+client requests and only keep its DIM up-to-date). The passive HA peer shall
+take over in the event that the currently active peer becomes unavailable.
+Measures must be taken to avoid the dreaded split-brain syndrome where both HA
+peers become active.
 
-% TODO: unify with ML
-\subsubsection{Single level}
-This is where each of the two nodes forming a HA unit is directly connected to a number of
-subsystems such as \glspl{PLC}, forming two redundant network paths to each
-subsystem. Both nodes are able to interact with the subsystems to perform
-operation tasks (e.g. reading sensor data, writing down configurations), but
-only one of them (the active one) must do so.
-
-The two nodes must automatically find consensus on which one is currently active. The
-passive one must automatically take over in case the active one is confirmed to
-be dead.
 \begin{itemize}
 	\item Hardware/software failure on the primary node % TODO split
 	\item Failure of one of the redundant networking paths connecting the subsystem to the two nodes % FIXME
 \end{itemize}
 
-\subsubsection{Multi level HA}
-This is where a node pair is the parent of one or more subnodes.
-
 The types of failures that need to be handled include:
 \begin{itemize}
 	\item Software failure on the primary node, like an application or OS crash
 	\item Hardware failure on the primary node, like a defect power supply
-	\item Failure of the network link connecting a node to the cluster
+	\item Failure of a network link, completely disconnecting a HA peer from the federation
 \end{itemize}
 
 All three failure types listed above can collectively be called \emph{crash},
 as their effects are the same from the point of view of the whole federation.
 
-\subsection{Persistence synchronization}
+The high availability requirement is formally specified in \autoref{lst:feature:ha}
+
+\begin{listing}
+	\inputminted{Gherkin}{listings/features/high_availability.feature}
+	\caption{Formal high availability feature}
+	\label{lst:feature:ha}
+\end{listing}
+
+\section{Persistence synchronization}
 This is about the synchronization of persisted data, which is currently stored
-in \gls{tc} databases on a Roadster node. With the federation functionality, this is
-still true: Every node will have its own key-value store. Updates for persisted
-data must only flow from south to north (towards the root node), so the root
+in \gls{tc} databases on a Roadster node, one for each kind of data. With the federation functionality, this is
+still true: Every node will have its own set of key-value stores. Changes to the persisted
+data must flow from south to north (towards the root node), so the root
 node can collect and maintain a replication of the persisted data of all
-subnodes, recursively.
+nodes within the federation, recursively.
 
-It's important that every node and its subnodes form an autonomous subtree. So
+Again, it's important that every node and its subnodes form an autonomous subsystem. So
 in case the link to its supernode fails, it has to continue working. As soon as
-the link is repaired, synchronization of the delta (the newly added data) can
-be initiatd. Sending just the delta should be possible since keys in the
-database contain timestamps.
+the link is repaired, synchronization of the delta (changes to the data) can
+be initiatd.
 
-This is not the same as \gls{CHP} (\gls{DIM} synchronization), as the DIM is shared across
-all nodes and is a relatively small data structure. The \gls{tc} databases
+This is different from \gls{DIM} synchronization, as the DIM is shared across
+all nodes and is a relatively small data structure holding merely the current state. The \gls{tc} databases
 can possibly contain large amounts of data (in the hundreds of megabytes) and
 are shared only towards the root node (thus "bubbling up").
 
 100\% consistency is not an absolute requirement for persistence synchronization.
-However, it is mandatory that updates make it to the root node within 30 seconds.
+Nor is zero data loss an absolut requirement. However, it is mandatory that
+updates make it to the root node within 30 seconds.
+
+This is formally specified in \autoref{lst:feature:persistence_synchronization}
+
+\begin{listing}
+	\inputminted{Gherkin}{listings/features/persistence_synchronization.feature}
+	\caption{Formal persistence synchronization feature}
+	\label{lst:feature:persistence_synchronization}
+\end{listing}
 
 % ---------------------------------------------------------------------------
-\section{Non-functional requirements}
-The following subsections illustrate the non-functional requirements.
+\section{Non-functional requirements}\label{sec:nfr}
+The following subsections elaborate on the non-functional requirements.
 
 \subsection{Simplicity}
 The two reoccuring patterns that surfaced during the requirements gathering
@@ -270,8 +288,13 @@ because it's insignificant, but because it's easy to enable transport level
 security on \zmq sockets later on.}
 
 The inter-node communication of a Roadster federation must be secured using
-encryption. \zmq offers modern, authenticated encryption and performs server authentication at a minimum if when transport security is
-enabled. Client authentication is favored, but not an absolute requirement.
+encryption. Recent versions of \zmq offers modern, authenticated encryption,
+including server and client authentication (the latter is optional).
+The client favors a solution where every communication partner (a node)
+authenticates all its communication partners, and vice-versa.
+
+Since the \zmq binding used in the legacy version is unmaintained and doesn't
+allow encryption, it has to be exchanged with a more appropriate library.
 
 \subsection{Coding Guidelines}
 The coding guidelines desired by the client are basically the ones written down

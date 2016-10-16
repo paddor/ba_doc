@@ -135,7 +135,7 @@ clients would be its human users. % TODO where usually? water supply systems?
 
 In other deployments, there are higher level systems which act as clients of a Roadster instance, communicating over
 protocols including \gls{SOAP} and \gls{opc-ua}. Their purpose is to
-collect and aggregate supervisory information from larger regions. At the top of the
+collect and aggregate supervisory data from larger regions. At the top of the
 hiearchy are the \gls{FEDRO} (German: \gls{ASTRA}) which combine the information of all
 subsystems to provide a nationwide overview.
 
@@ -207,9 +207,13 @@ a score of language APIs and runs on most operating systems.  ZeroMQ is from
 iMatix and is LGPLv3 open source.''
 \end{quote}
 
-Roadster uses \zmq to carry messages between its processes.
-
 For a more detailed introduction, see \autoref{ch:zmq}.
+
+Roadster uses \zmq to carry messages between its processes. The
+library\footnote{The library is called \emph{ffi-rzmq} and is hosted on
+\url{https://github.com/chuckremes/ffi-rzmq}} it uses to interface with \zmq is
+unmaintained and doesn't support recent versions of \zmq (namely the ones
+supporting encryption).
 
 \subsection{Software architecture}
 As mentioned earlier, Roadster is event-driven\footnote{\url{https://en.wikipedia.org/wiki/Event-driven_programming}} and built on the Actor model, meaning it exhibits a
@@ -235,10 +239,14 @@ Every Roadster node runs a group of actors:
 	\item [COMM:]\hfill\\
 		A bunch of COMM actors communicate with the outside world of a
 		node. It typically either acts as a client of various kinds of
-		field devices, or as a server to the client. To communicate with field devices, a COMM actor
-		utilizes the appropriate adapter specifically written for the communication
-		protocol in place. The webserver\footnote{The webserver \emph{Thin} is utilized, \url{http://code.macournoyer.com/thin/}} for the web UI also runs in a
-		COMM actor.
+		field devices, or as a server to the client. To do so, it
+		utilizes the appropriate adapter which is defined by the static
+		configuration of a Roadster application. These adapters
+		implement communication protocols used to communication with
+		field devices, but also to client systems (e.g. over
+		\gls{opc-ua}). The webserver\footnote{The webserver \emph{Thin}
+		is utilized, see \url{http://code.macournoyer.com/thin/}} for the
+		web UI also runs in a COMM actor.
 
 	\item [STORAGE:]\hfill\\
 		This actor is used when information needs to be persisted, such
@@ -247,7 +255,7 @@ Every Roadster node runs a group of actors:
 
 	\item [LOGGER:]\hfill\\
 		This actor collects logging data and sends it to whatever
-		target is configured, be it STDOUT, a file, or a syslog server.
+		target is configured, be it \gls{stdout}, a file, or a syslog server.
 \end{description}
 
 \autoref{fig:roadster:arch} illustrates Roadster's architecture.
@@ -401,23 +409,57 @@ each KVPUB message. If a gap is detected, the current state is discarded and a
 complete resynchronization happens. This is brutal, but is very simple and thus
 robust; there's no complexity that would leave room for nasty corner cases.
 
+A feature described in the \gls{zguide}, but not implemented in Roadster as of
+this writing, are subtrees.
 Keys can be treated hierarchically (e.g. \sh{topic.subtopic.key}) and thus, a
 client can optionally subscribe to only a particular subtree. This is useful
 when the number of client grows and not all of the state needs to be on every
 client. In that case, the topic of interest is sent by the client along with
 the ICANHAZ message.
 
+% TODO: add illustration
+
+\subsubsection{Persisted data}
+Certain data on a Roadster node is persisted, which is done by the STORAGE
+actor. Different data goes into different \gls{tc} database files, including:
+
+\begin{description}
+	\item [ Event journal: ] \hfill\\
+		This is is a history of all cases (alarms), including the ones
+		that have been confirmed and thus removed from the DIM. It
+		resides in a \gls{tc} \emph{table} database, where the key is a
+		\gls{UUID}, one of the columns (attributes) is the timestamp of
+		the case, and another one is the actual, serialized \rb{Case}
+		object. Objects in this database can be modified, e.g. when a
+		pending case is confimed.
+
+	\item [ Time series: ] \hfill\\
+		This is a pure key-value store that stores samples of sensor
+		data from field devices. Only the most recent value of these
+		are actually kept in the DIM. One file per series is used. The
+		timestamp is part of the key.
+
+	\item [ Parameters: ] \hfill\\
+		Parameters are the third and last kind of persisted data in
+		Roadster. Parameters are typically changed by a user. Each
+		parameter is backed by a default value from the configuration,
+		which is used as long as there is no actual corresponding value
+		set or read from the database. Credentials for users of the UI
+		are an example parameters.
+\end{description}
 
 \section{Goals}
-% TODO preprocessed mandatory goals\\
-% TODO retrospective, diff with initial goals\\
+% TODO preprocessed mandatory goals
+% TODO retrospective, diff with initial goals
 
 To summarize the mandatory goals from the Task Description in \autoref{ch:task-desc}:
 
 \begin{enumerate}
 	\item Getting familiar with Roadster
-	\item Extending the communication protocols to support clustering
-	\item Extending the communication protocols to add high availability
+	\item Extending the communication protocols to support federation of
+		multiple nodes
+	\item Extending the communication protocols to allow high availability
+		clusters of two peer nodes
 \end{enumerate}
 
 The optional goals are:

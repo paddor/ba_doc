@@ -240,10 +240,6 @@ all nodes and is a relatively small data structure holding merely the current st
 can possibly contain large amounts of data (in the hundreds of megabytes) and
 are shared only towards the root node (thus "bubbling up").
 
-100\% consistency is not an absolute requirement for persistence synchronization.
-Nor is zero data loss an absolut requirement. However, it is mandatory that
-updates make it to the root node within 30 seconds.
-
 This is formally specified in \autoref{lst:feature:persistence_synchronization}
 
 \begin{listing}
@@ -276,6 +272,11 @@ Regarding testing, the following requirements exist:
 	\item the student's contributions are verified with unit tests
 	\item use cases shall be integration tested in a close-to-reality setup, either automatically or manually
 \end{itemize}
+
+\subsection{Constraints for persistence synchronization}
+100\% consistency is not an absolute requirement for persistence synchronization.
+Nor is zero data loss an absolut requirement. However, it is mandatory that
+updates make it to the root node within 30 seconds.
 
 \subsection{High availability for OPC UA}
 The high availability feature shall be design with \gls{opc-ua} in mind. It

@@ -144,21 +144,52 @@ functionality to Roadster involves the following aspects:
 \end{figure}
 
 \subsection{DIM synchronization}
-The following is a list of things that are missing before the requirements can
-be fulfilled:
-\begin{itemize}
-\item it has to work across a hierarchical federation of nodes
-\item it has to be able to handle HA clusters within the federation
-\end{itemize}
+DIM synchronization has to work across a hierarchical federation of nodes. It
+also needs to be able to handle HA clusters.
 
+\subsubsection{New COMM actors}
+Since COMM actors are used to communicate with things outside of a node, new COMM
+actors will have to be introduced: One kind that is north-facing to communicate
+with subnodes, and another one that is south-facing for communication with the
+supernode. They will be named COMM FEDNF and COMM FEDSF. These names have been
+chosen because they're unambiguous. Names such as "north" or "upstream" would
+be ambiguous. Is it the actor residing in the northern communication partner?
+Or is it the one communicating with the northern partner? "Upstream" would be
+even more confusing, as in the open source world it commonly refers to the
+mainline developed by the official authors, i.e. the source of truth. There's
+no concept within Roadster unambiguously corresponding to this meaning. So the
+benefit of choosing names that imply an actor is north-facing or south-facing
+is clarity.
+
+The new actors' responsibility is the inter-node synchronization of the DIM,
+similarly to what's happening in the existing \gls{CSP} within a single node.
+To do so, they simply subscribe to DIM updates within a node just like any
+other actor does.  Then they replicate any subsequent updates over the network
+to the neighbors (supernode, and subnodes).
+
+% TODO: describe FEDSF and FEDNF
+
+\paragraph{CAP theorem}
+The CAP theorem \cite{wp:cap} states that it is impossible for a distributed
+computer system to simultaneously provide consistency, availability, and
+network partition tolerance. In the face of a network partition, one has to
+chose between availability and consistency. Because subsystems of a Roadster
+federation must be autonomous, the obvious choice is availability.
+
+Eventual consistency is guaranteed by restricting write access to the owning
+node, and recovering from a network partition when communication is restored is
+done by simply reinitiating the DIM synchronization process.
+
+\subsubsection{Object ownership}
 The concept of ownership has to be introduced. Every object within the DIM
 shall belong to a single node. Modifications to the objects shall be done via
 that node, so the node is the source of truth for all modifications for the
 objects it owns. For that, every object in the DIM has to have a referennce
-(e.g. \rb{@owner}) to the object representing its owner node, which is part of
+(i.e. an attribute \rb{@owner}) to the object representing its owner node, which is part of
 the configuration that is loaded from the static configuration loaded by every
 actor at initialization.
 
+\subsubsection{Degree of synchronization}
 There are multiple choices when it comes to what exactly of the DIM should be synchronized:
 
 \begin{description}
@@ -180,32 +211,9 @@ There are multiple choices when it comes to what exactly of the DIM should be sy
 	the best of both worlds, but more effort.
 \end{description}
 
-Variant 2 will be the first step. Variant 3 will be the second step, if at all.
-
-Since COMM actors are used to communicate with things outside of a node, new COMM
-actors will have to be introduced: One kind that is south-facing to communicate
-with subnodes, and another one that is north-facing for communication with
-supernodes. They will be named COMM FEDNF and COMM FEDSF. % TODO explain meaning and benefits
-
-Their responsibility is the inter-node synchronization of the DIM, similarly to
-what's happening in the existing CSP within a single node.
-
-To send KVSET updates from one actor to the CORE actor, PUSH-PULL sockets are
-used. However, similar to the \gls{CHP} described in the \gls{zguide}, this
-mechanism here needs to be able to handle replication to one or two (in case of
-HA) supernodes. That means using PUB-SUB messaging for is more
-appropriate, so all direct supernodes hear the updates.
-
-\subsubsection{CAP theorem}
-The CAP theorem \cite{wp:cap} states that it is impossible for a distributed
-computer system to simultaneously provide consistency, availability, and
-network partition tolerance. In the face of a network partition, one has to
-chose between availability and consistency. Because subsystems of a Roadster
-federation must be autonomous, availability is chosen.
-
-Eventual consistency is guaranteed by restricting write access to the owning
-node, and recovering from a network partition when communication is restored is
-done by simply reinitiating the DIM synchronization process.
+Variant 2 will be the first step, as following the \gls{KISS} principle is one
+of the non-functional requirements. Variant 3 will be the second step, if at
+all. This depends on whether it'll be needed performance-wise.
 
 \subsection{Node topology definition}
 The federation topology has to be defined somewhere. This can be done using a

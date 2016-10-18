@@ -469,7 +469,12 @@ The optional goals are:
 	\item Providing of the highly available \gls{opc-ua} server interface
 \end{enumerate}
 
-\subsection{Security concerns of SCADA applications}
+\subsection{Additional goals}
+The following goals were not explicitly part of the original task description,
+but developed during the elaboration phase out of interest in the technical
+matter.
+
+\subsubsection{Security concerns of SCADA applications}
 Secure inter-node communication within a Roadster federation is important to
 mitigate common security concerns with SCADA systems which are becoming more
 and more open due to standardization. To quote \cite[Security issues]{wp:scada}
@@ -493,3 +498,52 @@ wikipedia:
 
 The goal is to provide a framework that makes it trivial to provide reasonably
 secure SCADA applications which are assumed to be running on insecure networks.
+
+\subsubsection{Fallacies of distributed computing}
+At this place, it is worth noting the common fallacies encountered in
+distributed computing, as explained on \cite{dcomp:fallacies}.
+
+% TODO: briefly explain these, without our particular solutions to them
+
+\begin{description}
+	\item [The network is reliable.] \hfill\\
+		Network outages need to be embraced and handled with
+		appropriate error-handling to avoid stalls, permanent
+		resource consumption, and the need for manual restarts.
+
+	\item [Latency is zero.] \hfill\\
+		The ignorance of network latency and packet loss can lead to
+		wasted bandwidth when traffic is unbounded. Depending on the
+		application, assuming instant packet delivery could lead to
+		timing issues like hanging user interfaces, especially if some
+		nodes aren't in the same LAN.
+
+	\item [Bandwidth is infinite.] \hfill\\
+		Trying to send too much information can lead to bottlenecks,
+		slow applications, and simply wasted bandwidth.
+
+	\item [The network is secure.] \hfill\\
+		This touches the subject mentioned before. SCADA applications
+		often run in isolated networks, at least not directly reachable
+		from the internet, but that doesn't make them secure. Threats
+		from within are real and thus one cannot assume a network is
+		secure.
+
+	\item [Topology doesn't change.] \hfill\\
+		Topology changes constantly. Services are added and removed. An
+		application must not depend on specific endpoints or routes.
+
+	\item [There is one administrator.] \hfill\\
+		The overhead introduced by having coordinate multiple
+		administrators is not negilible.
+
+	\item [Transport cost is zero.] \hfill\\
+		% TODO
+
+	\item [The network is homogeneous.] \hfill\\
+		% TODO
+
+\end{description}
+
+The goal is to conduct this thesis with the above fallacies in mind and embrace
+them in our solution.

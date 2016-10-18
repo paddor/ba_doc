@@ -144,11 +144,20 @@ functionality to Roadster involves the following aspects:
 \end{figure}
 
 \subsection{DIM synchronization}
-The following is a list of things that are missing before the requirements can be fulfilled:
+The following is a list of things that are missing before the requirements can
+be fulfilled:
 \begin{itemize}
-\item it has to work across several nodes
-\item it has to be able to handle HA supernodes, which affects DIM synchronization and message routing
+\item it has to work across a hierarchical federation of nodes
+\item it has to be able to handle HA clusters within the federation
 \end{itemize}
+
+The concept of ownership has to be introduced. Every object within the DIM
+shall belong to a single node. Modifications to the objects shall be done via
+that node, so the node is the source of truth for all modifications for the
+objects it owns. For that, every object in the DIM has to have a referennce
+(e.g. \rb{@owner}) to the object representing its owner node, which is part of
+the configuration that is loaded from the static configuration loaded by every
+actor at initialization.
 
 There are multiple choices when it comes to what exactly of the DIM should be synchronized:
 

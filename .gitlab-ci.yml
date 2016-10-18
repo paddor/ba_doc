@@ -1,0 +1,6 @@
+compile_pdf:
+  script:
+    - make 
+  artifacts:
+    paths:
+      - main.pdf

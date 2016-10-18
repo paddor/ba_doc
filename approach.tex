@@ -329,6 +329,12 @@ executed on the field device.
 %----------------------------------------------------------------------------
 \section{High availability}\label{sec:approach:ha}
 % TODO: HA node => HA peer, backup node => backup peer (??), active peer, passive peer?
+% TODO: diagonal HA
+% TODO: with OPC UA in mind
+% TODO describe possible scenarios where failover will work/not work
+%       - as complete as possible
+%       - maybe gherkin style
+%       - dedicated link is possible, typically not
 If Roadster is going to be run in a federation, measures need to be taken to
 mitigate the risk of failure, since many nodes are more likely to fail than a
 single node (unless they add redundancy). Availability shall be ensured by

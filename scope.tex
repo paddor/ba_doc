@@ -537,13 +537,23 @@ distributed computing, as explained on \cite{dcomp:fallacies}.
 
 	\item [There is one administrator.] \hfill\\
 		The overhead introduced by having coordinate multiple
-		administrators is not negilible.
+		administrators is not negilible and can constrain one's options
+		when e.g. having to upgrade software.
 
 	\item [Transport cost is zero.] \hfill\\
-		% TODO
+		Getting application entities onto the wire costs, i.e.
+		computational resources and in some cases money. Data needs to
+		be serialized, which takes CPU cycles and adds to the latency.
+		Network equipment to e.g. mitigate the other fallacies -- e.g.
+		to make it (more) reliable and more secure -- can cost more
+		money than is planned for in the project budget.
 
 	\item [The network is homogeneous.] \hfill\\
-		% TODO
+		Virtually all networks include devices running different
+		operating systems, in different versions, on different
+		hardware. On an application level, different subsystems are
+		implemented in different programming languages or speak
+		different protocols.
 
 \end{description}
 

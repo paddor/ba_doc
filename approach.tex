@@ -109,7 +109,7 @@ things needed to be done:
 
 \begin{itemize}
 \item Tell Ruby to load CZTop instead of ffi-rzmq.
-\item Remove code to send and receive multi-part messages. This has been simplified
+\item Remove code to manually send and receive the parts of multi-part messages. This has been simplified
 in CZMQ and thus is a single method call using CZTop.
 \item Remove error checking code. CZTop always checks error codes, and raises
 an appropriate exception if needed.

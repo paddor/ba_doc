@@ -12,11 +12,9 @@ The projekt span is from 19.09 until 23.12. We expect 26 hours work per week whi
   \begin{tabular}{|p{80mm}|p{15mm}|}
     \hline 	\bf Project duration & 14 weeks \\ \hline
 	\bf count of workers & 2 \\ \hline
-	\bf time per worker & 26 hours per week \\ \hline
-	% TODO set time
-	\bf Total estimated time (without weighted damage) & XX \\ \hline
-	% TODO set time
-	\bf Total estimated time (inclusive weighted damage) & XX \\ \hline
+	\bf time per worker & 25.7 hours per week \\ \hline
+	\bf Total estimated time (without weighted damage) & 720 hours \\ \hline
+	\bf Total estimated time (inclusive weighted damage) & 856 hours \\ \hline
 	\bf Project start & 19.09.2016 \\ \hline
 	\bf Project end & 23.12.2016 \\ \hline
   \end{tabular} \\
@@ -77,9 +75,9 @@ review last week, recap the week goals, problems and plenary for questions or su
 
 
 \section{Risks}
-There were X risks that have been identified by the end of the Inception phase.
-The risks have a total damage of xxx hours. The total damaged hours multiplied
-with the probability of admission get a total of xx hours. The weighted damage
+There were 9 risks that have been identified by the end of the Inception phase.
+The risks have a total damage of 369 hours. The total damaged hours multiplied
+with the probability of admission get a total of 137 hours. The weighted damage
 hours are included in the project planning.
 
 \subsection{Handling Risks}
@@ -95,21 +93,21 @@ the team and tracked accordingly.
 \begin{tabular}[t]{@{}>{\raggedright}p{0.45\textwidth}}
   \textbf{\textit{P = Probability}}
   \begin{enumerate}[topsep=0pt,itemsep=-2pt,leftmargin=13pt]
-  \item Unlikely
-  \item Very rare
-  \item Rare
-  \item Possible
-  \item Common
+  \item Rare (10\%)
+  \item Unlikely (30\%)
+  \item Possible (50\%)
+  \item Likely (70\%)
+  \item Certain (90\%)
   \end{enumerate}
 \end{tabular}
 \begin{tabular}[t]{@{}>{\raggedright}p{0.52\textwidth}@{}}
   \textbf{\textit{D = Damage potential  / R = Risk}}
   \begin{enumerate}[topsep=0pt,itemsep=-2pt,leftmargin=13pt]
   \item Insignificant
-  \item Low
+  \item Negligible
+  \item Moderate
+  \item Serious
   \item Significant
-  \item Critical
-  \item Project Threatening
   \end{enumerate}
 \end{tabular}
 
@@ -144,14 +142,14 @@ The delay is specified in days. One day equals 16 man-hours.
     \endlastfoot
     R01
 		& Roadster requires different ZMQ contexts to function (not possible with CZTop because CZMQ hides contexts)
-		& \cellcolor{yellow!50}1
-		& \cellcolor{yellow!50}3
+		& \cellcolor{green!50}1
+		& \cellcolor{green!50}3
 		& check with client	(done)
 		& extract and run affected ZMQ \newline sockets in their own process \newline delay: 1-2 days \\ \hline
 	R02 
 		& wrong protocols chosen / protocol design flaw
-		& \cellcolor{red!50}3
-		& \cellcolor{red!50}5
+		& \cellcolor{orange!50}3
+		& \cellcolor{orange!50}5
 		& architecture \newline reviews prototypes
 		& fix (reevaluate reengineer, redesign) \newline delay: 8-12 days	\\ \hline
 	R03 
@@ -163,27 +161,27 @@ The delay is specified in days. One day equals 16 man-hours.
 		\newline customized solution built right into Roadster, not as a public gem \newline delay: 1-2 days \\ \hline
 	R04	
 		& CZTop design flaws/limitations
-		& \cellcolor{yellow!50}2
-		& \cellcolor{yellow!50}2
+		& \cellcolor{green!50}2
+		& \cellcolor{green!50}2
 		& check functionality in the elaboration phase
 		& adapt CZtop \newline delay: 1-2 days \\ \hline		
 	R05 
 		& CZMQ changes API
-		& \cellcolor{yellow!50}1
-		& \cellcolor{yellow!50}3
+		& \cellcolor{green!50}1
+		& \cellcolor{green!50}3
 		& (hope)
 		& adapt CZTop, change CZTop adapter in Roadster, or just don't upgrade CZMQ (use a commit before the breaking change) \newline delay: 1-2 days \\ \hline
 	R06 
 		& wrong time estimations
-		& \cellcolor{orange!50}4
-		& \cellcolor{orange!50}3
+		& \cellcolor{yellow!50}4
+		& \cellcolor{yellow!50}3
 		& use time well during planning, and define clear milestones
 		& If possible, change the duration of the individual project phases. Otherwise, drop planned features
 		(starting with the optional goal) \newline delay: 4-5 days \\ \hline		
 	R07 
 		& managing multiple Projects (at least one per repo) on Github too painful
-		& \cellcolor{yellow!50}4
-		& \cellcolor{yellow!50}1
+		& \cellcolor{green!50}4
+		& \cellcolor{green!50}1
 		& setup project structure in the elaboration phase
 		& partial solution: \newline CodeTree (can't seem to be used for private repos like Roadster itself (maybe yes! see  mindclue/roadster\#5) \newline
 		\newline complete solution: \newline Use a single Project which just has cards that link to issues from other repos. 
@@ -191,15 +189,15 @@ The delay is specified in days. One day equals 16 man-hours.
 		\newline delay: 1 day \\ \hline
 	R08 
 		& Prolonged loss of a team member
-		& \cellcolor{yellow!50}2
-		& \cellcolor{yellow!50}3
+		& \cellcolor{green!50}2
+		& \cellcolor{green!50}3
 		& Track absences in meeting minutes.
 		& In a prolonged absence, move milestones and, if necessary, change the project scope. \newline delay: 3-10 days \\ \hline
 		
 	R09 
 		& Failure to achieve the defined task in time
-		& \cellcolor{yellow!50}1
-		& \cellcolor{yellow!50}4
+		& \cellcolor{green!50}1
+		& \cellcolor{green!50}4
 		& Continuous monitoring whether we are on schedule and whether all requirements are met. 
 		& Meeting convened as we still can transpose a large part of the required task within the prescribed period. \newline delay: 1-5 days\\ \hline		
    \end{longtable}
@@ -210,12 +208,12 @@ The delay is specified in days. One day equals 16 man-hours.
   \scriptsize
   \caption{Initial Risk Matrix}
   \begin{tabular}{|m{27mm}|m{24mm}|m{20mm}|m{20mm}|m{20mm}|m{20mm}|@{}m{0pt}@{}}
-    \hline 	\bf Propability / Damage & \bf 1-Insignificant. 	& \bf 2-Low 				& \bf 3-Significant 			& \bf 4-Critical 			& \bf 5-Project Threatening 	& \\ [10pt]
-    \hline 	\bf 5-Common 			& \cellcolor{yellow!50} 	& \cellcolor{orange!50} 	& \cellcolor{red!50} 			& \cellcolor{red!50} 		& \cellcolor{red!50} 			& \\ [10pt]
-			\bf 4-Possible 			& \cellcolor{green!50} R07 	& \cellcolor{yellow!50} 	& \cellcolor{orange!50} R06 	& \cellcolor{red!50} 		& \cellcolor{red!50} 			& \\ [10pt]
-			\bf 3-Rare 				& \cellcolor{green!50} 		& \cellcolor{green!50} 		& \cellcolor{yellow!50} 		& \cellcolor{orange!50} 	& \cellcolor{red!50} R02 		& \\ [10pt]
-			\bf 2-Very rare 			& \cellcolor{green!50} 	& \cellcolor{green!50} R04 	& \cellcolor{green!50} R08 		& \cellcolor{yellow!50} R03 & \cellcolor{orange!50} 		& \\ [10pt]
-			\bf 1-Unlikely 			& \cellcolor{green!50} 		& \cellcolor{green!50} 		& \cellcolor{green!50} R01, R05 & \cellcolor{green!50} R09 	& \cellcolor{yellow!50} 		& \\ [10pt]
+    \hline 	\bf Propability / Damage & \bf 1-Insignificant. 	& \bf 2-Negligible 				& \bf 3-Moderate 			& \bf 4-Serious 			& \bf 5-Significant 	& \\ [10pt]
+    \hline 	\bf 5-Certain 			& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& \cellcolor{orange!50} 			& \cellcolor{red!50} 		& \cellcolor{red!50} 			& \\ [10pt]
+			\bf 4-Likely 			& \cellcolor{green!50} R07 	& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} R06 	& \cellcolor{orange!50} 		& \cellcolor{red!50} 			& \\ [10pt]
+			\bf 3-Possible 				& \cellcolor{green!50} 		& \cellcolor{green!50} 		& \cellcolor{yellow!50} 		& \cellcolor{yellow!50} 	& \cellcolor{orange!50} R02 		& \\ [10pt]
+			\bf 2-Unlikely 			& \cellcolor{green!50} 	& \cellcolor{green!50} R04 	& \cellcolor{green!50} R08 		& \cellcolor{yellow!50} R03 & \cellcolor{yellow!50} 		& \\ [10pt]
+			\bf 1-Rare 			& \cellcolor{green!50} 		& \cellcolor{green!50} 		& \cellcolor{green!50} R01, R05 & \cellcolor{green!50} R09 	& \cellcolor{green!50} 		& \\ [10pt]
     \hline
   \end{tabular} \\
 \end{table}
@@ -232,21 +230,20 @@ The delay is specified in days. One day equals 16 man-hours.
 \gantttitle{Semester week}{14} \\
 \gantttitlelist{1,...,14}{1} \\
 \ganttgroup{Inception}{1}{1} \\
-\ganttgroup{Elaboration 1}{2}{3} \\
-\ganttgroup{Elaboration 2}{4}{5} \\
-\ganttgroup{Elaboration 3}{6}{6} \\
-\ganttgroup{Construction 1}{7}{8} \\
-\ganttgroup{Construction 2}{9}{10} \\
-\ganttgroup{Construction 3}{11}{12} \\
-\ganttgroup{Reserve 1}{13}{13} \\
+\ganttgroup{Elaboration 1}{2}{4} \\
+\ganttgroup{Elaboration 2}{5}{6} \\
+\ganttgroup{Elaboration 3}{7}{7} \\
+\ganttgroup{Construction 1}{8}{9} \\
+\ganttgroup{Construction 2}{10}{11} \\
+\ganttgroup{Construction 3}{12}{13} \\
 \ganttgroup{Transition}{14}{14} \\
-\ganttbar[bar/.append style={fill=green}]{R01}{1}{3}
-\ganttbar[bar/.append style={fill=red}]{R02}{1}{3}\ganttbar[bar/.append style={fill=yellow}]{}{3}{4}\ganttbar[bar/.append style={fill=green}]{}{4}{5} \\
-\ganttbar[bar/.append style={fill=yellow}]{R03}{1}{4}\ganttbar[bar/.append style={fill=green}]{}{4}{5} \\
-\ganttbar[bar/.append style={fill=green}]{R04}{1}{4} \\
-\ganttbar[bar/.append style={fill=green}]{R05}{1}{3} \\
-\ganttbar[bar/.append style={fill=orange}]{R06}{1}{5}\ganttbar[bar/.append style={fill=green}]{}{5}{7} \\
-\ganttbar[bar/.append style={fill=green}]{R07}{1}{4} \\
+\ganttbar[bar/.append style={fill=green}]{R01}{1}{6} \\
+\ganttbar[bar/.append style={fill=orange}]{R02}{1}{5}\ganttbar[bar/.append style={fill=yellow}]{}{5}{5}\ganttbar[bar/.append style={fill=green}]{}{5}{6} \\
+\ganttbar[bar/.append style={fill=yellow}]{R03}{1}{5}\ganttbar[bar/.append style={fill=green}]{}{5}{6} \\
+\ganttbar[bar/.append style={fill=green}]{R04}{1}{5} \\
+\ganttbar[bar/.append style={fill=green}]{R05}{1}{4} \\
+\ganttbar[bar/.append style={fill=yellow}]{R06}{1}{5}\ganttbar[bar/.append style={fill=green}]{}{5}{7} \\
+\ganttbar[bar/.append style={fill=green}]{R07}{1}{2} \\
 \ganttbar[bar/.append style={fill=green}]{R08}{1}{13} \\
 \ganttbar[bar/.append style={fill=green}]{R09}{1}{13} \\
 %\ganttmilestone{Milestone 1}{11}

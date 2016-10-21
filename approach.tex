@@ -724,110 +724,124 @@ TODO: describe reasonable default setting, in case we change ZMQ's default.
 \section{Encryption}\label{sec:approach:encryption}
 It's fairly easy to enable transport security to secure the communication
 between \zmq sockets over an unsecure network.
-The simplest variant, as described in
-\autoref{sec:zmq:security}, is to do server authentication only and allow any client to connect.
 
+\subsection{Assigning socket roles}
 Because \zmq allows any order of the bind and connect actions to take place,
-and doesn't impose a specific action on each socket type, the meanins of
+and doesn't impose a specific action on each socket type, the meaning of
 "server" and "client" become blurry. Still, with respect to the CURVE security
 mechanism in \zmq, one of the two involved sockets needs to be designated as
-the CURVE server, and the other one as a CURVE client\footnote{This is a simple method
-call on each socket where the involved keys are passed as well.}. Based on the
-autonomy aspect of the federation, meaning the lower-level systems act as
-servers for the higher-level systems, the same schema is applied to the CURVE.
+the CURVE server, and the other one as a CURVE client.\footnote{This is a
+simple method call on each socket where the involved keys are passed as well.}
 
-Since client side authentification is wanted in addition to the server
-authentication always performed, both sides need to be in possession of the
-other side's public key.  Due to the nature of public keys, they can be
-distributed conveniently and safely through the federation topology
-configuration file. Curve25519 public keys are only 40 characters long in
-\gls{Z85} notation.
+Based on the autonomy aspect of the federation, meaning the lower-level systems
+act as servers for the higher-level systems, it would have been neat to follow
+the same schema for the roles of the CURVE server and client. Unfortunately
+that's not possible, because the a CURVE client socket is assigned exactly one
+CURVE server certificate. But in a tree, the supernode can have multiple
+subnodes. Thus, the socket inside supernode's FEDSF actor will be designated as
+the CURVE server, and the sockets inside the subnodes' FEDNF actors will be
+designated as the CURVE clients.
 
-Of course the public keys and the private keys are generated in pairs. However,
-distributing the private keys is less convenient, since they must be kept
-private. This can be done via SSH.
+\subsection{Mutual authentication}
+% keys on both sides, and which nodes need whose public key
+In addition to the server authentication, which is always performed, client
+side authentification is desired. This means that each federation node must be
+in possession of its respective clients' public keys. Since CURVE servers are
+on the south-side of each inter-node connection, and every node in a
+hierarchical tree has at most one supernode, that means storing exactly one
+client public key on affected nodes. A special case are subnodes of HA
+clusters. There it'd be two client public keys (unless both HA peers share the
+same key pair, which is not recommended).
 
+% distribution of public keys
+Public keys and the private keys are generated in pairs.  Due to
+the nature of public keys, they can be distributed conveniently and safely
+through the shared configuration file that defines the federation
+topology.\footnote{Curve25519 public keys are only 40 ASCII characters long in
+\gls{Z85} notation.}
 
-% amplification attacks, message size, ...
+% distribution of secret keys via SSH
+However, distributing the private keys is less convenient, since they must be kept
+private. This can be done via \gls{SSH}, logging into each node and generating
+the key pair right on the node itself. This way, the private keys would never
+even touch the network.
 
-% TODO: variant with central ZAP server: bad, because of lost autonomy
+\subsubsection{ZAP}
+A socket designated as CURVE server needs a way to authenticate arriving client
+connections. This is done via an in-process \gls{ZAP} authentication handler,
+as described in \autoref{sec:zmq:security}. That authentication handler
+needs to be able to access all clients' public keys to be able to perform its
+job.
+
+The ZAP protocol (used between a CURVE server socket and the authentication
+handler) is very simple and thus makes it possible to relay the authentication
+requests from there to a central ZAP authentication handler, so all clients'
+public keys could be stored and managed centrally. But that would violate the
+autonomy requirement, so this idea has been discarded immediately.
+
+CZMQ provides an authentication handler\footnote{It's a function
+(\cpp{zauth()}) that is executed by a CZMQ actor. The whole construct is
+abstracted in CZTop through \rb{CZTop::Authenticator}.} that can lookup public
+keys awaiting authentication in a designated directory on the file system,
+which it does by instantiating a certificate store.\footnote{That certificate
+store is a class in CZMQ called \cpp{zcertstore}, represented through
+\rb{CZTop::CertStore} in CZTop.} The certificate store in turn looks up the
+certificates on disk by the public key in question.
+
+There's also the possibility of providing an already instanciated certificate
+store to the authentication handler. This is useful because a certificate store
+allows the insertion of certificates (public keys) in-memory, avoiding the need
+to load certificates from disk. This greatly simplifies the key distribution.
+Public key files will not have to be copied from one node to its subnodes
+anymore.
 
 \subsection{Key generation and distribution procedure}
 The following procedure can be followed to generate the required keys in
 advance and make them available through the shared configuration file:
 
 \begin{enumerate}
-	\item for all nodes that will have sockets that will act as CURVE servers (i.e. all non-leaf nodes)
+	\item for all nodes
 	\begin{enumerate}
-		\item generate key pair and save it on the respective node
-		\item for each direct subnode
-		\begin{enumerate}
-			\item put a copy of the public key (in Z85 notion) into that node's block within the shared topology configuration file
-		\end{enumerate}
+		\item generate key pair on the node itself and save it on the
+			node
+		\item remember the public key
 	\end{enumerate}
+
+	\item put all public keys (in Z85 notation) to their respective section
+		in the shared config file defining the federation topology
 \end{enumerate}
 
-This procedure could be implemented as a script that generates the keys and
-distributes them via \gls{SSH}.
+This procedure could be implemented as a script that performs the procedure
+over \gls{SSH} while the nodes are still in the
+lab (assuming that is secure). Of course that script could also be used when
+the nodes are already installed in a production environment. However, for that to be
+secure, the nodes' authenticities must have been established in advance, or
+man-in-the-middle attacks would be possible while logging into the nodes,
+compromising everything.
 
-\subsubsection{Client authentication}
-In case client authentication is actually desired, the clients' keys also have
-to be generated in advance, and the public key files for each subnode of a
-supernode in question have to be stored into a directory. That directory can
-then be specified to the \rb{CZTop::Authenticator} actor.
+\paragraph{IP based access control}
+Blacklisting or whitelisting clients based on their \gls{IP} addresses is
+possible and supported by \rb{CZTop::Authenticator}. It would even be feasible
+to whitelist the exact client IP addresses, since they can be deduced from the
+shared configuration. But it's not part of requirements and thus won't be done
+within the scope of this bachelor thesis.
 
 \subsection{In code}
-\autoref{lst:auth:any} shows how to start an authentication handler which
-allows any client to connect, effectively only allowing authenticated
-encryption, but not a true client authentication. What it actually does is
-start an in-process thread to which can be communicated via a PAIR-PAIR socket
-pair (it's a CZMQ actor\footnote{CZMQ provides a very simple actor framework
-based on threads communicating over \zmq sockets,
-\url{http://api.zeromq.org/czmq3-0:zactor}}). The thread calls a
-function\footnote{The function is \cpp{zauth()} and is described along
-with its capabilities here: \url{http://api.zeromq.org/czmq3-0:zauth}} (passed
-as a function pointer at actor creation) provided by CZMQ, which understands
-the \gls{ZAP}, different security mechanisms (NULL, PLAIN, and CURVE) and is
-capable of reading client public keys from a directory on the file system and
-even listens to changes in that directory.
-
 \begin{listing}
-	\caption{Starting an authentication handler that allows any clients}
-	\label{lst:auth:any}
-	\begin{minted}[bgcolor=bg]{Ruby}
-##
-# on the supernode:
-
-authenticator = CZTop::Authenticator.new
-authenticator.verbose!
-authenticator.curve # use CURVE mechanism, but allow any
-
-##
-# start the server sockets
-# ...
-server_cert = CZTop::Certificate.load("/path/to/private_key")
-pub = CZTop::Socket::PUB.new
-pub.CURVE_server!(server_cert)
-pub.bind("tcp://*:1234")
-
-#############################################################################
-
-##
-# on the subnode:
-
-server_cert = CZTop::Certificate.load("/path/to/server_public_key")
-client_cert = begin
-  CZTop::Certificate.load("/path/to/client_private_key")
-rescue Errno::ENOENT # file doesn't exist
-  CZTop::Certificate.new.save("/path/to/client_private_key") # generate
-  retry
-end
-
-sub = CZTop::Socket::SUB.new
-sub.CURVE_client!(client_cert, server_cert)
-sub.bind("tcp://*:1234")
-	\end{minted}
+	\caption{Enabling CURVE mechanism on the client}
+	\label{lst:auth:fedsf}
+	\inputminted[bgcolor=bg]{Ruby}{listings/auth/fedsf.rb}
 \end{listing}
+\begin{listing}
+	\caption{Enabling CURVE mechanism on the server to perform client authentication}
+	\label{lst:auth:fednf}
+	\inputminted[bgcolor=bg]{Ruby}{listings/auth/fednf.rb}
+\end{listing}
+\autoref{lst:auth:fedsf} shows how to start an authentication handler which
+does client authentication, which happens inside the FEDSF actor.
+
+\autoref{lst:auth:fednf} shows the CURVE client side, which resides in the
+FEDNF actor.
 
 \section{OPC UA Interface: High availability}\label{sec:approach:opc-ua}
 The OPC UA standard seems pretty complicated. And given that the requirement

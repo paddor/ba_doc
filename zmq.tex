@@ -38,14 +38,15 @@ authentication, based on the excellent and highly renown
 \gls{tweetnacl} which avoids the additional dependency.}. The protocol used
 (CurveZMQ) is described in \cite{zmq:curvezmq}.
 
-Transport encryption is completely transparent to the application. The
+Transport encryption is completely transparent to the application, and is one
+of the available security mechanisms. It's called CURVE. The
 security handshake is designed to be highly resilient against
 \glspl{ddos-attack} attacks using encrypted and authenticated cookies, so the
 server doesn't actually allocate any memory before the handshake is completed,
 and key generation is very cheap \cite[p.~2]{djb:ed25519} with
 Curve25519\footnote{\url{https://en.wikipedia.org/wiki/Curve25519}} \gls{ECC}.
 
-To enable, one socket is designated as the server, the other as the client.
+To enable, one socket is designated as the CURVE server, the other as the CURVE client.
 Server authentication is always performed. This means that nodes running the
 client sockets must be in possession of the server's public key.
 
@@ -59,6 +60,9 @@ any kind of authentication service to be easiliy plugged in. It's also trivial
 to write such a ZAP handler to register new client public keys somewhere to be
 checked and confirmed by a human, which simplifies the process of adding new
 client public keys.
+
+
+% TODO: CurveCP, amplification attacks, message size, ...
 
 \section{Data serialization}
 Data serialization is outside the scope of \zmq. To fill the gap, one typically

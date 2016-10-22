@@ -19,5 +19,5 @@
 /_minted-main/
 
 # generated PDFs
-/main.pdf
+/*.pdf
 /task_description/*.pdf

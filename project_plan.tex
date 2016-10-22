@@ -1,14 +1,22 @@
 % vim: ft=tex
-\chapter{Project Plan}
+\chapter{Project plan}
+\section{Software development process}
+The \gls{RUP} is used to plan and manage this term project. It’s an iterative,
+structured, yet flexible development process which suits this kind of project.
+At HSR, it’s taught as part of the Software Engineering courses and is thus a
+primary candidate.
+
+Another candidate was Scrum, which we decided against as it’s only feasible
+with teams of three to nine developers.
+
 \section{Timetable}
 \subsection{Estimated time}
 The projekt span is from 19.09 until 23.12. We expect 26 hours work per week which is a total of
-320 hours per group member.
+320 hours per group member. See \autoref{tab:timetable}.
 
 \begin{table}[H]
   \centering
   \scriptsize
-  \caption{Timetable}
   \begin{tabular}{|p{80mm}|p{15mm}|}
     \hline 	\bf Project duration & 14 weeks \\ \hline
 	\bf count of workers & 2 \\ \hline
@@ -18,16 +26,19 @@ The projekt span is from 19.09 until 23.12. We expect 26 hours work per week whi
 	\bf Project start & 19.09.2016 \\ \hline
 	\bf Project end & 23.12.2016 \\ \hline
   \end{tabular} \\
+  \caption{Timetable}
+  \label{tab:timetable}
 \end{table}
 
-\subsection{Time Tracking}
-All schedulings are done with Everhour and with git. Git includes all issues and Everhour is used for the time capturing (should / is ).
+\subsection{Time tracking}
+All schedulings are done with Everhour and with GitHub. GitHub hosts all issues
+and Everhour is used for time tracking (should / is).
 
 \subsection{Infrastructure}
+\autoref{tab:infrastructure} shows the infrastructure provided by HSR.
 \begin{table}[H]
   \centering
   \scriptsize
-  \caption{Infrastructure}
   \begin{tabular}{|p{25mm}|p{30mm}|}
     \hline 	\bf Servername & sinv-56092.edu.hsr.ch \\ \hline
 	\bf ip address & 152.96.56.92 \\ \hline
@@ -37,50 +48,66 @@ All schedulings are done with Everhour and with git. Git includes all issues and
 	\bf RAM & 1 GB \\ \hline
 	\bf Disk drive & 15 GB \\ \hline
   \end{tabular} \\
+  \caption{Infrastructure}
+  \label{tab:infrastructure}
 \end{table}
 
 \subsection{Tools}
+The source code of this document and all of our code contributions are hosted
+on GitHub. The students will organize and perform their work directly on the
+site as far as possible. This means creating a Project board for each of the
+development phases, creating, assigning, and closing issues, as well as using
+the Wiki feature to plan and document meetings with the professor and the
+client. Time tracking is done externally on Everhour. See
+\autoref{tab:dev-tools}.
+
+% TODO: section: quality assurance
 \begin{table}[H]
   \centering
   \scriptsize
-  \caption{Tools}
   \begin{tabular}{|p{50mm}|p{15mm}|p{15mm}|}
     \hline 	\bf Use & Name & Version \\ \hline
-	\bf IDE & vim, ruby mine &  \\ \hline
-	\bf version control system & git & 2.* \\ \hline
-	\bf project management  & git, everhoour &  \\ \hline
+	\bf IDE & Vim, RubyMine &  \\ \hline
+	\bf version control system & Git & 2.* \\ \hline
+	\bf project management  & GitHub, Everhour &  \\ \hline
   \end{tabular} \\
+  \caption{Development tools}
+  \label{tab:dev-tools}
 \end{table}
 
-\subsection{Quality Measure}
+\subsection{Quality measures}
 
-\subsubsection{Documentation Review}
-The project partner reads important sentences as well it will be disscused in the weekly stand up meetings.
+\subsubsection{Documentation review}
+The project partner proof reads important sections which are then discussed
+during the weekly stand up meetings.
 
 
-\subsubsection{Meeting Minutes}
-Meeting minutes include the participant, agenda items, decisions and todos. Manuel Schuler take over this task and logs erverything.
-Every meeting minutes is saved on the github wiki site 24 hours before the meeting start and after the meeting it will be updated with the new information.
+\subsubsection{Meeting minutes}
+Meeting minutes include the participants, agenda items, decisions, as well as
+pending items. Manuel Schuler takes over this task and logs everything.
+Meeting minutes are saved on the GitHub wiki site 24 hours before the meeting
+starts and after the meeting it will be updated with the new information.
 
-\subsubsection{Git Policy}
+\subsubsection{Git policy}
 It's only allowed to push if all ruby spec tests pass.
 % TODO to be defined..
 
 
-\subsection{Meeting}
-Meetings are agreed in consultation with the lecturer or the customer. 
-The meeting minutes is kept, the individual agenda items, decisions and todos.
-The project team makes one Weekly standup meeting - place in early / mid-week and serves only as a short exchange of information, 
-review last week, recap the week goals, problems and plenary for questions or suggestions.
+\subsection{Meetings}
+Meetings are agreed in consultation with the professor or the client.
+The meeting minutes are kept, the individual agenda items, decisions and todos.
+The project team has a weekly standup meeting, placed in early / mid-week and
+serves only as a short exchange of information, to review the last week, recap
+the week goals, problems and plenary for questions or suggestions.
 
 
 \section{Risks}
-There were 9 risks that have been identified by the end of the Inception phase.
-The risks have a total damage of 369 hours. The total damaged hours multiplied
-with the probability of admission get a total of 137 hours. The weighted damage
+There were nine risks that have been identified by the end of the Inception phase.
+The risks have a total damage of 369 hours. The total damage hours multiplied
+by the probability of admission result in a total of 137 hours. The weighted damage
 hours are included in the project planning.
 
-\subsection{Handling Risks}
+\subsection{Handling risks}
 Due to the nature of the risks, it is only natural they change during the course of a project.
 To mitigate this, the risks are checked regularly (in weekly meetings) using the table below.
 
@@ -89,7 +116,7 @@ the unweighted damage must be adapted immediately. Moreover, it's possible for a
 be completely ruled out, or that a new risk arises. All these points need to be discussed in
 the team and tracked accordingly.
 
-\section{Listed Risks}
+\section{Listed risks}
 \begin{tabular}[t]{@{}>{\raggedright}p{0.45\textwidth}}
   \textbf{\textit{P = Probability}}
   \begin{enumerate}[topsep=0pt,itemsep=-2pt,leftmargin=13pt]
@@ -111,12 +138,11 @@ the team and tracked accordingly.
   \end{enumerate}
 \end{tabular}
 
-The delay is specified in days. One day equals 16 man-hours.
+\autoref{tab:init-risks} lists the initially identified risks. The delay is
+specified in days. One day equals 16 man-hours.
 
 \begin{center}
   \begin{longtable}{|p{6mm}|p{30mm}|p{6mm}|p{8mm}|p{30mm}|p{64mm}|}
-    \caption[Initial Risks]{Initial Risks} \label{tbl:risks} \\
-
     \hline \multicolumn{1}{l}{\textbf{ID}} &
     \multicolumn{1}{l}{\textbf{Description}} &
     \multicolumn{1}{l}{\textbf{P}} &
@@ -200,13 +226,13 @@ The delay is specified in days. One day equals 16 man-hours.
 		& \cellcolor{green!50}4
 		& Continuous monitoring whether we are on schedule and whether all requirements are met. 
 		& Meeting convened as we still can transpose a large part of the required task within the prescribed period. \newline delay: 1-5 days\\ \hline		
+   \caption{Initial risks} \label{tab:init-risks} \\
    \end{longtable}
 \end{center}
 
 \begin{table}[H]
   \centering
   \scriptsize
-  \caption{Initial Risk Matrix}
   \begin{tabular}{|m{27mm}|m{24mm}|m{20mm}|m{20mm}|m{20mm}|m{20mm}|@{}m{0pt}@{}}
     \hline 	\bf Propability / Damage & \bf 1-Insignificant. 	& \bf 2-Negligible 				& \bf 3-Moderate 			& \bf 4-Serious 			& \bf 5-Significant 	& \\ [10pt]
     \hline 	\bf 5-Certain 			& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& \cellcolor{orange!50} 			& \cellcolor{red!50} 		& \cellcolor{red!50} 			& \\ [10pt]
@@ -216,6 +242,7 @@ The delay is specified in days. One day equals 16 man-hours.
 			\bf 1-Rare 			& \cellcolor{green!50} 		& \cellcolor{green!50} 		& \cellcolor{green!50} R01, R05 & \cellcolor{green!50} R09 	& \cellcolor{green!50} 		& \\ [10pt]
     \hline
   \end{tabular} \\
+  \caption{Initial risk matrix}
 \end{table}
 
 \begin{ganttchart}[
@@ -251,21 +278,21 @@ The delay is specified in days. One day equals 16 man-hours.
 
 \begin{table}[H]
   \centering
-  \caption{Risk-Timeline change protocol}
   \begin{tabular}{|p{20mm}|p{20mm}|p{102mm}|}
     \hline \bf Week & \bf Risk & \bf Description \\% [10pt]
     \hline 3 & R01 & .... \\% [10pt]
     \hline 3 & R06 & .... \\% [10pt]
     \hline
   \end{tabular} \\
+  \caption{Risk timeline change protocol}
 \end{table}
 
 
-\section{Iterations \& Phases}
+\section{Phases \& iterations}
+\autoref{tab:phases} illustrates the project's phases and iterations.
+
 \begin{center}
   \begin{longtable}{|p{25mm}|p{25mm} p{45mm}|p{10mm}|}
-    \caption[Phase and Iterations]{Phase and Iterations} \label{tbl:Phase and Iterations} \\
-	
     \hline \multicolumn{1}{c}{\textbf{Iteration}} &
     \multicolumn{2}{p{70mm}}{\textbf{Description}} &
     \multicolumn{1}{c}{\textbf{Due}} \\ \hline
@@ -295,9 +322,9 @@ The delay is specified in days. One day equals 16 man-hours.
 		& \textbf{Workproducts}
 		& \multicolumn{2}{l|}{project plan} \\
 		& & \multicolumn{2}{l|}{risk matrix} \\
-		& & \multicolumn{2}{l|}{project mgmt infrastructur} \\ \hline
+		& & \multicolumn{2}{l|}{project mgmt infrastructure} \\ \hline
 	Elaboration 1
-		& \multicolumn{2}{p{70mm}|}{write use cases, fundamental thougts on testing, roughly design protocols,
+		& \multicolumn{2}{p{70mm}|}{write use cases, fundamental thoughts on testing, roughly design protocols,
 		cluster single \& multi level HA, persistence, key distribution, OPC-UA HA interface}
 		& SW04 \\ \hline
 	MS E1 Protocol
@@ -363,5 +390,7 @@ The delay is specified in days. One day equals 16 man-hours.
 		& \multicolumn{2}{l|}{Complete handover of thesis} \\
 		& \textbf{Workproducts}
 		& \multicolumn{2}{l|}{Thesis in paperform} \\ \hline
+
+   \caption{Phase and iterations} \label{tab:phases}
    \end{longtable}
 \end{center}

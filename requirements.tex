@@ -1,5 +1,5 @@
 % vim: ft=tex
-\chapter{Requirements}
+\chapter{Requirements}\label{ch:reqs}
 The requirements gathered during the first and second meeting with the client are
 explained in this chapter. These are more concrete than the ones listed in the
 Task Description in \autoref{ch:task-desc}.
@@ -70,11 +70,16 @@ This is formally specified in \autoref{lst:feature:federation}
 \subsection{DIM extension}
 
 \subsubsection{Synchronization}
-% TODO: it needs to go both ways!
-Extending the \gls{CSP} to keep the \gls{DIM} in sync across all nodes is a central
+Extending the \gls{CSP} to keep the \gls{DIM} consistent across all nodes is a central
 part of the federation functionality. This means replicating modifications to
 the dynamic DIM objects to all other actors on the node (legacy behavior) and
 to all other nodes.
+
+\paragraph{Duplex.} Unlike the CSP, it needs to go both ways. The server won't
+be the single source of truth. Every node will be responsible for part of the
+DIM, thus it will have to inform its neighbors about modifications that have
+happend in the meantime, no matter if the neighbor node in question is a
+supernode or a subnode.
 
 According to the meta model in \autoref{fig:roadster:meta-model}, these dynamic
 objects are exactly the instances of one of the following three
@@ -165,14 +170,12 @@ The following additional federation topologies must be supported:
 \begin{figure}[]
 	\center
 	\includegraphics[width=0.5\textwidth]{img/topo_sl_ha.pdf}
-	% TODO: update illustration to include multiple field devices and "client"
 	\caption{Federation example: a HA cluster and redundantly connected field devices}
 	\label{fig:topo:sl:ha}
 \end{figure}
 \begin{figure}[]
 	\center
 	\includegraphics[width=0.5\textwidth]{img/topo_ml_ha.pdf}
-	% TODO: update illustration to include multiple field devices and "client"
 	\caption{Federation example: HA cluster at root, two subnodes, each with field devices}
 	\label{fig:topo:ml:ha}
 \end{figure}
@@ -191,6 +194,12 @@ feasible:
 	a subordinate node connected to some field device.
 \end{description}
 
+
+\paragraph{Dedicated network link.}
+It's possible that there's a dedicated, direct network link from one peer to
+the other. However, this won't be typical.
+
+\paragraph{Split-brain syndrome.}
 At initialization, the two peers must automatically find consensus on which one
 is becomes active first.  At any time, only one of the two HA peers must be
 active (i.e. serving clients), and the other one must stay passive (i.e. ignore
@@ -198,11 +207,6 @@ client requests and only keep its DIM up-to-date). The passive HA peer shall
 take over in the event that the currently active peer becomes unavailable.
 Measures must be taken to avoid the dreaded split-brain syndrome where both HA
 peers become active.
-
-\begin{itemize}
-	\item Hardware/software failure on the primary node % TODO split
-	\item Failure of one of the redundant networking paths connecting the subsystem to the two nodes % FIXME
-\end{itemize}
 
 The types of failures that need to be handled include:
 \begin{itemize}
@@ -289,10 +293,10 @@ because it's insignificant, but because it's easy to enable transport level
 security on \zmq sockets later on.}
 
 The inter-node communication of a Roadster federation must be secured using
-encryption. Recent versions of \zmq offers modern, authenticated encryption,
+encryption. Recent versions of \zmq offer modern, authenticated encryption,
 including server and client authentication (the latter is optional).
 The client favors a solution where every communication partner (a node)
-authenticates all its communication partners, and vice-versa.
+authenticates all its communication partners, and vice versa.
 
 Since the \zmq binding used in the legacy version is unmaintained and doesn't
 allow encryption, it has to be exchanged with a more appropriate library.

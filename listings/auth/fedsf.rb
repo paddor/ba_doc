@@ -1,7 +1,3 @@
-##
-# FEDSF
-#
-
 # setup client authentication
 certstore = CZTop::CertStore.new
 dim.nodes[:self].subnodes.each do |node|
@@ -10,14 +6,21 @@ dim.nodes[:self].subnodes.each do |node|
 end
 authenticator = CZTop::Authenticator.new(certstore)
 
-# start the server sockets
+# load private key
 server_cert = CZTop::Certificate.load("/path/to/private_key")
+
+##
+# bind the three server sockets
+#
+
 pub = CZTop::Socket::PUB.new
 pub.CURVE_server!(server_cert)
+pub.bind(dim.nodes[:self].pub_endpoint)
 
-dim.nodes[:self].subnodes.each do |node|
-  pub.connect(node.sub_endpoint)
-end
+pull = CZTop::Socket::PULL.new
+pull.CURVE_server!(server_cert)
+pull.bind(dim.nodes[:self].pull_endpoint)
 
-# TODO: same for PULL
-# TODO: same for ROUTER
+router = CZTop::Socket::ROUTER.new
+router.CURVE_server!(server_cert)
+router.bind(dim.nodes[:self].router_endpoint)

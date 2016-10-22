@@ -126,7 +126,7 @@ Management AG,
 \url{http://trans-data.com/en/k2-categories/item/149-niscomnode}}.
 These are interacted with over numerous propietary and standardized protocols.
 
-\subsubsection{System integration}
+\subsubsection{System integration}\label{sec:scope:sys-integration}
 This section briefly describes the big picture of Roadster's place within
 typical production environments and its relationship with other systems.
 
@@ -361,7 +361,7 @@ all the classes whose instances constitute the DIM.
 	\label{fig:roadster:meta-model}
 \end{figure}
 
-\subsubsection{Existing CSP in a nutshell}
+\subsubsection{Existing CSP in a nutshell}\label{sec:scope:csp}
 \emph{This is a brief introduction/refresher for the Clone State Pattern
 implemented by Roadster, which is used for the DIM synchronization. Although Roadster actually sends serialized instances
 of CSP message classes to fulfill this protocol, for better readability the
@@ -421,7 +421,7 @@ the ICANHAZ message.
 
 % TODO: add illustration
 
-\subsubsection{Persisted data}
+\subsubsection{Persisted data}\label{sec:scope:persisted_data}
 Certain data on a Roadster node is persisted, which is done by the STORAGE
 actor. Different data goes into different \gls{tc} database files, including:
 
@@ -504,8 +504,6 @@ secure SCADA applications which are assumed to be running on insecure networks.
 \subsubsection{Fallacies of distributed computing}
 At this place, it is worth noting the common fallacies encountered in
 distributed computing, as explained on \cite{dcomp:fallacies}.
-
-% TODO: briefly explain these, without our particular solutions to them
 
 \begin{description}
 	\item [The network is reliable.] \hfill\\

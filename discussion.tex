@@ -9,25 +9,61 @@
 
 \section{Limitations}
 % TODO identify potential limitations and weaknesses of the product
+Limitations imposed by the design and implementation of the new features are
+discussed here.
 
-% BStar pair has to be complete (both nodes running) during initialization. Otherwise, only primary node can serve requests; the backup node can't.
+\subsection{Federation}
+\subsubsection{DIM synchronization}
+Eventual consistency is guaranteed even in situations where multiple actors
+modify the same DIM objects at roughly the same time. However, some updates
+might get lost. In those cases, the last writer wins.
 
-% Message traffic towards root node sums up because of persistence
-% synchronization. This shouldn't be a problem because of \zmq's brilliant
-% message batching, so the real limit is given by the inter-node network links.
+\subsection{HA}
+A HA cluster has to be complete (both nodes running) during initialization.
+Otherwise, only primary node can start to serve requests; the backup node won't
+do this.
 
-% Eventual consistency is guaranteed even in situations where multiple actors modify the same DIM objects
-% at roughly the same time. However, some updates might get lost. In those cases, the last writer wins.
+\subsection{Persistence synchronization}
+Message traffic towards root node sums up because of persistence
+synchronization. This shouldn't be a problem because of \zmq's brilliant
+message batching, so the real limit only given by the inter-node network links.
 
 \section{Business Benefits}
-% TODO potential applications (UeLS powered by Roadster?)
+Using the new federation capability, Roadster can be deployed in larger
+environments, possibly replacing higher-level systems described in
+\autoref{sec:scope:sys-integration}.
 
 \section{Ideas for Improvement}
+\subsection{High availability}
+\subsubsection{Thoughtful heartbeating}\label{sec:discussion:imp:ha:hb}
+The BSTAR actor currently happily exchanges heartbeats with the BSTAR actor
+running on the other HA peer, even in case all actors but CORE are dead. The
+CORE actor's health is periodically checked using the PING/PONG mechanism as
+described in \autoref{sec:approach:ha:hb}.
+
+In a subsequent version of Roadster, the CORE actor could relay those PING
+requests to the other actors and only respond with a PONG in case the other
+actors all have responded with PONG. This mechanism would make the node only
+signal life signs in case all actors are healthy.
+
+\subsubsection{HA within a node}
+Building upon the previous idea, unhealthy actors could be killed and respawned
+by the CORE actor.  Microrebooting unhealthy components without an attempt at
+any sophisticated recovery would make Roadster belong to the \emph{crash-only
+software} kind of fault-tolerant software.
+
+\subsubsection{Manual failover}\label{sec:discussion:ha:manual-failover}
+A manually induced failover could be useful in some cases, e.g. when a
+component fails that doesn't provoke an automatic failover.
+
+Providing a less brutal way of inducing a failover than to turn off the
+currently active HA peer could be interesting in a future version.
+
+\subsection{Miscellaneous}
+Unordered list of ideas:
 \begin{itemize}
-	\item HA within a node: kill and respawn an actor when it's unresponsive
 	\item switch to Moneta for a unified key-value store interface, then eventually away from \gls{tc} to something more modern and maintained, like LMDB (it's super fast and crash-proof)
 	\item TIPC: high performance cluster communication protocol, suitable because Roadster nodes are Linux and there are direct links to peers (required for TIPC)
-	\item client authentication
 	\item key management in a DB (instead of files), with GUI to accept new clients
 	\item dynamic node topology (maybe via DSL-file in Etcd, or DIM-only, or Zookeeper)
 	\item other method for data serialization (like MessagePack), would allow adding other programming languages to the cluster
@@ -37,3 +73,4 @@
 	\item (use more symbols instead of strings, e.g. to refer to a certain actor)
 	\item \sh{ZMQ_RECONNECT_IVL} and \sh{ZMQ_RECONNECT_IVL_MAX} especially for mobile clients
 \end{itemize}
+

@@ -201,7 +201,7 @@ supernode with multiple subnodes will act as the server in CSP terminology.
 		and \cpp{bind()}s three sockets of type ROUTER, PULL, and PUB.
 \end{description}
 
-\paragraph{Socket recycling.}
+\paragraph{Socket recycling}
 The aim is to use these three socket pairs in a protocol agnostic fashion. This
 should be possible because of Roadster's layered software architecture,
 completely separating protocols from the actual sockets used. What counts is
@@ -241,19 +241,19 @@ Examples of these are UI user credentials.
 \subsubsection{Degree of synchronization}
 There are multiple choices when it comes to what exactly of the DIM should be synchronized:
 
-\paragraph{Variant 1: Sync self-subtree only.}
+\paragraph{Variant 1: Sync self-subtree only}
 Always sync on subtree only, which means a node only knows the DIM part of
 itself. The big disadvantage is that it won't have a copy of the rest of the
 DIM, which can be useful to inspect variables on neighboring nodes, especially
 when they're unreachable.
 
-\paragraph{Variant 2: Sync complete tree.}\label{par:approach:dim:var2}
+\paragraph{Variant 2: Sync complete tree}\label{par:approach:dim:var2}
 Always sync on complete tree, which means getting the snapshot from the
 supernode and merge the own subtree into it, replacing whatever subtree is
 already there. This works because of the autonomy requirement for nodes and
 their subnodes. This variant is very easy to implement at first.
 
-\paragraph{Variant 3: Either sync on subtree or complete tree.}
+\paragraph{Variant 3: Either sync on subtree or complete tree}
 Make it configurable: Either sync on subtree or on complete tree. The
 toplogy DSL would allow to specify this property for each node. This is
 the best of both worlds, but more effort.
@@ -735,14 +735,14 @@ There are multiple aspects involved in persistence synchronization:
 		synchronization?
 
 
-		\paragraph{Event journal.} Event journal data is not
+		\paragraph{Event journal} Event journal data is not
 		append-only. Existing cases can still be modified, e.g. to
 		confirm them. So the solution to get the full delta of
 		modifications, but not more than needed, is to request the
 		oldest non-finished case for each owning subnode (direct and
 		indirect ones).
 
-		\paragraph{Time series.} The good thing about time series is
+		\paragraph{Time series} The good thing about time series is
 		that the records, once written, won't be modified. That allows
 		for a very simple method of getting new time series records by
 		just requesting all records added after a particular point in
@@ -752,7 +752,7 @@ There are multiple aspects involved in persistence synchronization:
 		by the supernode, per series, so it can delete them from its
 		local files as well.
 
-		\paragraph{Parameters.} Every param is owned by a node, and is
+		\paragraph{Parameters} Every param is owned by a node, and is
 		synchronized through the DIM.  What's persisted is merely the
 		last updated value so the node is able to boot with not only
 		sensible defaults, but actual values that are most likely still
@@ -765,7 +765,7 @@ There are multiple aspects involved in persistence synchronization:
 		This is only needed in case the solution aims for event-driven
 		(i.e. close to instantaneous) synchronization.
 
-		\paragraph{Event journal.} Non-finished cases live in the DIM.
+		\paragraph{Event journal} Non-finished cases live in the DIM.
 		That means any node could theoretically persist a history of
 		all cases owned by its subnodes (direct and indirect ones) by
 		itself. Another way would be for any node to only create a
@@ -776,7 +776,7 @@ There are multiple aspects involved in persistence synchronization:
 		its supernode. {\color{red}It is not clear yet, what's the best
 		solution here.}\\
 
-		\paragraph{Time series.} The most recent values of sensor data
+		\paragraph{Time series} The most recent values of sensor data
 		is held in the DIM. That means any node in the federation could
 		do the sampling and persisting of time series data by itself.
 		{\color{red}It is not clear yet what's the best solution here.}\\
@@ -922,7 +922,7 @@ as it is done inside the FEDSF actor.
 	\label{lst:auth:fedsf}
 \end{listing}
 
-\paragraph{Failover.}\label{sec:approach:encryption:ha}
+\paragraph{Failover}\label{sec:approach:encryption:ha}
 It's possible that a node's supernode is actually a HA cluster consisting of
 two nodes. Those two nodes should have their own key pairs for additional
 security. This imposes a problem for the subnodes: It's only possible to assign
@@ -936,7 +936,7 @@ Pattern)]{zmq:zguide} ``a small finite-state machine to enforce the
 send/receive ping-pong''}, it's best practice to simply destroy the existing
 socket and create a fresh one, passing it the correct supernode's certificate.
 
-\paragraph{IP based access control.}
+\paragraph{IP based access control}
 In addition to the CURVE mechanism, blacklisting or whitelisting clients based
 on their \gls{IP} addresses is possible and supported by
 \rb{CZTop::Authenticator} through the PLAIN mechanism. It would even be

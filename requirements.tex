@@ -76,7 +76,7 @@ part of the federation functionality. This means replicating modifications to
 the dynamic DIM objects to all other actors on the node (legacy behavior) and
 to all other nodes.
 
-\paragraph{Duplex.} Unlike the CSP, it needs to go both ways. The server won't
+\paragraph{Duplex} Unlike the CSP, it needs to go both ways. The server won't
 be the single source of truth. Every node will be responsible for part of the
 DIM, thus it will have to inform its neighbors about modifications that have
 happend in the meantime, no matter if the neighbor node in question is a
@@ -196,11 +196,11 @@ feasible:
 \end{description}
 
 
-\paragraph{Dedicated network link.}
+\paragraph{Dedicated network link}
 It's possible that there's a dedicated, direct network link from one peer to
 the other. However, this won't be typical.
 
-\paragraph{Split-brain syndrome.}
+\paragraph{Split-brain syndrome}
 At initialization, the two peers must automatically find consensus on which one
 is becomes active first.  At any time, only one of the two HA peers must be
 active (i.e. serving clients), and the other one must stay passive (i.e. ignore

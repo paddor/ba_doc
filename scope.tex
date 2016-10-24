@@ -341,13 +341,13 @@ can make use of this primitive.
 
 \subsubsection{DIM}
 The \acrfull{DIM} is a tree data structure that lives inside every actor of a Roadster
-node. Every actor builds it when starting up by reading the configuration
+node. The CORE actor and every COMM actor build it when starting up by reading the configuration
 files available to all actors.
 
 The DIM consists of static objects and dynamic objects. The dynamic
 objects\footnote{Namely instances of the meta-model classes \rb{Case},
 \rb{DataItem}, and \rb{Session}} can be updated. The updates are then
-replicated across all actors to keep the DIM synchronized. This works by
+replicated across all COMM actors to keep the DIM synchronized. This works by
 marking the updated object dirty\footnote{It is marked dirty by setting its
 \rb{@lifecycle_state = "updated"}} so it is subsequently replicated via the
 \gls{CSP}. \autoref{fig:roadster:meta-model} illustrates the class diagram of

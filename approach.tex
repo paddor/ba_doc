@@ -271,6 +271,8 @@ startup, just like it's done for other configuration pieces of a Roadster node.
 
 To let the actors of a node know which node they belong to, an additoinal line
 has to be added to the specific configuration file (\sh{conf.rb}), e.g.
+% FIXME: root node could be called nodes.northpole (the term "root" is already
+% used within DIM)
 \rb{conf.system_id = "nodes.root"}. Using that information, the topology
 created using the DSL can be walked like a tree to find the correct node and
 important information like its neighbor nodes.
@@ -437,6 +439,8 @@ handleable failures of the following three categories have been identified:
 
 		\begin{itemize}
 			\item Roadster crashes, e.g. the CORE actor becomes unresponsive
+			\item the disk becomes full
+			\item the memory becomes full (and triggers the \gls{oom-killer})
 			\item the whole OS freezes or crashes (less likely, but possible)
 			\item Accidental shutdown of the currently active HA
 				peer, either just the Roadster application, or
@@ -569,6 +573,11 @@ This means that the passive node starts accepting snapshot requests (ICANHAZ
 messages) and updates the DIM, so every other node will know about the new,
 active node. This is needed for the message routing to work.
 
+To establish or destroy connections (either to other nodes or to field
+devices), callbacks from the \gls{bstar} library can be used to react on
+becoming active and becoming passive. To do something in another actor,
+Roadster's messaging infrastructure can be used.
+
 \subsubsection{No client, no failover}
 A failover can only happen if there is at least one client. With no clients, a
 vote cannot happen. Thinking about it, it's not a bad thing if the failover
@@ -628,9 +637,12 @@ The \gls{zguide} mentions that a dedicated network link between the two HA peers
 split-brain syndrome. This is true. But in some cases, it could also prevent a
 failover from happening.
 
-Imagine part of the currently active peer's network equipment fails, i.e. its \gls{NIC}
-connected to the switch fails, or its switch port fails. In that case it'll be unreachable
-to the rest of the federation. A failover would be desired. But it
+Imagine part of the currently active peer's network equipment fails, i.e. one
+of its \glspl{NIC} connected to the switch fails, or one of its switch ports
+fail.\footnote{Typically the root node has two NICs: One connected to the
+processing network, i.e. the Roadster federation, and another one connected to
+the client network} In that case it'll be unreachable to the rest of the
+federation or to the client. A failover would be desired. But it
 can't happen, since heartbeats will still be exchanged with the passive node over
 the dedicated link. So it's a trade-off between risking the split-brain
 syndrome and not being able to perform a failover.
@@ -650,9 +662,9 @@ For this to work, a way of counting fully connected (not just requesting)
 clients has to be introduced. The COMM actor providing the \gls{opc-ua}
 interface would know best how many clients are connected.
 
-In case the clients talk to the HA cluster via \zmq sockets, and \zmq abstracts
-connection handling completely away, telling how many clients are connected is
-a bit less straight-forward. \zmq declares such needs as application matter.
+In case the clients talk to the HA cluster via \zmq sockets, telling how many
+clients are connected is a bit less straight-forward, because \zmq abstracts
+connection handling completely away. \zmq declares such needs as application matter.
 The clients (i.e. Roadster nodes above a HA cluster, although not specified by
 the requirements) would have to implement application-level heartbeating.
 That is, the clients that are currently fully connected (i.e. registered to
@@ -660,7 +672,8 @@ receive DIM updates) would periodically send heartbeats which could then be
 used to maintain an up-to-date list of active clients (where stale client
 entries automatically expire).  The number of active clients (the size of the
 list) could be communicated privately just between the two HA peers, along with
-the heartbeats, or it could be published via the DIM.
+the heartbeats. Publishing that information via the DIM might be problematic,
+since DIM updates go over the main network link.
 
 Another thing that's needed is a HA peer's ability to step down from being the
 active node as soon as its peer promotes itself to the newly active peer. In
@@ -702,7 +715,8 @@ A better implementation would have the BSTAR actor periodically inquire (PING
 request) the CORE actor whether it's still healthy, and only send out a
 heartbeat in case it gets a response (PONG) in time. This can be done with a
 simple mechanism, where the CORE actor is programmed to respond to every PING
-request with a PONG response.
+request with a PONG response. Similar infrastructure of Roadster could be used
+instead, if it already provides it.
 
 Further ideas based on this fundamental mechanism are discussed in
 \autoref{sec:discussion:imp:ha:hb}.
@@ -765,12 +779,10 @@ There are multiple aspects involved in persistence synchronization:
 		\paragraph{Time series.} The most recent values of sensor data
 		is held in the DIM. That means any node in the federation could
 		do the sampling and persisting of time series data by itself.
-		{\color{red}It is not clear yet, what's the best solution here.}\\
-		Furthermore, in case a Roadster federation will be
-		running for a very long time without interrupts, there needs to
-		be a mechanism to bubble up the deletion of old time series
-		records in an event-driven fashion. This can be done by simply
-		signalling it as soon as they're deleted locally.
+		{\color{red}It is not clear yet what's the best solution here.}\\
+		The deletion of old records does not have to be bubbled up,
+		since that is done by a Roadster node autonomously whenever it
+		persists a new one.
 
 	\item [HA peer sync:]\hfill\\
 		How is the passive HA peer updated?

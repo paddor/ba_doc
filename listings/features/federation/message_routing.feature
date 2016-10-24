@@ -15,3 +15,11 @@ Feature: Message routing
     Then a command is generated in the UI
     And the generated command is routed as a message to node S1
     And is executed there
+
+  # low priority
+  Scenario: Sending command from S1 to S2
+    Given a user is logged in on the UI of node S1
+    When user changes a setting affecting node S2 directly
+    Then a command is generated in the UI
+    And the generated command is routed as a message through R to node S2
+    And is executed there

@@ -31,35 +31,36 @@ specifications will later be useful to deduce test cases.
 \section{Federation}
 Roadster will need to be run on multiple nodes in a hierarchical topology,
 forming a distributed computing architecture. The root node would then act as
-the client-facing server. Typical node topologies include:
+the client-facing server. This is formally specified in
+\autoref{lst:feature:federation}. Typical node topologies include:
 
 \begin{description}
-	\item [ Single level, single node ] \hfill\\
+	\item [ Single level with a single node ] \hfill\\
 		This is the legacy setup and is what Roadster is already able
 		to do. It consists of a single node. This is illustrated in
 		\autoref{fig:topo:sl:noha}.
 
 	\item [ Multi level ] \hfill\\
 		This is the most basic federation setup. There is a root node, and
-		two subnodes. Each subnode is directly connected to a number of field devices such as
+		a number of subnodes. Each subnode is directly connected to a number of field devices such as
 		\glspl{PLC} or emergency phones. This is illustrated in
 		\autoref{fig:topo:ml:noha}.
 \end{description}
 
 \begin{figure}[]
 	\center
-	\includegraphics[width=0.25\textwidth]{img/topo_sl_noha.pdf}
-	\caption{Physical legacy example: a single node and a field device each}
+	\includegraphics[width=0.2\textwidth]{img/topo_sl_noha.pdf}
+	\source{mindclue GmbH}
+	\caption{Logical federation topology example: Single level with a single node (legacy)}
 	\label{fig:topo:sl:noha}
 \end{figure}
 \begin{figure}[]
 	\center
-	\includegraphics[width=0.5\textwidth]{img/topo_ml_noha.pdf}
-	\caption{Physical federation topology example: supernode, two subnodes, a field device each}
+	\includegraphics[width=0.6\textwidth]{img/topo_ml_noha.pdf}
+	\source{mindclue GmbH}
+	\caption{Logical federation topology example: Multi level}
 	\label{fig:topo:ml:noha}
 \end{figure}
-
-This is formally specified in \autoref{lst:feature:federation}
 
 \begin{listing}
 	\inputminted{Gherkin}{listings/features/federation/federation.feature}
@@ -131,8 +132,8 @@ of one node's web UI can send a command (passed as a message) to another node wh
 executed. An example for this is a forced value in the DIM to ignore the
 actually measured value reported by a device in case the device is known to be
 wrong. The common case where the command is issued at a higher level in the node
-topology is priority. E.g. in a setup with a root node and two
-subnodes A and B, issuing a command on A for B has a low priority.
+topology is priority. E.g. in a multi level setup with a root node R and two
+subnodes S1 and S2, issuing a command on S1 for S2 has a low priority.
 
 This is formally specified in \autoref{lst:feature:federation:cmdrouting}
 

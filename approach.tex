@@ -229,7 +229,7 @@ simply reinitiating the DIM synchronization process.
 The concept of ownership has to be introduced. Every object within the DIM
 shall belong to a particular node. Modifications to the objects shall be done via
 that node, and only that node, so the node is the source of truth for all modifications for the
-objects it owns. For that, every object in the DIM has to have a referennce
+objects it owns. For that, every object in the DIM has to have a reference
 (i.e. an attribute \rb{@owner}) to the object representing its owner node, which is part of
 the configuration that is loaded from the static configuration loaded by every
 actor at initialization.
@@ -419,7 +419,7 @@ handleable failures of the following three categories have been identified:
 		happen spontaneously at any time:
 
 		\begin{itemize}
-			\item A non-reduntant disk can fail fatally
+			\item A non-redundant disk can fail fatally
 			\item Memory can encounter an irrecoverable error
 			\item The \gls{CPU} catches fire
 			\item The node's power supply starts smoking
@@ -538,7 +538,7 @@ is illustrated in \autoref{fig:ml:ha}.
 \end{figure}
 
 \subsubsection{Socket types}
-The sockets used by both HA peers to send and receive hearbeats/state
+The sockets used by both HA peers to send and receive heartbeats/state
 information is a PUB-SUB pair each. This is useful to avoid queues filling up
 in case of an actual failure. PUB sockets simply drop messages when there are
 no SUB sockets connected, which is the desired effect.
@@ -640,7 +640,7 @@ Of course the \gls{bstar} mechanism could be extended to handle cases where the
 active peer is only cut off from its clients, but not from the other HA peer.
 
 The active HA peer could communicate the number of fully connected clients,
-wich would be zero in case it is cut off from its clients. That way, the
+which would be zero in case it is cut off from its clients. That way, the
 passive node could recognize the situation correctly, since it will get
 requests from clients, which are trying to fallback to the passive peer since
 the active peer is unresponsive. Knowing that the active peer has zero
@@ -763,7 +763,7 @@ There are multiple aspects involved in persistence synchronization:
 		solution here.}\\
 
 		\paragraph{Time series.} The most recent values of sensor data
-		is hold in the DIM. That means any node in the federation could
+		is held in the DIM. That means any node in the federation could
 		do the sampling and persisting of time series data by itself.
 		{\color{red}It is not clear yet, what's the best solution here.}\\
 		Furthermore, in case a Roadster federation will be

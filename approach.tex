@@ -639,9 +639,7 @@ failover from happening.
 
 Imagine part of the currently active peer's network equipment fails, i.e. one
 of its \glspl{NIC} connected to the switch fails, or one of its switch ports
-fail.\footnote{Typically the root node has two NICs: One connected to the
-processing network, i.e. the Roadster federation, and another one connected to
-the client network} In that case it'll be unreachable to the rest of the
+fail. In that case it'll be unreachable to the rest of the
 federation or to the client. A failover would be desired. But it
 can't happen, since heartbeats will still be exchanged with the passive node over
 the dedicated link. So it's a trade-off between risking the split-brain

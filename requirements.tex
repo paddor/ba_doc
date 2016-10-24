@@ -68,6 +68,11 @@ the client-facing server. This is formally specified in
 	\label{lst:feature:federation}
 \end{listing}
 
+\paragraph{Network infrastructure} Roadster nodes would typically be connected
+through a network switch, possibly assigned their own \gls{VLAN}. The root node
+would typically have two \glspl{NIC}: One connected to the processing network,
+i.e. the Roadster federation, and another one connected to the client network.
+
 \subsection{DIM extension}
 
 \subsubsection{Synchronization}

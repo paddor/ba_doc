@@ -156,7 +156,7 @@ is clarity.
 The new actors' responsibility is the inter-node synchronization of the DIM,
 similarly to what's happening in the existing \gls{CSP} within a single node.
 To do so, they simply subscribe to DIM updates within a node just like any
-other actor does.  Then they replicate any subsequent updates over the network
+other COMM actor does.  Then they replicate any subsequent updates over the network
 to the neighbors (supernode, and subnodes).
 
 \paragraph{Background info: Servers and clients in \zmq}

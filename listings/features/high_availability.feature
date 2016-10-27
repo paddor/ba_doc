@@ -1,4 +1,5 @@
 Feature: High availability
+  # TODO: Prosa
 
   Background:
     Given two peer nodes P1 (primary) and P2 (backup)

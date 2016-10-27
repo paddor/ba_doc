@@ -5,4 +5,4 @@ compile_pdf:
     paths:
       - main.pdf
   after_script:
-    - ghr -t $GITHUB_THEWESCH_ROADSTER_DOC_TOKEN -u thewesch -r github-doc "v.0.$CI_BUILD_ID" main.pdf
+    - ghr -t $GITHUB_THEWESCH_ROADSTER_DOC_TOKEN -u thewesch -r ba-roadster-doc "v.0.$CI_BUILD_ID" main.pdf

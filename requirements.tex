@@ -125,7 +125,7 @@ the \gls{DIM} must be possible even when neighboring nodes (including the supern
 recovery from the outage, the \gls{DIM} replication shall be reinitiated so
 all pending updates are shared to all other nodes as per normal operation.
 
-This is formally specified in \autoref{lst:feature:federation:autonomy}
+This is formally specified in \autoref{lst:feature:federation:autonomy}.
 
 \begin{listing}
 	\inputminted{Gherkin}{listings/features/federation/autonomy.feature}
@@ -142,7 +142,7 @@ wrong. The common case where the command is issued at a higher level in the node
 topology is priority. E.g. in a multi level setup with a root node R and two
 subnodes S1 and S2, issuing a command on S1 for S2 has a low priority.
 
-This is formally specified in \autoref{lst:feature:federation:cmdrouting}
+This is formally specified in \autoref{lst:feature:federation:cmdrouting}.
 
 \begin{listing}
 	\inputminted{Gherkin}{listings/features/federation/message_routing.feature}
@@ -252,7 +252,7 @@ all nodes and is a relatively small data structure holding merely the current st
 can possibly contain large amounts of data (in the hundreds of megabytes) and
 are shared only towards the root node (thus "bubbling up").
 
-This is formally specified in \autoref{lst:feature:persistence_synchronization}
+This is formally specified in \autoref{lst:feature:persistence_synchronization}.
 
 \begin{listing}
 	\inputminted{Gherkin}{listings/features/persistence_synchronization.feature}

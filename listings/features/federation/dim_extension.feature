@@ -4,6 +4,7 @@ Feature: DIM extension
   I need to replicate DIM updates across the federation and vice versa.
 
   Background:
+    # TODO: language
     Given a federation topology configuration available on all nodes
     And subnodes S1, S2 have a network link to root node R
     And nodes S1, S2 are running

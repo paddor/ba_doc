@@ -188,6 +188,7 @@ The following additional federation topologies must be supported:
 	\label{fig:topo:ml:ha}
 \end{figure}
 
+% FIXME: exotic is too colloquial
 The following cases are more exotic and are outside the scope of this thesis;
 however, they should be kept in mind so a future extension to support them is
 feasible:
@@ -201,6 +202,7 @@ feasible:
 	A single root node at the top, a subordinate HA pair, which in turn has
 	a subordinate node connected to some field device.
 \end{description}
+% TODO: add illustrations
 
 
 \paragraph{Dedicated network link}
@@ -235,6 +237,7 @@ The high availability requirement is formally specified in \autoref{lst:feature:
 \end{listing}
 
 \section{Persistence replication}
+% TODO: explain what south/north means, maybe in scope already
 This is about the replication of persisted data, which is currently stored
 in \gls{tc} databases on a Roadster node, one for each kind of data. With the federation functionality, this is
 still true: Every node will have its own set of key-value stores. Changes to the persisted
@@ -282,8 +285,10 @@ meeting were:
 \subsection{Testing}
 Regarding testing, the following requirements exist:
 \begin{itemize}
-	\item the student's contributions are verified with unit tests
-	\item use cases shall be integration tested in a close-to-reality setup, either automatically or manually
+	\item the student's contributions are verified using unit tests
+	\item the formally described scenarios shall be verified using
+		integration tests in a close-to-reality setup, either
+		automatically or manually
 \end{itemize}
 
 \subsection{Constraints for persistence replication}
@@ -292,8 +297,8 @@ Nor is zero data loss an absolut requirement. However, it is mandatory that
 updates make it to the root node within 30 seconds.
 
 \subsection{High availability for OPC UA}
-The high availability feature shall be design with \gls{opc-ua} in mind. It
-should be easy to adapt it to the various kinds of server redundancy specified
+The high availability feature shall be designed with \gls{opc-ua} in mind. It
+should be easy to adapt it to the various kinds of server redundancies specified
 in OPC-UA, including the transparent and non-transparent variants.
 
 \subsection{Encryption}
@@ -324,7 +329,7 @@ differences or special remarks:
 	\item YARD API doc, 1 blank comment line before param documentation,
 		one blank comment line before code (ignoring
 		\footnote{\url{https://github.com/bbatsov/ruby-style-guide\#rdoc-conventions}})
-	\item Ruby 1.9 symbol keys are wanted
+	\item Ruby 1.9 symbol keys are required
 		\begin{itemize}
 			\item e.g. \rb{foo: "bar", baz: 42} instead of \rb{:foo => "bar", :baz => 42}, just like
 			\footnote{\url{https://github.com/bbatsov/ruby-style-guide\#hash-literals}}

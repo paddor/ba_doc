@@ -67,10 +67,9 @@ To create a realistic environment, Mininet and fake \glspl{PLC} are used.
 		Fake \glspl{PLC} are simple scripts that respond to requests.
 \end{description}
 
-All events are stored in log files which are subsequently used for the
-evaluation of the test result.  A Ruby program checks these log files for
-correctness. All system tests are performed manually after each construction
-iteration.
+All events are logged. A Ruby program subsequently evaluates the log data to
+check if the tests passed.  All system tests are performed manually after each
+construction iteration.
 
 \subsubsection{Test scenarios}
 Test scenarios are deduced from the features specified in \autoref{ch:reqs}.
@@ -142,7 +141,7 @@ The DIM has to be replicated across a hierarchical federation of nodes.
 % TODO: more/better
 
 \subsubsection{New COMM actors}
-Since COMM actors are used to communicate with things outside of a node, new COMM
+Since COMM actors are used to communicate with systems outside of a node, new COMM
 actors are introduced: One kind that is north-facing to communicate
 with subnodes, and another one that is south-facing for communication with the
 supernode. They are named COMM FEDNF and COMM FEDSF. These names have been
@@ -153,7 +152,7 @@ even more confusing, as in the open source world it commonly refers to the
 mainline developed by the official authors, i.e. the source of truth. There is
 no concept within Roadster unambiguously corresponding to this meaning. So the
 benefit of choosing names that imply an actor is north-facing or south-facing
-is clarity.
+is increased clarity.
 
 The new actors' responsibility is the inter-node synchronization of the DIM,
 similarly to what is happening in the existing \gls{CSP} within a single node.
@@ -161,12 +160,13 @@ To do so, they simply subscribe to DIM updates within a node just like any
 other COMM actor does.  Then they replicate any subsequent updates over the network
 to the neighbors (supernode, and subnodes).
 
+% FIXME: this is too detailed
 \paragraph{Background info: Servers and clients in \zmq}
 Usually in network programming, the server is the one performing the
 \cpp{bind()} operation and the client is the one performing the \cpp{connect()}
-operation. But in \zmq it does not really matter. Since \zmq completely
+operation. This restriction does not hold true in \zmq. Since \zmq completely
 abstracts the connection handling away, the order in which these two operations
-happen really does not matter. In case the other side has not bound its socket
+happen is insignificant. In case the other side has not bound its socket
 yet, \zmq will just retry establishing a connection if the last attempt failed,
 by default every 100 milliseconds. This means that it is a free choice as to which socket
 performs what action. Each socket type merely has default action for the case
@@ -208,8 +208,8 @@ supernode with multiple subnodes will act as the server in CSP terminology.
 The aim is to use these three socket pairs in a protocol agnostic fashion. This
 should be possible because of Roadster's layered software architecture,
 completely separating protocols from the actual sockets used. What counts is
-each socket's ability and who it is talking to. In case these two things are the
-same for other protocols (which should be the case, e.g. for persistence
+each socket's ability and who it is talking to. In case these two things are shared
+among several protocols (which should be the case, e.g. for persistence
 replication), sockets shall be reused.
 
 \paragraph{Replication is bidirectional}

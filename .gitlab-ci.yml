@@ -4,3 +4,5 @@ compile_pdf:
   artifacts:
     paths:
       - main.pdf
+  after_script:
+    - release_to_github $CI_BUILD_ID $GITHUB_THEWESCH_ROADSTER_DOC_TOKEN

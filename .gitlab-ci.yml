@@ -5,4 +5,4 @@ compile_pdf:
     paths:
       - main.pdf
   after_script:
-    - release_to_github $CI_BUILD_ID $GITHUB_THEWESCH_ROADSTER_DOC_TOKEN
+    - ./release_to_github.sh ${CI_BUILD_ID} ${GITHUB_THEWESCH_ROADSTER_DOC_TOKEN}

@@ -8,13 +8,13 @@ Feature: High availability
   Scenario: Healthy startup
     When starting the nodes P1 and P2
     Then primary node becomes active
-    And backup node becomes passive
+    And backup node becomes passive.
 
   Scenario: Unhealthy startup
     When starting the nodes P1 and P2
     And either P1 or P2 crashes or is otherwise unreachable
     Then the other node does not simply take over
-    But generates an alarm instead
+    But generates an alarm instead.
 
   Scenario: Active node crashes
     Given a healthily running HA cluster
@@ -23,13 +23,13 @@ Feature: High availability
     And client connects to passive node (fallback)
     Then the failover is initiated
     And the passive node becomes the active node
-    And an alarm is generated
+    And an alarm is generated.
 
   Scenario: Passive node crashes
     Given a healthily running HA cluster
     When passive node crashes or becomes otherwise unreachable
     Then active node continues to operate normally
-    And generates an alarm
+    And generates an alarm.
 
   Scenario: Previously crashed node rejoins the cluster
     Given a the previously active node has crashed
@@ -37,4 +37,4 @@ Feature: High availability
     When the crashed node has been repaired/software bug fixed
     And and started
     Then it joins as the new passive node
-    And the cluster's high availability is restored
+    And the cluster's high availability is restored.

@@ -89,8 +89,8 @@ Meeting minutes are saved on the GitHub wiki site 24 hours before the meeting
 starts and after the meeting it will be updated with the new information.
 
 \subsubsection{Git policy}
-It's only allowed to push if all ruby spec tests pass.
 % TODO to be defined..
+% FIXME: do we have one?
 
 
 \subsection{Meetings}
@@ -108,11 +108,11 @@ by the probability of admission result in a total of 137 hours. The weighted dam
 hours are included in the project planning.
 
 \subsection{Handling risks}
-Due to the nature of the risks, it is only natural they change during the course of a project.
-To mitigate this, the risks are checked regularly (in weekly meetings) using the table below.
+Due to the nature of the risks, it is only natural they change over the course of a project.
+To mitigate this, the risks are checked regularly (in weekly meetings) using \autoref{tab:init-risks}.
 
 Changes to existing risks are possible. This usually means that either the likelihood or
-the unweighted damage must be adapted immediately. Moreover, it's possible for a risk to
+the unweighted damage must be adapted immediately. Moreover, it is possible for a risk to
 be completely ruled out, or that a new risk arises. All these points need to be discussed in
 the team and tracked accordingly.
 
@@ -196,7 +196,7 @@ specified in days. One day equals 16 man-hours.
 		& \cellcolor{green!50}1
 		& \cellcolor{green!50}3
 		& (hope)
-		& adapt CZTop, change CZTop adapter in Roadster, or just don't upgrade CZMQ (use a commit before the breaking change) \newline delay: 1-2 days \\ \hline
+		& adapt CZTop, change CZTop adapter in Roadster, or just avoid upgrading CZMQ (use a commit before the breaking change) \newline delay: 1-2 days \\ \hline
 	R06 
 		& wrong time estimations
 		& \cellcolor{yellow!50}4
@@ -209,7 +209,7 @@ specified in days. One day equals 16 man-hours.
 		& \cellcolor{green!50}4
 		& \cellcolor{green!50}1
 		& setup project structure in the elaboration phase
-		& partial solution: \newline CodeTree (can't seem to be used for private repos like Roadster itself (maybe yes! see  mindclue/roadster\#5) \newline
+		& partial solution: \newline CodeTree (cannot seem to be used for private repos like Roadster itself (maybe yes! see  mindclue/roadster\#5) \newline
 		\newline complete solution: \newline Use a single Project which just has cards that link to issues from other repos. 
 		Linking to "foreign" issues is additional effort but should be straight forward using Github syntax (https://github.com/org/repo/issues/42)
 		\newline delay: 1 day \\ \hline
@@ -360,16 +360,16 @@ specified in days. One day equals 16 man-hours.
 		& \textbf{Workproducts}
 		& \multicolumn{2}{l|}{Cluster functonality CZTOP integration} \\ \hline
 	Construction 2
-		& \multicolumn{2}{p{70mm}|}{refactor, integrate and verify HA prototypes, persistence synchronization}
+		& \multicolumn{2}{p{70mm}|}{refactor, integrate and verify HA prototypes, persistence replication}
 		& SW11 \\ \hline
 	MS C2 HA
 		& \textbf{Date}
 		& \multicolumn{2}{l|}{4th Dec 2016} \\
 		& \textbf{Description}
-		& \multicolumn{2}{l|}{Working HA functionality and persistence synchronization} \\
+		& \multicolumn{2}{l|}{Working HA functionality and persistence replication} \\
 		& \textbf{Workproducts}
 		& \multicolumn{2}{l|}{HA functonality} \\
-		& & \multicolumn{2}{l|}{persistence synchronization} \\ \hline
+		& & \multicolumn{2}{l|}{persistence replication} \\ \hline
 	Construction 3
 		& \multicolumn{2}{p{70mm}|}{security (implement prototype, test), OPC UA HA (implement prototype, verify)}
 		& SW13 \\ \hline

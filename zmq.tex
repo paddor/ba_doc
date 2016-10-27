@@ -1,6 +1,6 @@
 % vim: ft=tex
 \chapter{\zmq}\label{ch:zmq}
-\zmq is a \gls{MOM} implemented as an open source library, that is, it doesn't
+\zmq is a \gls{MOM} implemented as an open source library, that is, it does not
 require a dedicated broker. Instead, it offers sockets with an abstract
 interface similar to \acrshort{BSD} sockets. Different types of sockets are used for
 different messaging patterns such as request-reply, publish-subscribe, and
@@ -8,7 +8,7 @@ push-pull.
 
 A single socket can bind/connect to multiple endpoints, which allows \zmq to
 use round-robbin on the sender side, and fair-queueing on the receiver side,
-where applicable. It doesn't matter whether the communication happens
+where applicable. It does not matter whether the communication happens
 in-process (between threads), inter-process (e.g. over \glspl{unix-domain-socket}), or
 inter-node (e.g. over \acrshort{TCP}/\acrshort{PGM}/\acrshort{TIPC}), since the transport is completely
 abstracted away. The same goes for connection handling; an arbitrary amount of
@@ -28,21 +28,21 @@ with respect to the failure types that need to be addressed in particular.  The
 \gls{zguide} explains best practices, including commonly needed, resilient
 messaging patterns.
 
-The above characteristics make \zmq a valuable asset when it comes to building
+The aforementioned characteristics make \zmq a valuable asset when it comes to building
 robust, distributed high-performance systems.
 
 \section{Transport security}\label{sec:zmq:security}
 Since version 4.0 (released in October 2013), \zmq boasts strong encryption and
 authentication, based on the excellent and highly renown
-\gls{libsodium}\footnote{There's also the possibility to do it using
+\gls{libsodium}\footnote{There is also the possibility to do it using
 \gls{tweetnacl} which avoids the additional dependency.}. The protocol used
 (CurveZMQ) is described in \cite{zmq:curvezmq}.
 
 Transport encryption is completely transparent to the application, and is one
-of the available security mechanisms. It's called CURVE. The
+of the available security mechanisms. It is called CURVE. The
 security handshake is designed to be highly resilient against
 \glspl{ddos-attack} attacks using encrypted and authenticated cookies, so the
-server doesn't actually allocate any memory before the handshake is completed,
+server does not actually allocate any memory before the handshake is completed,
 and key generation is very cheap \cite[p.~2]{djb:ed25519} with
 Curve25519\footnote{\url{https://en.wikipedia.org/wiki/Curve25519}} \gls{ECC}.
 
@@ -56,7 +56,7 @@ clients, or a unique key for each client) must be already available to the node
 running the server sockets. The server socket actually talks to another,
 designated socket to do authentication. The protocol used between them is
 \gls{ZAP}. Completely abstracting the authentication in another socket allows
-any kind of authentication service to be easiliy plugged in. It's also trivial
+any kind of authentication service to be easiliy plugged in. It is also trivial
 to write such a ZAP handler to register new client public keys somewhere to be
 checked and confirmed by a human, which simplifies the process of adding new
 client public keys.
@@ -89,7 +89,7 @@ discovery. This is the recommended way of using \zmq nowadays, as it allows for
 much cleaner C code and also simplifies bindings for other languages.
 
 \subsection{CZTop}
-\emph{CZTop} is a young, \gls{FFI}-based Ruby binding for CZMQ. It's currently
+\emph{CZTop} is a young, \gls{FFI}-based Ruby binding for CZMQ. It is currently
 the only binding in the Ruby ecosystem to support multiple Ruby interpreters
 (\gls{MRI}, \gls{JRuby}, and \gls{Rubinius}), as well as recent versions of
 CZMQ. That implies support for encryption.

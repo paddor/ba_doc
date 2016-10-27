@@ -11,7 +11,7 @@ backgrounds first.
 
 \textbf{Patrik Wenger} did his apprenticeship in computer science at Swisscom
 Schweiz AG, and stayed work as a full-time employee for five more years
-afterwards. In programming he's most fluent in \gls{ruby} and \gls{c}. During
+afterwards. In programming he is most fluent in \gls{ruby} and \gls{c}. During
 the winter of 2015/2016, he created \gls{cztop} during leisure time because
 there was no suitable Ruby binding for \gls{zmq}/\gls{czmq} available and a side
 project of his demanded it. Fascinated with event-driven programming and
@@ -23,16 +23,17 @@ Pony\footnote{a young programming language completely based on actors,
 have long been part of his core interests, especially in conjunction with the
 brilliant \zmq library. Having a passion for information security and modern
 cryptography\footnote{such as \gls{nacl} or \gls{libsodium} as used by
-\gls{zmq}}, especially in this post-Snowden era, this bachelor thesis couldn't
+\gls{zmq}}, especially in this post-Snowden era, this bachelor thesis could not
 be a better match.
 
-\textbf{Manuel Schuler} did his apprenticeship in computer science at Alcatel-Lucent AG.
-The most projects during the apprenticeship or other companies involved network monitoring or
-configuration automation. In programming he's most fluent in Node.js, Java and .NET. He
-made several projects to keep his life simple. After a while he decided to start his own business.
-Always keen on learning new things and the fact he often made similiar things like Patrik Wenger during his work
-career motivated him to learn how Patrik did the things he did,
-so he did not hestiate to join this bachelor theis at the first opportunity.
+\textbf{Manuel Schuler} did his apprenticeship in computer science at
+Alcatel-Lucent AG.  Most of his projects involved network monitoring or
+configuration automation. In programming he is most fluent in Node.js, Java and .NET. He
+made several projects to keep his life simple. After working full-time for
+several companies after his apprenticeship, he decided to start his own
+business.  Always keen on learning new things and the fact that his work
+involved similiar technologies, he did not hestiate to join this bachelor theis
+at the first opportunity.
 
 In essence, both students are thrilled to gain more experience in the following
 fields and technologies:
@@ -48,7 +49,7 @@ fields and technologies:
 
 \subsection{Opportunities}
 Coming from different backgrounds and having different levels of experience in
-each of the above technologies, we can't wait to learn more about them and put
+each of the aforementioned technologies, we cannot wait to learn more about them and put
 them to actual use. The fact that the product of this bachelor thesis is most
 likely going to be used in the real world only adds to the excitement.
 
@@ -148,7 +149,7 @@ subsystems to provide a nationwide overview.
 \end{figure}
 
 \autoref{fig:roadster:overallsys} illustrates the typical, overall system. The acronyms
-used, which are part of the \gls{FEDRO} terminology, don't have official
+used, which are part of the \gls{FEDRO} terminology, do not have official
 English translations; not even the department itself was able to help with
 translations on request, so they were left unchanged. A brief description
 follows, from the bottom up:
@@ -191,7 +192,7 @@ memory and Gigabit Ethernet. For reliable systems without any moving parts, an
 industrial grade \gls{SSD} or two (in a software \gls{RAID} level 1 setup) are used.
 
 \subsection{\zmq}
-To understand Roadster's architecture and the rest of this document, it's
+To understand Roadster's architecture and the rest of this document, it is
 helpful to understand the basics of \zmq first. This is a brief introduction to
 \zmq for the unfamiliar reader. What follows is a quote from the \gls{zguide}
 which does a fairly good job at describing \zmq in a 100 words:
@@ -201,19 +202,21 @@ which does a fairly good job at describing \zmq in a 100 words:
 library but acts like a concurrency framework. It gives you sockets that carry
 atomic messages across various transports like in-process, inter-process, TCP,
 and multicast. You can connect sockets N-to-N with patterns like fan-out,
-pub-sub, task distribution, and request-reply. It's fast enough to be the
+pub-sub, task distribution, and request-reply. It is fast enough to be the
 fabric for clustered products. Its asynchronous I/O model gives you scalable
 multicore applications, built as asynchronous message-processing tasks. It has
 a score of language APIs and runs on most operating systems.  ZeroMQ is from
 iMatix and is LGPLv3 open source.''
 \end{quote}
 
+% TODO: socket types
+
 For a more detailed introduction, see \autoref{ch:zmq}.
 
 Roadster uses \zmq to carry messages between its processes. The
 library\footnote{The library is called \emph{ffi-rzmq} and is hosted on
 \url{https://github.com/chuckremes/ffi-rzmq}} it uses to interface with \zmq is
-unmaintained and doesn't support recent versions of \zmq (namely the ones
+unmaintained and does not support recent versions of \zmq (namely the ones
 supporting encryption).
 
 \subsection{Software architecture}
@@ -234,8 +237,8 @@ Every Roadster node runs a group of actors:
 \begin{description}
 	\item [CORE:]\hfill\\
 		It is responsible to start the other actors. It also plays a
-		key role in keeping state in all actors synchronized, being the
-		source of truth.
+		key role in keeping state in all actors synchronized. More
+		about that in \autoref{sec:scope:csp}.
 
 	\item [COMM:]\hfill\\
 		A bunch of COMM actors communicate with the outside world of a
@@ -251,12 +254,16 @@ Every Roadster node runs a group of actors:
 
 	\item [STORAGE:]\hfill\\
 		This actor is used when information needs to be persisted, such
-		as time series or event journals. It's the interface to a
+		as time series or event journals. It is the interface to a
 		key-value store.
 
 	\item [LOGGER:]\hfill\\
 		This actor collects logging data and sends it to whatever
 		target is configured, be it \gls{stdout}, a file, or a syslog server.
+
+	\item [CONSOLE:]\hfill\\
+		This actor does not exist yet, but is planned. It's supposed to
+		be a textbased user interface for maintenance and trouble shooting.
 \end{description}
 
 \autoref{fig:roadster:arch} illustrates Roadster's architecture.
@@ -282,7 +289,7 @@ explains the layers from top (most abstracted) to bottom:
 	\item [Messaging layer:]\hfill\\
 		The \gls{RMP} reside here and implement essential protocols used
 		for logging, state synchronization, commands, application controlling,
-		and storage. They're explained below in \autoref{sec:rmp}.
+		and storage. They're explained later in \autoref{sec:rmp}.
 
 	\item [Reactor layer:]\hfill\\
 		This layer forms the base, which is where the \zmq sockets and
@@ -328,15 +335,16 @@ objects, happens in one of two modes:
 \begin{description}
 \item [Fire \& Forget:]\hfill\\
 No guarantee of correct processing, e.g. DIM updates from COMM to CORE. This
-doesn't mean there are no other mechanisms in place to ensure reliability.
+does not mean there are no other mechanisms in place to ensure reliability.
 
 \item [Dialog:]\hfill\\
 An immediate answer is expected, e.g. when creating a user
-session. Sending a message like this looks like it's a synchronous call, even
-though it's handled asynchronously under the hood\footnote{This is done by
-wrapping the affected code in a Ruby \rb{Fiber}, which is similar to a thread
-but allows for cooperative scheduling as opposed to preemtive.} Any protocol
-can make use of this primitive.
+session. Any protocol can make use of this primitive. Source code that
+initiates a dialog looks like a synchronous call, even though
+it is handled asynchronously by Roadster's message passing
+infrastructure.\footnote{This is done by wrapping the affected
+code in a Ruby \rb{Fiber}, which is similar to a thread but
+allows for cooperative scheduling as opposed to preemtive.}
 \end{description}
 
 \subsubsection{DIM}
@@ -365,11 +373,15 @@ all the classes whose instances constitute the DIM.
 implemented by Roadster, which is used for the DIM synchronization. Although Roadster actually sends serialized instances
 of CSP message classes to fulfill this protocol, for better readability the
 \gls{zguide}'s canonical nomenclature of \gls{clone-pattern} messages will be used.}
+% TODO: maybe use class names after all, ICANHAZ is confusing and VERY informal
+
+% TODO CSP is bidirectional!
 
 The existing \acrfull{CSP} is closely related to the \gls{clone-pattern} from the \gls{zguide}. Its
-goal is to keep a state (a list of key-value pairs) in sync across a set of
-participants. To greatly reduce the complexity, it's not decentralized: There's
-a server part which serves as the single source of truth.
+goal is to keep a state (a list of key-value pairs) synchronized across a set
+of participants. To greatly reduce the complexity, it is not decentralized, but
+uses server/client architecture. The server part serves as the authorative
+source for all changes to the DIM.
 
 The server uses a ROUTER, a PULL, and a PUB socket; each client a DEALER, a
 PUSH, and a SUB socket. The protocol consists of three distinct messages flows:
@@ -394,7 +406,7 @@ PUSH, and a SUB socket. The protocol consists of three distinct messages flows:
 		uses KVPUB messages.
 \end{description}
 
-By making all updates go through the server, a total order is enforced,
+By making all updates go through the server, a single sequence is enforced,
 which is crucial to keep the state consistent across all clients.
 
 To avoid risking a gap between requesting the current snapshot and subscribing
@@ -408,7 +420,7 @@ Because message loss via the third message flow (PUB-SUB) is unlikely but
 theoretically possible, the client checks for gaps in the sequence number of
 each KVPUB message. If a gap is detected, the current state is discarded and a
 complete resynchronization happens. This is brutal, but is very simple and thus
-robust; there's no complexity that would leave room for nasty corner cases.
+robust; there is no complexity that would leave room for nasty corner cases.
 
 A feature described in the \gls{zguide}, but not implemented in Roadster as of
 this writing, are subtrees.
@@ -515,7 +527,7 @@ distributed computing, as explained on \cite{dcomp:fallacies}.
 		wasted bandwidth when traffic is unbounded. Depending on the
 		application, assuming instant packet delivery could lead to
 		timing issues like hanging user interfaces, especially if some
-		nodes aren't in the same LAN.
+		nodes are not in the same LAN.
 
 	\item [Bandwidth is infinite.] \hfill\\
 		Trying to send too much information can lead to bottlenecks,
@@ -524,11 +536,11 @@ distributed computing, as explained on \cite{dcomp:fallacies}.
 	\item [The network is secure.] \hfill\\
 		This touches the subject mentioned before. SCADA applications
 		often run in isolated networks, at least not directly reachable
-		from the internet, but that doesn't make them secure. Threats
+		from the internet, but that does not make them secure. Threats
 		from within are real and thus one cannot assume a network is
 		secure.
 
-	\item [Topology doesn't change.] \hfill\\
+	\item [Topology does not change.] \hfill\\
 		Topology changes constantly. Services are added and removed. An
 		application must not depend on specific endpoints or routes.
 
@@ -554,5 +566,5 @@ distributed computing, as explained on \cite{dcomp:fallacies}.
 
 \end{description}
 
-The goal is to conduct this thesis with the above fallacies in mind and embrace
-them in our solution.
+The goal is to conduct this thesis with the aforementioned fallacies in mind and embrace
+them in the resulting contributions.

@@ -13,19 +13,19 @@ Limitations imposed by the design and implementation of the new features are
 discussed here.
 
 \subsection{Federation}
-\subsubsection{DIM synchronization}
+\subsubsection{DIM replication}
 Eventual consistency is guaranteed even in situations where multiple actors
 modify the same DIM objects at roughly the same time. However, some updates
 might get lost. In those cases, the last writer wins.
 
 \subsection{HA}
 A HA cluster has to be complete (both nodes running) during initialization.
-Otherwise, only primary node can start to serve requests; the backup node won't
+Otherwise, only primary node can start to serve requests; the backup node will not
 do this.
 
-\subsection{Persistence synchronization}
+\subsection{Persistence replication}
 Message traffic towards root node sums up because of persistence
-synchronization. This shouldn't be a problem because of \zmq's brilliant
+replication. This should not be a problem because of \zmq's brilliant
 message batching, so the real limit only given by the inter-node network links.
 
 \section{Business Benefits}
@@ -54,7 +54,7 @@ software} kind of fault-tolerant software.
 
 \subsubsection{Manual failover}\label{sec:discussion:ha:manual-failover}
 A manually induced failover could be useful in some cases, e.g. when a
-component fails that doesn't provoke an automatic failover.
+component fails that does not provoke an automatic failover.
 
 Providing a less brutal way of inducing a failover than to turn off the
 currently active HA peer could be interesting in a future version.
@@ -62,7 +62,7 @@ currently active HA peer could be interesting in a future version.
 \subsection{Miscellaneous}
 Unordered list of ideas:
 \begin{itemize}
-	\item switch to Moneta for a unified key-value store interface, then eventually away from \gls{tc} to something more modern and maintained, like LMDB (it's super fast and crash-proof)
+	\item switch to Moneta for a unified key-value store interface, then eventually away from \gls{tc} to something more modern and maintained, like LMDB (it is super fast and crash-proof)
 	\item TIPC: high performance cluster communication protocol, suitable because Roadster nodes are Linux and there are direct links to peers (required for TIPC)
 	\item key management in a DB (instead of files), with GUI to accept new clients
 	\item dynamic node topology (maybe via DSL-file in Etcd, or DIM-only, or Zookeeper)

@@ -19,7 +19,7 @@ All test resuts can be found in \autoref{ch:res}.
 \subsection{Setup}
 Due to the fact that Roadster's Github repository is private, online \gls{CI}
 services such as \emph{Travis
-CI}\footnote{url{https://travis-ci.com/}} can't be used without
+CI}\footnote{url{https://travis-ci.com/}} cannot be used without
 payment\footnote{Payment is required after the first 100 builds.}. Fortunately,
 Gitlab CI is free and can be installed on one's own infrastructure, such as the
 \gls{VM} provided by HSR, where it was installed and configured. Unit and
@@ -77,6 +77,7 @@ Test scenarios are deduced from the features specified in \autoref{ch:reqs}.
 
 The test scenarios contain configurations for mininet and the particular Roadster nodes.
 The procedure of each scenario is described in detail below to make the results reproducible.
+% FIXME: below where? reference please
 
 % TODO work out methodology (maybe with mininet, shell scripts, and analyze logs retrospectively)
 % TODO integration tests at the end of every iteration
@@ -103,7 +104,7 @@ the \zmq options \sh{ZMQ_FD} and \sh{ZMQ_EVENTS}. Getters for these had to be
 added to in CZTop, which was a matter of minutes.
 
 \subsection{Actual port}
-Due to Roadster's beautiful software architecture, code that actually made use
+Due to Roadster's software architecture which cleanly separates different concerns, code that actually made use
 of the ffi-rzmq library directly was located in a single file. The following
 things needed to be done:
 
@@ -121,6 +122,7 @@ This was about an hour's work.
 
 %----------------------------------------------------------------------------
 \section{Federation}\label{sec:approach:federation}
+% TODO: big picture
 A Roadster federation is illustrated in \autoref{fig:federation}. Adding federation
 functionality to Roadster involves the following aspects:
 \begin{itemize}
@@ -136,8 +138,8 @@ functionality to Roadster involves the following aspects:
 \end{figure}
 
 \subsection{DIM synchronization}
-DIM synchronization has to work across a hierarchical federation of nodes. It
-also needs to be able to handle HA clusters.
+The DIM has to be replicated across a hierarchical federation of nodes.
+% TODO: more/better
 
 \subsubsection{New COMM actors}
 Since COMM actors are used to communicate with things outside of a node, new COMM
@@ -148,13 +150,13 @@ chosen because they're unambiguous. Names such as "north" or "upstream" would
 be ambiguous. Is it the actor residing in the northern communication partner?
 Or is it the one communicating with the northern partner? "Upstream" would be
 even more confusing, as in the open source world it commonly refers to the
-mainline developed by the official authors, i.e. the source of truth. There's
+mainline developed by the official authors, i.e. the source of truth. There is
 no concept within Roadster unambiguously corresponding to this meaning. So the
 benefit of choosing names that imply an actor is north-facing or south-facing
 is clarity.
 
 The new actors' responsibility is the inter-node synchronization of the DIM,
-similarly to what's happening in the existing \gls{CSP} within a single node.
+similarly to what is happening in the existing \gls{CSP} within a single node.
 To do so, they simply subscribe to DIM updates within a node just like any
 other COMM actor does.  Then they replicate any subsequent updates over the network
 to the neighbors (supernode, and subnodes).
@@ -162,16 +164,16 @@ to the neighbors (supernode, and subnodes).
 \paragraph{Background info: Servers and clients in \zmq}
 Usually in network programming, the server is the one performing the
 \cpp{bind()} operation and the client is the one performing the \cpp{connect()}
-operation. But in \zmq it doesn't really matter. Since \zmq completely
+operation. But in \zmq it does not really matter. Since \zmq completely
 abstracts the connection handling away, the order in which these two operations
-happen really doesn't matter. In case the other side hasn't bound its socket
+happen really does not matter. In case the other side has not bound its socket
 yet, \zmq will just retry establishing a connection if the last attempt failed,
-by default every 100 milliseconds. This means that it's a free choice as to which socket
+by default every 100 milliseconds. This means that it is a free choice as to which socket
 performs what action. Each socket type merely has default action for the case
-it's initialized with a given endpoint.
+it is initialized with a given endpoint.
 
 \paragraph{Intuitive server and client roles}
-Even though the client of a Roadster federation (if it's not a standalone
+Even though the client of a Roadster federation (if it is not a standalone
 Roadster installation) logically resides above the root node, within a Roadster
 federation, the choice has been made to assign the roles more intuitively. A
 supernode south-facing actor will \cpp{bind()} its socket, and a subnode's
@@ -202,16 +204,17 @@ supernode with multiple subnodes will act as the server in CSP terminology.
 \end{description}
 
 \paragraph{Socket recycling}
+% TODO: move somewhere else, maybe directly to NFRs
 The aim is to use these three socket pairs in a protocol agnostic fashion. This
 should be possible because of Roadster's layered software architecture,
 completely separating protocols from the actual sockets used. What counts is
-each socket's ability and who it's talking to. In case these two things are the
+each socket's ability and who it is talking to. In case these two things are the
 same for other protocols (which should be the case, e.g. for persistence
-synchronization), sockets shall be reused.
+replication), sockets shall be reused.
 
-\paragraph{Synchronization goes both ways}
-It's worth noting that it's possible that both neighboring nodes will have performed
-modifications to parts of the DIM in the meantime, while they were
+\paragraph{Replication is bidirectional}
+It is worth noting that it is possible that both neighboring nodes will have performed
+modifications to parts of the DIM while they were
 disconnected. Thus, the initial exchange of delta information, as well as the
 subsequent propagation of modifications to the DIM go both ways.
 
@@ -223,7 +226,7 @@ chose between availability and consistency. Because subsystems of a Roadster
 federation must be autonomous, the obvious choice is availability. Eventual
 consistency is guaranteed by restricting write access to the owning node, and
 recovering from a network partition when communication is restored is done by
-simply reinitiating the DIM synchronization process.
+simply reinitiating the DIM replication process.
 
 \subsubsection{Object ownership}
 The concept of ownership has to be introduced. Every object within the DIM
@@ -238,14 +241,17 @@ Some objects like parameters (described in \autoref{sec:scope:persisted_data})
 will apply to a whole federation and will thus be owned by the root node.
 Examples of these are UI user credentials.
 
-\subsubsection{Degree of synchronization}
-There are multiple choices when it comes to what exactly of the DIM should be synchronized:
+\subsubsection{Degree of replication}
+There are several variants when it comes to what exactly of the DIM should be replicated:
 
-\paragraph{Variant 1: Sync self-subtree only}
-Always sync on subtree only, which means a node only knows the DIM part of
-itself. The big disadvantage is that it won't have a copy of the rest of the
+\paragraph{Variant 1: Self-subtree only}
+Synchronize on subtree only, which means a node only knows the DIM part of
+itself. The big disadvantage is that it will not have a copy of the rest of the
 DIM, which can be useful to inspect variables on neighboring nodes, especially
 when they're unreachable.
+% FIXME: This wouldn't even work in more-than-2-level setups, because only the
+% northpole knows the complete DIM. So subnodes and subsubnodes all would have
+% to directly connect to the northpole, which isn't the idea of a federation.
 
 \paragraph{Variant 2: Sync complete tree}\label{par:approach:dim:var2}
 Always sync on complete tree, which means getting the snapshot from the
@@ -260,13 +266,13 @@ the best of both worlds, but more effort.
 
 Variant 2 will be the first step, as following the \gls{KISS} principle is one
 of the non-functional requirements. Variant 3 will be the second step, if at
-all. This depends on whether it'll be needed performance-wise.
+all. This depends on whether it will be needed performance-wise.
 
 \subsection{Federation definition}
 The federation topology has to be defined somewhere. This can be done using a
 \gls{DSL} and then put into a static file (e.g. \sh{topology_conf.rb}) shared
 on all nodes of a Roadster federation. Each actor could then read the file at
-startup, just like it's done for other configuration pieces of a Roadster node.
+startup, just like it is done for other configuration pieces of a Roadster node.
 \autoref{lst:dsl:topo:no-ha} shows how such a configuration snippet might look.
 
 To let the actors of a node know which node they belong to, an additoinal line
@@ -293,6 +299,7 @@ A definite decision has yet to be made.
 % TODO: decide: ZPL or not?
 
 \begin{listing}
+	% TODO: update to declarative form
 	\begin{minted}[bgcolor=bg]{Ruby}
 # * basic method to add a node: #add_node(ID, south_facing_bind_endpoint)
 # * it takes a block for defining subnodes
@@ -393,13 +400,14 @@ response, which will subsequently be passed back and complete the open dialogs.
 \subsubsection{Example}
 When a user of the root node's web UI wants to change a value on a field device
 connected to the root node's subordinate node, a command is sent from the
-browser to the web UI's COMM actor. From there it's sent via the CORE actor out
-on the FEDSF actor to the subordinate node. There it's routed
+browser to the web UI's COMM actor. From there it is sent via the CORE actor out
+on the FEDSF actor to the subordinate node. There it is routed
 via the CORE actor to the correct COMM actor, where the command can actually be
 executed on the field device.
 
 %----------------------------------------------------------------------------
 \section{High availability}\label{sec:approach:ha}
+% TODO: big picture
 If Roadster is going to be run in a federation, measures need to be taken to
 mitigate the risk of failure, since many nodes are more likely to fail than a
 single node. Availability shall be ensured by
@@ -411,7 +419,7 @@ Run together in a hot-standby cluster, the passive node's responsibility is to
 take over in case the active one goes down.
 
 \subsection{Defining reliability}
-When speaking about reliability, it's worth listing the failures the solution must be
+When speaking about reliability, it is worth listing the failures the solution must be
 able to handle. According to the requirements, and thinking a bit further,
 handleable failures of the following three categories have been identified:
 
@@ -464,16 +472,16 @@ handleable failures of the following three categories have been identified:
 Handling a failure means an actual service interruption can be avoided.
 
 \subsubsection{Failures not handled}
-Failures that don't have to/can't feasibly be handled include:
+Failures that do not have to be or cannot feasibly be handled include:
 
 \begin{description}
 	\item [Link failure between a subnodes and one of the HA peers:]\hfill\\
 
-		This can't be handled since the two HA peers would have to
+		This cannot be handled since the two HA peers would have to
 		continually share the number of subnodes connected to them, and
 		based on that, make a decision on which one should be active or
 		passive. Since the link between them could fail as well, this
-		decision can't be done reliably, which could lead to the
+		decision cannot be done reliably, which could lead to the
 		dreaded split brain syndrome.
 
 		Actually the \gls{bstar} could be extended to support this kind
@@ -482,7 +490,7 @@ Failures that don't have to/can't feasibly be handled include:
 
 
 	\item [Link failure between a HA peer and a field device:]\hfill\\
-		The \gls{bstar} algorithm won't initiate a failover since the
+		The \gls{bstar} algorithm will not initiate a failover since the
 		active peer is still responsive and is able to send heartbeats to the passive node.
 
 		The interrupted communication with the affected field device
@@ -503,7 +511,7 @@ Failures that don't have to/can't feasibly be handled include:
 		switch, cannot be handled gracefully by Roadster.
 
 	\item [ Complete power outage:]\hfill\\
-		A complete power outage won't be handled gracefully by
+		A complete power outage will not be handled gracefully by
 		Roadster. Providing a \gls{UPS} to keep Roadster nodes and
 		network equipment up and running in such a case is matter of
 		the respective facility in question.
@@ -525,14 +533,14 @@ code.
 The implementation could be contained within a new kind of COMM actor
 called BSTAR. This makes sense since, in a way, it talks to the outside world.
 That part of the outside world just happens to speak the same language. This
-means that the new kind of actor most likely won't need an adapter like COMM
+means that the new kind of actor most likely will not need an adapter like COMM
 actors usually do in Roadster.
 
 \subsection{Binary Star in a nutshell}
 Two HA peers are started either as primary or as backup. After an initial
 handshake, the primary one becomes active, the backup node becomes passive. The
 two continually exchange heartbeats (and their current state with regards to
-the \gls{bstar}). Clients always connect to the primary's endpoint first. This
+the \gls{bstar}). Clients always connect to the primary node's endpoint first. This
 is illustrated in \autoref{fig:ml:ha}.
 
 \begin{figure}[]
@@ -580,7 +588,7 @@ Roadster's messaging infrastructure can be used.
 
 \subsubsection{No client, no failover}
 A failover can only happen if there is at least one client. With no clients, a
-vote cannot happen. Thinking about it, it's not a bad thing if the failover
+vote cannot happen. Thinking about it, it is not a bad thing if the failover
 cannot happen in that case, since there is no client depending on the service
 brought by a HA cluster.
 
@@ -588,12 +596,12 @@ brought by a HA cluster.
 When a failover happens, it makes sense to create a \rb{Case} (alarm) in the
 DIM, so the outage is visible to operational personnel in one of the web UIs.
 The same applies to the case where the passive node goes down, although it
-doesn't have an immediate effect on availability.  This is so the operational
+does not have an immediate effect on availability.  This is so the operational
 personnel can act upon the alarm and e.g. initiate field forces to inspect the
 failed node and repair it.
 
-Once repaired, it's restarted with the exact same configuration --- either primary
-or backup. Since there's already an active node (either the primary one,
+Once repaired, it is restarted with the exact same configuration --- either primary
+or backup. Since there is already an active node (either the primary one,
 or the backup one), the newly repaired node will become the new passive node.
 
 \subsubsection{Failover from backup to primary node}
@@ -612,16 +620,19 @@ handshake during initialization.
 \subsection{Replication}
 % diagonal HA
 The passive HA peer needs to stay up-to-date, e.g. take part in DIM
-synchronization. Instead of clients sending updates to both HA peers, as
+synchronization. Instead of clients replicating modifications to both HA peers, as
 described in \cite[Chapter 5 - Advanced Pub-Sub Patterns, The Clustered Hashmap
 Protocol]{zmq:zguide}, the passive HA peer could just act as a supernode to the
-active HA peer. In case of a failover, the roles of course need to be
-exchanged.
+active HA peer. This eliminates the need for an additional protocol. In case of
+a failover, the roles of course need to be exchanged.
 
 % TODO: what if HA cluster has supernode
-A problem would be the case where the HA cluster already has a supernode
-(although considered an exotic case). Performing the synchronization with the
-HA peer only via sockets of the BSTAR actors could be the solution.
+{\color{red}A problem would be the case where the HA cluster has a supernode (although
+considered an exotic case). That would mean the active peer has two supernodes
+connected at the same time, which is not supported by the planned communication
+infrastructure (especially with encryption, see
+\autoref{sec:approach:encryption:ha}).  A solution could be to perform the
+replication to the HA peer only via sockets of the two BSTAR actors.}
 
 \subsection{Rolling upgrades}
 % OPTIMIZE move to Discussion
@@ -639,47 +650,53 @@ failover from happening.
 
 Imagine part of the currently active peer's network equipment fails, i.e. one
 of its \glspl{NIC} connected to the switch fails, or one of its switch ports
-fail. In that case it'll be unreachable to the rest of the
+fail. In that case it will be unreachable to the rest of the
 federation or to the client. A failover would be desired. But it
-can't happen, since heartbeats will still be exchanged with the passive node over
-the dedicated link. So it's a trade-off between risking the split-brain
+cannot happen, since heartbeats will still be exchanged with the passive node over
+the dedicated link. So it is a trade-off between risking the split-brain
 syndrome and not being able to perform a failover.
 
 \subsubsection{Extending the \gls{bstar}}\label{sec:approach:ha:bstar-ext}
+% vision
 Of course the \gls{bstar} mechanism could be extended to handle cases where the
-active peer is only cut off from its clients, but not from the other HA peer.
-
-The active HA peer could communicate the number of fully connected clients,
+active peer loses connectivity to its clients, but not to the other HA peer. In
+a case like that, the passive node could actually take over to minimize
+service downtime. The active HA peer could communicate the number of fully connected clients,
 which would be zero in case it is cut off from its clients. That way, the
 passive node could recognize the situation correctly, since it will get
 requests from clients, which are trying to fallback to the passive peer since
 the active peer is unresponsive. Knowing that the active peer has zero
-connected clients, it could actually promote itself to the new active peer.
+connected clients, it could promote itself to the new active peer.
 
+% what's needed for higher-level clients
 For this to work, a way of counting fully connected (not just requesting)
 clients has to be introduced. The COMM actor providing the \gls{opc-ua}
-interface would know best how many clients are connected.
+interface would know best how many clients are connected. This would solve the problem for single-level HA setups.
 
-In case the clients talk to the HA cluster via \zmq sockets, telling how many
+% what's needed for subnodes as clients
+In case of a multi-level federation with a HA cluster at its root, the
+cluster's subnodes form another set of clients. Because nodes within a
+federation communicate with each other via \zmq sockets, telling how many
 clients are connected is a bit less straight-forward, because \zmq abstracts
 connection handling completely away. \zmq declares such needs as application matter.
-The clients (i.e. Roadster nodes above a HA cluster, although not specified by
-the requirements) would have to implement application-level heartbeating.
-That is, the clients that are currently fully connected (i.e. registered to
-receive DIM updates) would periodically send heartbeats which could then be
+The subnodes would have to implement application-level heartbeating.
+That is, the subnodes that are fully connected at a given point in time (i.e. enrolled
+in the DIM replication) would periodically send heartbeats which could then be
 used to maintain an up-to-date list of active clients (where stale client
 entries automatically expire).  The number of active clients (the size of the
 list) could be communicated privately just between the two HA peers, along with
 the heartbeats. Publishing that information via the DIM might be problematic,
 since DIM updates go over the main network link.
 
-Another thing that's needed is a HA peer's ability to step down from being the
+% step down from active to passive
+Something else needed is a HA peer's ability to step down from being the
 active node as soon as its peer promotes itself to the newly active peer. In
 the standard \gls{bstar} mechanism, this would be recognized as the split-brain
 syndrome and handled fatally.
 
+% discard because KISS
 Doing this without an actual need would be a violation of the KISS principle,
-so the first approach won't include any extensions to the \gls{bstar}.
+so the first approach will not include any extensions to the \gls{bstar}.
 
 \subsubsection{Corner case}
 A highly unlikely, but dangerous corner case \emph{could} lead to the
@@ -696,7 +713,7 @@ split-brain syndrome. The following steps would be required to happen:
 \end{enumerate}
 
 Since clients most likely try to contact the primary node first, this could
-lead to dreaded the split-brain syndrome. The primary node doesn't hear any
+lead to dreaded the split-brain syndrome. The primary node does not hear any
 life signs from the backup node (the rightfully active peer), and client
 requests count as votes. This means it will promote itself to the active peer,
 even though the backup node is still active.
@@ -706,11 +723,11 @@ Special attention needs to be paid when it comes to sending heartbeats within a
 HA cluster. A na\"ive developer might implement the BSTAR actor so it
 autonomously sends heartbeats. This works as long as the failures only affect
 the hardware. But what if a software error happens in the CORE actor?  A
-Roadster node certainly can't function without the CORE actor. In that case the
-BSTAR actor shouldn't send out heartbeats anymore.
+Roadster node certainly cannot function without the CORE actor. In that case the
+BSTAR actor should not send out heartbeats anymore.
 
 A better implementation would have the BSTAR actor periodically inquire (PING
-request) the CORE actor whether it's still healthy, and only send out a
+request) the CORE actor whether it is still healthy, and only send out a
 heartbeat in case it gets a response (PONG) in time. This can be done with a
 simple mechanism, where the CORE actor is programmed to respond to every PING
 request with a PONG response. Similar infrastructure of Roadster could be used
@@ -721,6 +738,7 @@ Further ideas based on this fundamental mechanism are discussed in
 
 %----------------------------------------------------------------------------
 \section{Persistence synchronization}\label{sec:approach:psync}
+% TODO: big picture
 The persisted data and updates to it, handled by the STORAGE actor, need to
 bubble up and collected in the root node.
 
@@ -741,7 +759,7 @@ There are multiple aspects involved in persistence synchronization:
 		indirect ones).
 
 		\paragraph{Time series} The good thing about time series is
-		that the records, once written, won't be modified. That allows
+		that the records, once written, will not be modified. That allows
 		for a very simple method of getting new time series records by
 		just requesting all records added after a particular point in
 		time, per series. However, since old time series data is
@@ -751,7 +769,7 @@ There are multiple aspects involved in persistence synchronization:
 		local files as well.
 
 		\paragraph{Parameters} Every param is owned by a node, and is
-		synchronized through the DIM.  What's persisted is merely the
+		synchronized through the DIM.  What is persisted is merely the
 		last updated value so the node is able to boot with not only
 		sensible defaults, but actual values that are most likely still
 		correct. This means that there is no delta of modifications to
@@ -771,13 +789,13 @@ There are multiple aspects involved in persistence synchronization:
 		modifications to the persisted data to its supernode. Every
 		node would in turn include modifications from its subnodes
 		(direct and indirect ones) in the stream of modifications to
-		its supernode. {\color{red}It is not clear yet, what's the best
+		its supernode. {\color{red}It is not clear yet, what is the best
 		solution here.}\\
 
 		\paragraph{Time series} The most recent values of sensor data
 		is held in the DIM. That means any node in the federation could
 		do the sampling and persisting of time series data by itself.
-		{\color{red}It is not clear yet what's the best solution here.}\\
+		{\color{red}It is not clear yet what is the best solution here.}\\
 		The deletion of old records does not have to be bubbled up,
 		since that is done by a Roadster node autonomously whenever it
 		persists a new one.
@@ -785,7 +803,7 @@ There are multiple aspects involved in persistence synchronization:
 	\item [HA peer sync:]\hfill\\
 		How is the passive HA peer updated?
 		This not only matters when the supernode is a HA cluster (multi
-		level), but also when it's at the bottom of the node hieararchy
+		level), but also when it is at the bottom of the node hieararchy
 		(single level).
 
 		% diagnoal HA
@@ -802,11 +820,11 @@ There are multiple variants to achieve the needed functionality.
 The supernode just periodically request persistence
 deltas. This would be handled over a DEALER-ROUTER pair of sockets. The nice
 thing about this variant is that the subnode only has to do one thing, which is
-responding to requests from the supernode(s); it doesn't have to proactively
+responding to requests from the supernode(s); it does not have to proactively
 send any updates after sending the an initial delta.
 
 A big drawback is that the synchronization only happens periodically. This
-doesn't seem to fit well into the overall Roadster architecture, which is
+does not seem to fit well into the overall Roadster architecture, which is
 completely event-driven (no polls or "sleeps").
 
 Another drawback is efficiency. This variant will periodically cause the
@@ -815,7 +833,7 @@ database and the efficiency of searching through keys, this could be a lot of
 wasted resources or even cause bottle necks when interacting with the STOR
 actor.
 
-Overall, this variant is very simple, but doesn't offer some features we'd
+Overall, this variant is very simple, but does not offer some features we'd
 normally expect from a framework like Roadster. The fruits are hanging low;
 achieving event-driven synchronization and better efficiency is easy.
 
@@ -838,7 +856,8 @@ No definite choice has been made yet. The client seems to favor the polling vari
 % TODO: choose a persistence synchronization variant
 
 \section{Encryption}\label{sec:approach:encryption}
-It's fairly easy to enable transport security to secure the communication
+% TODO: big picture
+It is fairly easy to enable transport security to secure the communication
 between \zmq sockets over an unsecure network.
 
 \subsection{Assigning socket roles}
@@ -895,7 +914,7 @@ requests from there to a central ZAP authentication handler, so all clients'
 public keys could be stored and managed centrally. But that would violate the
 autonomy requirement, so this idea has been discarded immediately.
 
-CZMQ provides an authentication handler\footnote{It's simply a function
+CZMQ provides an authentication handler\footnote{It is simply a function
 (\cpp{zauth()}) that is executed by a CZMQ actor. The whole construct is
 abstracted in CZTop through \rb{CZTop::Authenticator}.} that can lookup public
 keys awaiting authentication in a designated directory on the file system,
@@ -904,7 +923,7 @@ store is a class in CZMQ called \cpp{zcertstore}, represented through
 \rb{CZTop::CertStore} in CZTop.} The certificate store in turn looks up the
 certificates on disk by the public key in question.
 
-There's also the possibility of providing an already instanciated certificate
+There is also the possibility of providing an already instanciated certificate
 store to the authentication handler. This is useful because a certificate store
 allows the insertion of certificates (public keys) in-memory, avoiding the need
 to load certificates from disk. This greatly simplifies the key distribution.
@@ -921,25 +940,27 @@ as it is done inside the FEDSF actor.
 \end{listing}
 
 \paragraph{Failover}\label{sec:approach:encryption:ha}
-It's possible that a node's supernode is actually a HA cluster consisting of
+It is possible that a node's supernode is actually a HA cluster consisting of
 two nodes. Those two nodes should have their own key pairs for additional
-security. This imposes a problem for the subnodes: It's only possible to assign
-one single certificate (public key). In case the active HA peer becomes
-unresponsive and the subnode(s) falls back to the passive HA peer, the passive
-HA peer's certificate has to be set on the CURVE client sockets. Even better:
+security. This imposes a problem for the subnodes: It is only possible to assign
+a single CURVE server certificate (public key). In case the active HA peer becomes
+unresponsive and the subnode(s) falls back to the passive HA peer, a new CURVE
+server certificate needs to be assigned to the client sockets. This should be
+possible. But there's a better solution:
 Since the socket could be \cite[Binary Star Implementation, Binary Star client
 in C]{zmq:zguide} ``confused''\footnote{This probably applies only to REQ
 sockets, since they implement \cite[Client-Side Reliability (Lazy Pirate
 Pattern)]{zmq:zguide} ``a small finite-state machine to enforce the
-send/receive ping-pong''}, it's best practice to simply destroy the existing
-socket and create a fresh one, passing it the correct supernode's certificate.
+send/receive ping-pong''}, it is good practice to simply destroy the existing
+socket and create a fresh one, assigning the correct supernode's CURVE server
+certificate to it.
 
 \paragraph{IP based access control}
 In addition to the CURVE mechanism, blacklisting or whitelisting clients based
 on their \gls{IP} addresses is possible and supported by
 \rb{CZTop::Authenticator} through the PLAIN mechanism. It would even be
 feasible to whitelist the exact client IP addresses, since they can be deduced
-from the shared configuration. But it's not part of requirements and thus won't
+from the shared configuration. But it is not part of requirements and thus will not
 be done within the scope of this bachelor thesis.
 
 \subsection{Key generation and distribution procedure}
@@ -968,9 +989,9 @@ compromising everything.
 
 \section{OPC UA Interface: High availability}\label{sec:approach:opc-ua}
 The OPC UA standard seems pretty complicated. And given that the requirement
-isn't concrete yet, no possible solution has been worked out yet.
+is not concrete yet, no possible solution has been worked out yet.
 
-In case it's non-transparent server redundancy, \cite[6.4.2.4 Non-transparent
+In case it is non-transparent server redundancy, \cite[6.4.2.4 Non-transparent
 Redundancy, p.~96]{opc-ua:behavior:server-redundancy} describes the exact
 behavior.
 

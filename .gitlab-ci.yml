@@ -5,5 +5,4 @@ compile_pdf:
     paths:
       - main.pdf
   after_script:
-    - export GITHUB_TOKEN=$GITHUB_THEWESCH_ROADSTER_DOC_TOKEN 
-    - ghr "v.0.$CI_BUILD_ID" main.pdf
+    - ghr -t $GITHUB_THEWESCH_ROADSTER_DOC_TOKEN -u gitlab-ci-bot -r github-doc "v.0.$CI_BUILD_ID" main.pdf

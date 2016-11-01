@@ -140,19 +140,20 @@ functionality to Roadster involves the following aspects:
 The DIM has to be replicated across a hierarchical federation of nodes.
 % TODO: more/better
 
-\subsubsection{New COMM actors}
-Since COMM actors are used to communicate with systems outside of a node, new COMM
-actors are introduced: One kind that is north-facing to communicate
-with subnodes, and another one that is south-facing for communication with the
-supernode. They are named COMM FEDNF and COMM FEDSF. These names have been
-chosen because they're unambiguous. Names such as "north" or "upstream" would
-be ambiguous. Is it the actor residing in the northern communication partner?
-Or is it the one communicating with the northern partner? "Upstream" would be
-even more confusing, as in the open source world it commonly refers to the
-mainline developed by the official authors, i.e. the source of truth. There is
-no concept within Roadster unambiguously corresponding to this meaning. So the
-benefit of choosing names that imply an actor is north-facing or south-facing
-is increased clarity.
+\subsubsection{New actors}
+New actors need to be added for the communication with neighboring nodes of the
+federation.  Since COMM actors are used to communicate with systems outside of
+a node, the new actors are COMM actors:
+
+\begin{description}
+	\item [COMM SUPERFED]\hfill\\
+		This actor is responsible to exchange \zmq messages with the
+		direct supernode.
+
+	\item [COMM SUBFED]\hfill\\
+		This actor is responsible to exchange \zmq messages with direct
+		subnodes.
+\end{description}
 
 The new actors' responsibility is the inter-node synchronization of the DIM,
 similarly to what is happening in the existing \gls{CSP} within a single node.
@@ -173,17 +174,18 @@ performs what action. Each socket type merely has default action for the case
 it is initialized with a given endpoint.
 
 \paragraph{Intuitive server and client roles}
+% FIXME: needed?
 Even though the client of a Roadster federation (if it is not a standalone
 Roadster installation) logically resides above the root node, within a Roadster
 federation, the choice has been made to assign the roles more intuitively. A
-supernode south-facing actor will \cpp{bind()} its socket, and a subnode's
-north-facing actor will \cpp{connect()} to its supernode. This is consistent
+supernode's SUBFED actor will \cpp{bind()} its socket, and a subnode's
+SUPERFED actor will \cpp{connect()} to its supernode. This is consistent
 with the server role mentioned in \autoref{sec:scope:csp}, and will later be
 relevant for transport security as well (see \autoref{sec:approach:encryption}).
 
 Of course, in a multi level hierarchy with three or more levels, the
 intermediate nodes would act as servers of their subnodes, and as clients of
-their supernodes. This translates to: They are running both a FEDNF and a FEDSF
+their supernodes. This translates to: They are running both a SUPERFED and a SUBFED
 actor.
 
 As described in \autoref{sec:scope:csp}, there are three distinct message flows
@@ -191,15 +193,15 @@ in the \gls{CSP}. The same applies to inter-node DIM synchronization. A
 supernode with multiple subnodes will act as the server in CSP terminology.
 
 \begin{description}
-	\item [FEDNF:]
-		The north-facing actor's responsibilities are providing a
+	\item [SUPERFED:]
+		This actor's responsibilities are providing a
 		communication interface to the supernode, if any. To do so, it
 		creates and \cpp{connect()}s three different sockets to fulfill
 		its complete set of tasks. These three sockets are of type
 		DEALER, PUSH, and SUB.
 
-	\item [FEDSF:]
-		To fulfill its part of the CSP, the south-facing actor creates
+	\item [SUBFED:]
+		To fulfill its part of the CSP, this actor creates
 		and \cpp{bind()}s three sockets of type ROUTER, PULL, and PUB.
 \end{description}
 
@@ -401,7 +403,7 @@ response, which will subsequently be passed back and complete the open dialogs.
 When a user of the root node's web UI wants to change a value on a field device
 connected to the root node's subordinate node, a command is sent from the
 browser to the web UI's COMM actor. From there it is sent via the CORE actor out
-on the FEDSF actor to the subordinate node. There it is routed
+on the SUBFED actor to the subordinate node. There it is routed
 via the CORE actor to the correct COMM actor, where the command can actually be
 executed on the field device.
 
@@ -846,7 +848,7 @@ PUSH socket. The supernode collects modifications from all subnodes through its
 PULL socket.
 
 To avoid filling the PUSH socket unnecessarily in case the supernode is
-temporarily unavailable, the heartbeating done via the FEDNF/FEDSF actors will
+temporarily unavailable, the heartbeating done via the SUPERFED/SUBFED actors will
 be used to recognize such a situation. The continuous propagation of
 modifications can be stopped, the sockets reinitialized, making the node ready
 for whenever the supernode is back available.
@@ -865,16 +867,16 @@ Regarding the CURVE security mechanism in \zmq, one of the two involved sockets
 needs to be designated as the CURVE server, and the other one as a CURVE
 client.\footnote{This is a simple method call on each socket where the involved
 keys are passed as well.} This will be done intuitively: A supernode's
-south-facing actor's sockets will act as CURVE servers, and a subnode's
-north-facing actor's sockets will act as CURVE clients. This is not just an
+SUBFED actor's sockets will act as CURVE servers, and a subnode's
+SUPERFED actor's sockets will act as CURVE clients. This is not just an
 arbitrary choice: A CURVE client socket is given exactly one CURVE server
 certificate. A supernode can have multiple subnodes, but the opposite is
 impossible.\footnote{HA is a special case, see
 \autoref{sec:approach:encryption:ha}} Thus, the socket inside the supernode's
-south-facing actor will be designated as the CURVE server, and the sockets
-inside the subnodes' south-facing actors will be designated as the CURVE
+SUBFED actor will be designated as the CURVE server, and the sockets
+inside the subnodes' SUBFED actors will be designated as the CURVE
 clients. An example of the client side is shown in \autoref{lst:auth:fednf}, as
-performed by the FEDNF actor.
+performed by the SUPERFED actor.
 
 \begin{listing}
 	\inputminted[bgcolor=bg]{Ruby}{listings/auth/fednf.rb}
@@ -931,7 +933,7 @@ Public key files will not have to be copied from one node to its subnodes
 anymore. Instead, they can be taken directly from the shared configuration file
 that defines the federation topology. As an example, \autoref{lst:auth:fedsf}
 shows how to start an authentication handler which does client authentication
-as it is done inside the FEDSF actor.
+as it is done inside the SUBFED actor.
 
 \begin{listing}
 	\inputminted[bgcolor=bg]{Ruby}{listings/auth/fedsf.rb}

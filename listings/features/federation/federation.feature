@@ -10,4 +10,4 @@ Feature: Federation
    Then configuration will be loaded
    And the CORE actor starts the appropriate other actors
    And the node knows its place in the federation
-   And the node knows how to contact its neighbors
+   And the node knows how to contact its neighboring nodes

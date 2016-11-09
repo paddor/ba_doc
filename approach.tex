@@ -273,6 +273,31 @@ Variant 2 will be the first step, as following the \gls{KISS} principle is one
 of the non-functional requirements. Variant 3 will be the second step, if at
 all. This depends on whether it will be needed performance-wise.
 
+\subsubsection{Avoiding code duplication}
+The \gls{CSP} has to work as an intra-node protocol (within a node, which is
+the legacy behavior), as well as an inter-node protocol (within a federation).
+That means \gls{CSP}-related server functionality has to be present in the CORE
+engine, as well as in the SUBFED engine. CSP-related client functionality has
+to be present in all COMM existing engines, the SUPERFED engine, \emph{as well
+as the SUBFED engine}, since it also acts as a CSP-client to the CORE engine on
+the same node.
+
+To avoid a considerable amount of code duplication, CSP-related functionality
+is extracted into its own reusable module, which is then mixed into all
+relevant actors. The \emph{Template Method} design pattern is used to handle
+the common case of handling a received
+\rb{Roadster::Messaging::CSP::Messages::ModelUpdate} message. The hook methods,
+called by the template method, are then implemented (or their default
+implementations extended) in each particular class.
+
+\subsubsection{Ignoring update reflections}
+Becaues of the way the \gls{CSP} works, modifications to the \gls{DIM} pushed
+to the supernode have to be published back to all subnodes (just like the CORE
+actor publishes modifications to back to all actors). That means the update is
+also reflected back to the subnode on which the update originated. A subnode's
+SUPERFED actor has to recognize this situation and discard update in question
+immediately.
+
 \subsection{Federation definition}
 The federation topology has to be defined somewhere. This can be done using a
 \gls{DSL} and then put into a static file (e.g. \sh{topology_conf.rb}) shared

@@ -255,6 +255,9 @@ when they're unreachable.
 % northpole knows the complete DIM. So subnodes and subsubnodes all would have
 % to directly connect to the northpole, which isn't the idea of a federation.
 
+% FIXME: Also, there is no single subtree for a node's objects; there are some
+% in root.adapters, some in root.objects, itself in root.nodes, ...
+
 \paragraph{Variant 2: Sync complete tree}\label{par:approach:dim:var2}
 Always sync on complete tree, which means getting the snapshot from the
 supernode and merge the own subtree into it, replacing whatever subtree is

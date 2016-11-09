@@ -172,60 +172,60 @@ specified in days. One day equals 16 man-hours.
 		& \cellcolor{green!50}3
 		& check with client	(done)
 		& extract and run affected ZMQ \newline sockets in their own process \newline delay: 1-2 days \\ \hline
-	R02 
+	R02
 		& wrong protocols chosen / protocol design flaw
 		& \cellcolor{orange!50}3
 		& \cellcolor{orange!50}5
 		& architecture \newline reviews prototypes
 		& fix (reevaluate reengineer, redesign) \newline delay: 8-12 days	\\ \hline
-	R03 
+	R03
 		& ZMQ communication patterns (such as Binary Star) are difficult to implement as clean, reusable code
-		& \cellcolor{yellow!50}2 
-		& \cellcolor{yellow!50}4 
+		& \cellcolor{yellow!50}2
+		& \cellcolor{yellow!50}4
 		& use software engineering knowhow to aim for clean, reusable prototypes
-		& nice solution: \newline build more iteratively, step by step \newline delay: 2-4 days \newline \newline dirty solution: 
+		& nice solution: \newline build more iteratively, step by step \newline delay: 2-4 days \newline \newline dirty solution:
 		\newline customized solution built right into Roadster, not as a public gem \newline delay: 1-2 days \\ \hline
-	R04	
+	R04
 		& CZTop design flaws/limitations
 		& \cellcolor{green!50}2
 		& \cellcolor{green!50}2
 		& check functionality in the elaboration phase
-		& adapt CZtop \newline delay: 1-2 days \\ \hline		
-	R05 
+		& adapt CZtop \newline delay: 1-2 days \\ \hline
+	R05
 		& CZMQ changes API
 		& \cellcolor{green!50}1
 		& \cellcolor{green!50}3
 		& (hope)
 		& adapt CZTop, change CZTop adapter in Roadster, or just avoid upgrading CZMQ (use a commit before the breaking change) \newline delay: 1-2 days \\ \hline
-	R06 
+	R06
 		& wrong time estimations
 		& \cellcolor{yellow!50}4
 		& \cellcolor{yellow!50}3
 		& use time well during planning, and define clear milestones
 		& If possible, change the duration of the individual project phases. Otherwise, drop planned features
-		(starting with the optional goal) \newline delay: 4-5 days \\ \hline		
-	R07 
+		(starting with the optional goal) \newline delay: 4-5 days \\ \hline
+	R07
 		& managing multiple Projects (at least one per repo) on Github too painful
 		& \cellcolor{green!50}4
 		& \cellcolor{green!50}1
 		& setup project structure in the elaboration phase
 		& partial solution: \newline CodeTree (cannot seem to be used for private repos like Roadster itself (maybe yes! see  mindclue/roadster\#5) \newline
-		\newline complete solution: \newline Use a single Project which just has cards that link to issues from other repos. 
+		\newline complete solution: \newline Use a single Project which just has cards that link to issues from other repos.
 		Linking to "foreign" issues is additional effort but should be straight forward using Github syntax (https://github.com/org/repo/issues/42)
 		\newline delay: 1 day \\ \hline
-	R08 
+	R08
 		& Prolonged loss of a team member
 		& \cellcolor{green!50}2
 		& \cellcolor{green!50}3
 		& Track absences in meeting minutes.
 		& In a prolonged absence, move milestones and, if necessary, change the project scope. \newline delay: 3-10 days \\ \hline
-		
-	R09 
+
+	R09
 		& Failure to achieve the defined task in time
 		& \cellcolor{green!50}1
 		& \cellcolor{green!50}4
-		& Continuous monitoring whether we are on schedule and whether all requirements are met. 
-		& Meeting convened as we still can transpose a large part of the required task within the prescribed period. \newline delay: 1-5 days\\ \hline		
+		& Continuous monitoring whether we are on schedule and whether all requirements are met.
+		& Meeting convened as we still can transpose a large part of the required task within the prescribed period. \newline delay: 1-5 days\\ \hline
    \caption{Initial risks} \label{tab:init-risks} \\
    \end{longtable}
 \end{center}
@@ -246,8 +246,8 @@ specified in days. One day equals 16 man-hours.
 \end{table}
 
 \begin{ganttchart}[
-  hgrid, 
-  vgrid, 
+  hgrid,
+  vgrid,
   x unit=9mm
 ]{1}{14}
 \ganttset{bar incomplete/.append style={fill=gray!40},
@@ -311,8 +311,8 @@ specified in days. One day equals 16 man-hours.
     \hline
     \endlastfoot
 	Inception
-		& \multicolumn{2}{p{70mm}|}{setup proj mgmt, init documentation, define scope, understand requirements, 
-		set priorities, assess \& analyze risks, estimate schedule, get familiar with Roadster} 
+		& \multicolumn{2}{p{70mm}|}{setup proj mgmt, init documentation, define scope, understand requirements,
+		set priorities, assess \& analyze risks, estimate schedule, get familiar with Roadster}
 		& SW01 \\ \hline
 	MS Inception
 		& \textbf{Date}

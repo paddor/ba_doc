@@ -54,6 +54,18 @@ with Roadster, and run finally Roadster's test suites.
 This is done using a Gitlab CI instance installed on the students' \gls{VM}
 provided by HSR.
 
+\subsubsection{Doc build}
+% TODO translate
+Das Erstellen dieses Dokuments, sprich LaTeX zu PDF compilieren wird auch von CI gehandhabt. 
+Anschliessend wird das enstandene Artifakt, in diesem Fall ein PDF, 
+mit einer neuen Release Version versehen auf dem öffentlichen Git veröffentlicht.
+
+% TODO translate
+\subsubsection{Docker-Container}
+Um eine saubere Testumgebung für die Unit- und System-Tests bereitzustellen wurde indes ein Docker-Container erstellt, 
+welcher die benötigten Komponenten bei jedem Test neulädt. 
+Zu den Haupt-Komponenten gehört: mininet, ruby, python, roadster (die aktuellste Version, welche gepushed wurde).
+
 \subsection{System test}
 System tests are designed to test the application under close-to-reality conditions.
 To create a realistic environment, Mininet and fake \glspl{PLC} are used.
@@ -64,12 +76,15 @@ To create a realistic environment, Mininet and fake \glspl{PLC} are used.
 		\glspl{VM}, the very same primitives used by Docker.
 		Mininet can also simulate link/connectivity problems between nodes.
 	\item [Fake:]\hfill\\
-		Fake \glspl{PLC} are simple scripts that respond to requests.
+		Fake \glspl{PLC} are simple simulation robots written in ruby.
 \end{description}
 
-All events are logged. A Ruby program subsequently evaluates the log data to
-check if the tests passed.  All system tests are performed manually after each
-construction iteration.
+% TODO translate
+Nach jeder Iterationsphase oder Änderung im Code können die automatischen Systemtests
+auf dem Gitlab Server ausgeführt werden. Die Systemtests führen den Roadster aus
+und es wird anhand des Outputs überprüft ob das Feature korrekt läuft.
+
+
 
 \subsubsection{Test scenarios}
 Test scenarios are deduced from the features specified in \autoref{ch:reqs}.
@@ -81,7 +96,55 @@ The procedure of each scenario is described in detail below to make the results 
 % TODO work out methodology (maybe with mininet, shell scripts, and analyze logs retrospectively)
 % TODO integration tests at the end of every iteration
 % TODO system tests at end of construction
+
+
 % TODO describe the actual test scenarios
+% TODO translate
+\subsubsection{Ausgangszustand}
+Bei jedem System-Test wird die aktuellste Version von der ba-roadster-app nachgeladen und der simultane
+Branch ausgewählt, wie der zu testende, der Roadster app.
+Die benötigten Konfiguration Dateien werden vor dem Test mittels eines bash scripts in die ba-roadster-app
+geladen und es werden noch Ordner für das Logging erstellt.
+
+% TODO translate
+\subsubsection{Verwendete Sprache}
+Die Systemtest werden mit Python geschrieben, weil die mininet Schnittstelle
+für die Steuerung des Netwerks und deren Hosts mit Python geschrieben ist.
+
+% TODO translate
+\subsubsection{Feature Tests}
+Um mit Python die Feature-Test im Cucumber Format verarbeiten zu können wird das Behave Framework verwendet.
+
+% TODO translate
+\subsubsubsection{Ordnerstruktur}
+Die Ordnerstruktur im Docker für die zu testende App sieht wie folgt aus:
+	/tmp
+	  -> /roadster
+	      -> /features
+          -> /projects
+              -> /ba-roadster-app
+
+% TODO translate			  
+\subsubsection{Roadster Federation Aufbau}
+Die Federation ist wie folgt aufgebaut.
+   np-npB
+  /    \ 
+ sN1   sN2
+
+Auf dem Root hat es ein HA Pärchen, welches nur im HA Feature Test 
+aktiv ist und ansonsten nur ein einziger Root aktiv ist.
+Im sN1 Node laufen zwei Simulation-Roboter, welche fortlaufend 
+neue Cases und DIM update generieren. Der sN2 Node
+ist ein stiller zuhörer und hat keine aktive Steuerungen zum überwachen.
+
+\subsubsection{Netzplan aus Sicht von mininet}
+            s1   
+      /   |   |    \
+   sN1  sN2  np - nPB
+
+Alle Nodes sind an einem Switch angeschlossen und kommunizieren über diesen. 
+Der root primary Node ist zudem mit dem root backup Node noch zusätzlich verbunden.
+
 
 %----------------------------------------------------------------------------
 \section{Port to new \zmq library}\label{sec:approach:port}

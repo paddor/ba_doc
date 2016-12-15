@@ -105,6 +105,7 @@ modified until they are replicated.
 The aforementioned requirements imply that modifications to the \gls{DIM} can only be done by the
 owning node. A node
 must not modify objects owned by other nodes directly. This is to ensure that each node is its own source of truth
+% FIXME: source of truth == ?
 to all other nodes in the federation. Only the owner node can enforce a single
 sequence of updates to its part of the DIM, which is necessary to guarantee
 eventual consistency \cite[Chapter 5, Reliable Pub-Sub (Clone Pattern), Republishing
@@ -210,8 +211,8 @@ It is possible that there will be a dedicated, direct network link from one peer
 the other. However, this will not be the typical case.
 
 \paragraph{Split-brain syndrome}
-At initialization, the two peers must automatically find consensus on which one
-is becomes active first.  At any time, only one of the two HA peers must be
+At initialization, the two peers must be able to automatically decide on which peer
+becomes active first.  At any time, only one of the two HA peers must be
 active (i.e. serving clients), and the other one must stay passive (i.e. ignore
 client requests and only keep its DIM up-to-date). The passive HA peer shall
 take over in the event that the currently active peer becomes unavailable.

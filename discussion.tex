@@ -18,6 +18,9 @@ Eventual consistency is guaranteed even in situations where multiple actors
 modify the same DIM objects at roughly the same time. However, some updates
 might get lost. In those cases, the last writer wins.
 
+\subsubsection{Message routing}
+% TODO: would have been easier if CORE had inter-node sockets itself, but:
+
 \subsection{HA}
 A HA cluster has to be complete (both nodes running) during initialization.
 Otherwise, only primary node can start to serve requests; the backup node will not

@@ -5,6 +5,7 @@ require a dedicated broker. Instead, it offers sockets with an abstract
 interface similar to \acrshort{BSD} sockets. Different types of sockets are used for
 different messaging patterns such as request-reply, publish-subscribe, and
 push-pull.
+% TODO: decenralized, scalable
 
 A single socket can bind/connect to multiple endpoints, which allows \zmq to
 use round-robbin on the sender side, and fair-queueing on the receiver side,
@@ -109,3 +110,5 @@ standard.
 
 Both \emph{CZTop} and \emph{czmq-ffi-gen} have been developed by Patrik Wenger
 during the winter 2015/16.
+
+% TODO: differences to RabbitMQ, \cite{ph:amqp}

@@ -12,17 +12,17 @@ backgrounds first.
 \textbf{Patrik Wenger} did his apprenticeship in computer science at Swisscom
 Schweiz AG, and stayed work as a full-time employee for five more years
 afterwards. In programming he is most fluent in \gls{ruby} and \gls{c}. During
-the winter of 2015/2016, he created \gls{cztop} during leisure time because
+winter 2015/2016, he created \gls{cztop} in leisure time because
 there was no suitable Ruby binding for \gls{zmq}/\gls{czmq} available and a side
 project of his demanded it. Fascinated with event-driven programming and
 software design patterns such as the \gls{actor-model} (e.g. the
-Celluloid\footnote{a concurrency framework for Ruby based on the actor model,
-\url{https://github.com/celluloid/celluloid}} library on Ruby, or
-Pony\footnote{a young programming language completely based on actors,
-\url{http://www.ponylang.org}}, distributed computing and high availability
+Celluloid\footnote{A concurrency framework for Ruby based on the actor model,
+\url{https://github.com/celluloid/celluloid}} library on Ruby,
+and the Pony programming language\footnote{A young programming language completely based on actors,
+\url{http://www.ponylang.org}}), distributed computing and high availability
 have long been part of his core interests, especially in conjunction with the
-brilliant \zmq library. Having a passion for information security and modern
-cryptography\footnote{such as \gls{nacl} or \gls{libsodium} as used by
+brilliant \zmq library. Having a strong interest in information security and modern
+cryptography\footnote{I.e. \gls{nacl} or \gls{libsodium} as used by
 \gls{zmq}}, especially in this post-Snowden era, this bachelor thesis could not
 be a better match.
 
@@ -93,39 +93,44 @@ supervise and control operation and safety equipment found in:
 % ISA95 “levels”
 
 \begin{itemize}
-\item national freeways, e.g. emergency phones
-\item tunnels, e.g. lights and ventilation
-\item water supply systems
-\item energy facilities
-\item many other specialized fields
+\item National freeways, e.g. emergency phones
+\item Tunnels, e.g. lights, ventilation, and railway electricity
+\item Water supply systems
+\item Energy facilities
+\item Other specialized fields
 \end{itemize}
 
 To build these customized applications, their in-house creation
-Roadster, a next-generation SCADA framework, is used.
+Roadster is used.
 
-\subsection{Roadster}
-Roadster is a SCADA framework written in Ruby. It was, and still
-is, developed to produce next-generation SCADA applications to replace legacy
+\subsection{Roadster framework}
+Roadster is a SCADA framework written in Ruby. It has been developed to
+produce next-generation SCADA applications to replace legacy
 solutions based on its predecessor found in numerous tunnel
 facilities in Switzerland.
 
 A Roadster installation combines the following responsibilities:
 
 \begin{itemize}
-	\item interaction with subordinate field devices (monitoring \& controlling)
-	\item persisting data (e.g. certain sensor data, and events)
-	\item sophisticated alarm (\emph{case}) management
-	\item providing a machine-to-machine interface to higher level systems
-	\item providing a modern, customized web UI for interaction with operational and executive personnel
+	\item Interaction with subordinate field devices (monitoring \& controlling)
+	\item Sophisticated alarm (\emph{case}) management
+	\item Persisting data (e.g. time series of sensor data, alarm log)
+	\item A machine-to-machine interface to higher level systems (\emph{clients})
+	\item A modern web UI customized for the particular installation to interact with operational and executive personnel
 \end{itemize}
 
-Among others, the field devices include various kinds of \glspl{PLC}\footnote{an example
-is the SIMATIC S7-1500 by Siemens AG,
+Among others, the field devices include various kinds of \glspl{PLC}\footnote{E.g.
+the SIMATIC S7-1500 by Siemens AG,
 \url{http://w3.siemens.com/mcms/programmable-logic-controller/en/advanced-controller/s7-1500/Pages/default.aspx}}
-as well as emergency call systems\footnote{an example is the NIS ComNode by Trans Data
+as well as emergency call systems\footnote{E.g. the NIS ComNode by Trans Data
 Management AG,
 \url{http://trans-data.com/en/k2-categories/item/149-niscomnode}}.
-These are interacted with over numerous propietary and standardized protocols.
+These are interacted with over numerous propietary and standardized protocols,
+for which Roadster provides spezialized adapters.
+
+The following two subsections elaborate more on Roadster and how it's used.
+However, as far as this bachelor thesis goes, it's not important information
+and thus can be skipped.
 
 \subsubsection{System integration}\label{sec:scope:sys-integration}
 This section briefly describes the big picture of Roadster's place within
@@ -148,7 +153,7 @@ subsystems to provide a nationwide overview.
 	\label{fig:roadster:overallsys}
 \end{figure}
 
-\autoref{fig:roadster:overallsys} illustrates the typical, overall system. The acronyms
+\autoref{fig:roadster:overallsys} illustrates the typical system. The acronyms
 used, which are part of the \gls{FEDRO} terminology, do not have official
 English translations; not even the department itself was able to help with
 translations on request, so they were left unchanged. A brief description
@@ -191,33 +196,6 @@ Atom\texttrademark{}. The machines are usually equipped with 4 -- 6 GiB of main
 memory and Gigabit Ethernet. For reliable systems without any moving parts, an
 industrial grade \gls{SSD} or two (in a software \gls{RAID} level 1 setup) are used.
 
-\subsection{\zmq}
-To understand Roadster's architecture and the rest of this document, it is
-helpful to understand the basics of \zmq first. This is a brief introduction to
-\zmq for the unfamiliar reader. What follows is a quote from the \gls{zguide}
-which does a fairly good job at describing \zmq in a 100 words:
-
-\begin{quote}
-``ZeroMQ (also known as \zmq, 0MQ, or zmq) looks like an embeddable networking
-library but acts like a concurrency framework. It gives you sockets that carry
-atomic messages across various transports like in-process, inter-process, TCP,
-and multicast. You can connect sockets N-to-N with patterns like fan-out,
-pub-sub, task distribution, and request-reply. It is fast enough to be the
-fabric for clustered products. Its asynchronous I/O model gives you scalable
-multicore applications, built as asynchronous message-processing tasks. It has
-a score of language APIs and runs on most operating systems.  ZeroMQ is from
-iMatix and is LGPLv3 open source.''
-\end{quote}
-
-% TODO: socket types and communication patterns
-
-For a more detailed introduction, see \autoref{ch:zmq}.
-
-Roadster uses \zmq to carry messages between its processes. The
-library\footnote{The library is called \emph{ffi-rzmq} and is hosted on
-\url{https://github.com/chuckremes/ffi-rzmq}} it uses to interface with \zmq is
-unmaintained and does not support recent versions of \zmq (namely the ones
-supporting encryption).
 
 \subsection{Software architecture}
 As mentioned earlier, Roadster is event-driven\footnote{\url{https://en.wikipedia.org/wiki/Event-driven_programming}} and built on the Actor model, meaning it exhibits a
@@ -230,27 +208,35 @@ which communicate via \zmq sockets. The key here is communication:
 
 Running multiple, loosely coupled processes (actors) allows leveraging the full
 potential of modern multi-core processors, while avoiding a whole class of
-traditional concurrency problems.
+concurrency issues present in traditional concurrency models based on shared
+memory and synchronization constructs such as semaphores.
 
 Every Roadster node runs a group of actors:
 
 \begin{description}
 	\item [CORE:]\hfill\\
-		It is responsible to start the other actors. It also plays a
-		key role in keeping state in all actors synchronized. More
+		The CORE actor is responsible to maintain aggreagates of supervisory data
+		(e.g. sensor data) and create alarm cases to inform
+		about critical situations.
+
+		During the application startup it is responsible to start the
+		other actors and later on routes messages between them. It also
+		plays a key role in keeping state in all actors synchronized. More
 		about that in \autoref{sec:scope:csp}.
 
 	\item [COMM:]\hfill\\
-		A bunch of COMM actors communicate with the outside world of a
-		node. It typically either acts as a client of various kinds of
-		field devices, or as a server to the client. To do so, it
-		utilizes the appropriate adapter which is defined by the static
-		configuration of a Roadster application. These adapters
-		implement communication protocols used to communication with
-		field devices, but also to client systems (e.g. over
-		\gls{opc-ua}). The webserver\footnote{The webserver \emph{Thin}
-		is utilized, see \url{http://code.macournoyer.com/thin/}} for the
-		web UI also runs in a COMM actor.
+		COMM actors communicate with the external services accessible
+		by a node. Each of them employs a specific communication
+		protocol to act as an adapter to one of various field devices
+		(usually called \emph{peers}), or as a server to an attached client
+		system.\\
+
+		The exact set of COMM actors running on a particular
+		installation depends on a configuration file available to the
+		installation.\\
+
+		The webserver for the web UI is one of the COMM actors, denoted
+		by COMM.WEBUI.
 
 	\item [STORAGE:]\hfill\\
 		This actor is used when information needs to be persisted, such
@@ -262,11 +248,14 @@ Every Roadster node runs a group of actors:
 		target is configured, be it \gls{stdout}, a file, or a syslog server.
 
 	\item [CONSOLE:]\hfill\\
-		This actor does not exist yet, but is planned. It's supposed to
+		This actor is not fully implemented yet. It's supposed to
 		be a textbased user interface for maintenance and trouble shooting.
 \end{description}
 
-\autoref{fig:roadster:arch} illustrates Roadster's architecture.
+\autoref{fig:roadster:arch} illustrates Roadster's architecture. The red boxes
+with arrows attached to the actors represend the \zmq sockets which are used
+for inter-actor communication. More information about \zmq sockets in
+\autoref{sec:scope:zmq}.
 
 \begin{figure}[]
 	\includegraphics[trim=4cm 2cm 3.5cm 2.8cm, clip=true, width=\textwidth]{img/roadster_arch.pdf}
@@ -275,15 +264,14 @@ Every Roadster node runs a group of actors:
 	\label{fig:roadster:arch}
 \end{figure}
 
-\subsubsection{Communication Layers}
-The communication architecture in Roadster consists of three layers, as
-illustrated in \autoref{fig:roadster:layers}. The following list briefly
-explains the layers from top (most abstracted) to bottom:
+Each actor of Roadster employs three abstraction layers
+as illustrated in \autoref{fig:roadster:layers}.  The following
+list briefly explains the layers from top (most abstracted) to bottom:
 
 \begin{description}
 	\item [Engine layer:]\hfill\\
 		Here is the business logic of Roadster, e.g. the \gls{DIM},
-		user authentication, adapters for different devices, the web
+		user authentication, adapters for external devices, the web
 		\gls{UI}, etc.
 
 	\item [Messaging layer:]\hfill\\
@@ -299,7 +287,15 @@ explains the layers from top (most abstracted) to bottom:
 		\url{https://github.com/eventmachine/eventmachine}}. Sockets used by COMM actors
 		to communicate with various field devices are also integrated into this
 		event-loop.
+
 \end{description}
+
+Following the reactor design pattern, the event-loop informs Roadster about
+data received on sockets (i.e. \zmq messages or other protocol data), which is
+then read and processed using the upper two layers in the next event
+tick. This approach eliminates most concurrency issues because within an actor,
+nothing actually happens in parallel. An actor merely reacts on messages and
+timers sequentially.
 
 \begin{figure}[]
 	\includegraphics[trim=1.95cm 2.5cm 1.65cm 2.8cm, clip=true, width=\textwidth]{img/roadster_layering.pdf}
@@ -308,34 +304,59 @@ explains the layers from top (most abstracted) to bottom:
 	\label{fig:roadster:layers}
 \end{figure}
 
-\subsubsection{RMP}\label{sec:rmp}
+\subsection{Domain Informaton Model}
+The \acrfull{DIM} is a tree data structure that lives inside every actor taking part in business logic (all but LOG and STORAGE) of a Roadster
+node. The CORE actor and every COMM actor build it when starting up by reading the configuration
+files available to the installation.
+
+The DIM consists of static objects and dynamic objects. Modifications to the dynamic
+objects are replicated across all DIM-aware actors. This is done by the \gls{CSP} as explained in~\autoref{sec:scope:csp}.
+\autoref{fig:roadster:meta-model} illustrates the class diagram of
+all the classes instanciated to constitute the DIM. They all reside within the
+Ruby module namespace \rb{Roadster::Domain::Model}.
+
+\begin{figure}[]
+	\includegraphics[trim=1.5cm 1cm 1cm 1cm, clip=true, width=0.9\textwidth]{img/meta_model.pdf}
+	\source{mindclue GmbH}
+	\caption{Class diagram for Roadster's domain model used in the DIM}
+	\label{fig:roadster:meta-model}
+\end{figure}
+
+
+\subsection{Roadster Messaging Protocols}\label{sec:rmp}
 The \gls{RMP} are a collection of protocols implemented and used by Roadster
 internally. They reside in the messaging communication layer, and include:
 
 \begin{description}
-	\item [\gls{CSP}:]\hfill\\
-		Used to synchronize state between the actors.
 	\item [\gls{ACP}:]\hfill\\
 		Used to control the application state, e.g. shutdown.
+	\item [\gls{CSP}:]\hfill\\
+		Used to synchronize state between the DIM-aware actors.
 	\item [\gls{PDP}:]\hfill\\
-		Used when data needs to be persisted.
+		Used when data needs to be persisted via the STORAGE actor.
 	\item [\gls{SMP}:]\hfill\\
 		Used to suppress the generation of certain \glspl{case}, e.g.
-		when a sensor is defect and repeatedly causes cases.
+		when a sensor is defect and repeatedly reports critical sensor data.
 	\item [\gls{PCP}:]\hfill\\
-		Used for asynchronous command execution via COMM peers with feedback.
+		Used for command execution via COMM peers with feedback.
 	\item [\gls{LOG}:]\hfill\\
-		Used for system logging.
+		Used for system logging. Log messages from all actors are sent
+		to the LOGGER actor via this protocol.
 \end{description}
 
-Every actor in Roadster uses a subset of these protocols to perform its job.
+Every actor in Roadster uses a subset of these protocols to perform the part it
+is responsible for. The next section provides more detail about the different
+delivery guarantees available for message passing.
 
-Passing messages from actor to actor, which are nothing but serialized Ruby
-objects, happens in one of two modes:
+\subsubsection{Reliability modes}
+Message passing between actors is always asynchronous, and happens in one of
+two reliability modes:
+
 \begin{description}
 \item [Fire \& Forget:]\hfill\\
-No guarantee of correct processing, e.g. DIM updates from COMM to CORE. This
-does not mean there are no other mechanisms in place to ensure reliability.
+No guaranteed delivery. This does not mean there are no other mechanisms in
+place to ensure reliability, e.g. employed by a protocol itself.\footnote{such
+as what \gls{TCP} does by sequencing the segments of a stream}
 
 \item [Dialog:]\hfill\\
 An immediate answer is expected, e.g. when creating a user
@@ -347,28 +368,124 @@ code in a Ruby \rb{Fiber}, which is similar to a thread but
 allows for cooperative scheduling as opposed to preemtive.}
 \end{description}
 
-\subsubsection{DIM}
-The \acrfull{DIM} is a tree data structure that lives inside every actor of a Roadster
-node. The CORE actor and every COMM actor build it when starting up by reading the configuration
-files available to all actors.
 
-The DIM consists of static objects and dynamic objects. The dynamic
-objects\footnote{Namely instances of the meta-model classes \rb{Case},
-\rb{DataItem}, and \rb{Session}} can be updated. The updates are then
-replicated across all COMM actors to keep the DIM synchronized. This works by
-marking the updated object dirty\footnote{It is marked dirty by setting its
-\rb{@lifecycle_state = "updated"}} so it is subsequently replicated via the
-\gls{CSP}. \autoref{fig:roadster:meta-model} illustrates the class diagram of
-all the classes whose instances constitute the DIM.
+\subsection{\zmq}\label{sec:scope:zmq}
+As mentioned earlier, Roadster uses \zmq to carry messages between its actors.
+To understand the rest of this document, it is
+helpful to understand the basics of \zmq. This is a brief introduction to
+\zmq for the unfamiliar reader. What follows is a quote from the \gls{zguide}
+which does a fairly good job at describing \zmq in a 100 words:
 
-\begin{figure}[]
-	\includegraphics[trim=1.5cm 1cm 1cm 1cm, clip=true, width=0.9\textwidth]{img/meta_model.pdf}
-	\source{mindclue GmbH}
-	\caption{Class diagram for Roadster's meta model used in the DIM}
-	\label{fig:roadster:meta-model}
-\end{figure}
+\begin{quote}
+``ZeroMQ (also known as \zmq, 0MQ, or zmq) looks like an embeddable networking
+library but acts like a concurrency framework. It gives you sockets that carry
+atomic messages across various transports like in-process, inter-process, TCP,
+and multicast. You can connect sockets N-to-N with patterns like fan-out,
+pub-sub, task distribution, and request-reply. It is fast enough to be the
+fabric for clustered products. Its asynchronous I/O model gives you scalable
+multicore applications, built as asynchronous message-processing tasks. It has
+a score of language APIs and runs on most operating systems.  ZeroMQ is from
+iMatix and is LGPLv3 open source.''
+\end{quote}
 
-\subsubsection{Existing CSP in a nutshell}\label{sec:scope:csp}
+\subsubsection{Messages}
+A message is just an array of one or more parts (\emph{frames}). From the point
+of view of \zmq, each message frame is simply a
+chunk of opaque data. Object serialization is outside the scope of \zmq and can be done using
+JSON, XML, ASN.1, MessagePack, Google's Protocol Buffers, Apache Thrift, or a
+programming language's own implementation of object marshalling, which is what
+Roadster does for inter-actor communication. JSON is used between the WEBUI
+actor and the actual web application running in the HTTP user agent.
+
+\subsubsection{Socket types}
+A number of socket types are provided, of which the most important pairs are:
+
+\begin{description}
+	\item [ROUTER and DEALER sockets] \hfil\\
+	These sockets implement an asynchronous request-reply communication
+	pattern. When sending a message via a DEALER socket, it is sent
+	to any of the connected ROUTER sockets (usually just one). When
+	reading a message from a ROUTER socket, an additional frame is
+	prepended to identify the DEALER socket which sent the message.
+	This identity is a short string either randomly chosen by \zmq
+	or set by the application as a socket option. It does NOT
+	resemble an IP address or anything dependent on the chosen
+	transport.
+
+	When sending a message via a ROUTER socket, the same
+	process happens in reverse: The first frame is taken away and
+	used to determine the receiving DEALER socket, which will
+	receive all but the first frame.
+
+	Roadster's CORE actor uses a ROUTER socket to send or relay
+	messages to specific actors.
+
+
+	\item [PUSH and PULL sockets] \hfil\\
+	These sockets implement an asynchronous pipeline communication pattern
+	providing fan-out and fan-in techniques. PUSH sockets can only be
+	written to whereas PULL sockets can only be read from.
+
+
+	Within Roadster, this socket pair is used to perform efficient
+	replication of modifications to the DIM. More about CSP
+	in~\autoref{sec:scope:csp}.
+
+
+	\item [PUB and SUB sockets] \hfil\\
+	A publish-subscribe communication pattern is provided by these two
+	sockets. Message distribution based on subscription to one or
+	more topics is possible (simply by matching the beginning of the first
+	frame).
+
+	At this point, Roadster actors simply
+	subscribe to all messages sent via a the CORE's PUB socket.
+
+\end{description}
+
+Any socket can be either bound and/or connected to any number of endpoints. A few examples:
+
+\begin{itemize}
+	\item A simple message passing application following the client-server
+		model, can bind a ROUTER socket on the server and connect each
+		client's DEALER socket to it. After that, any one of the server
+		or the clients can asynchronously send a message.
+
+	\item A SUB socket can connect to multiple PUB sockets to receive
+		published messages from all of them
+
+	\item A parallel pipeline can be built using a PUSH socket that fans
+		out tasks, which are then read by one of possibly many worker
+		instances via its PULL socket.
+\end{itemize}
+
+In any of the above cases, the number of connected remote sockets does not
+matter. To the application, it's still a single socket, which just happens to
+communicate with many other sockets.
+
+\subsubsection{Transport}
+The transport technique and transport-specific connection handling is completely
+abstracted away by \zmq. There's no possibility that such implementation
+details leak into an application which would result in an unwanted increase of
+external coupling.
+
+This also means that it does not matter whether an application communicates with
+other \zmq sockets within the same process, on the same machine, or on a remote
+machine. Common transports are \gls{unix-domain-socket}, \gls{TCP},
+\gls{TIPC}, as well as \gls{PGM} based multicast.
+
+\subsubsection{Software packages}
+Roadster uses a Ruby gem (software package) called
+\emph{ffi-rzmq}\footnote{\url{https://github.com/chuckremes/ffi-rzmq}} to
+interface with \zmq. It is unmaintained and does not support newer features of
+\zmq (namely secure communication).
+
+
+For a more details about \zmq, including the \gls{czmq} abstraction layer and
+the \gls{cztop} langauge binding for Ruby, see \autoref{ch:zmq}.
+
+
+\subsection{Existing CSP in a nutshell}\label{sec:scope:csp}
 \emph{This is a brief introduction/refresher for the Clone State Pattern
 implemented by Roadster, which is used for the DIM synchronization. Although Roadster actually sends serialized instances
 of CSP message classes to fulfill this protocol, for better readability the
@@ -376,6 +493,11 @@ of CSP message classes to fulfill this protocol, for better readability the
 % TODO: maybe use class names after all, ICANHAZ is confusing and VERY informal
 
 % TODO CSP is bidirectional!
+
+This works by
+marking the updated object dirty\footnote{It is marked dirty by setting its
+\rb{@lifecycle_state = "updated"}} so it is subsequently replicated via the
+\gls{CSP}. 
 
 The existing \acrfull{CSP} is closely related to the \gls{clone-pattern} from the \gls{zguide}. Its
 goal is to keep a state (a list of key-value pairs) synchronized across a set
@@ -432,7 +554,7 @@ the ICANHAZ message.
 
 % TODO: add illustration
 
-\subsubsection{Persisted data}\label{sec:scope:persisted_data}
+\subsection{Persisted data}\label{sec:scope:persisted_data}
 Certain data on a Roadster node is persisted, which is done by the STORAGE
 actor. Different data goes into different \gls{tc} database files, including:
 

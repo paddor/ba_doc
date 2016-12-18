@@ -10,98 +10,101 @@ Another candidate was Scrum, which we decided against as it’s only feasible
 with teams of three to nine developers.
 
 \section{Timetable}
-\subsection{Estimated time}
-The projekt span is from 19.09 until 23.12. We expect 28.5 hours work per week which is a total of
+\subsection{Estimated time}\label{sec:projplan:est-time}
+The project spans from September \nth{19} until December \nth{23}. We expect a
+necessary effort of about 28.5 hours a week which results in a total of
 400 hours per group member. See \autoref{tab:timetable}.
 
 \begin{table}[H]
   \centering
-  \scriptsize
-  \begin{tabular}{|p{80mm}|p{15mm}|}
+  \begin{tabular}{|p{100mm}|p{35mm}|}
     \hline 	\bf Project duration & 14 weeks \\ \hline
-	\bf count of workers & 2 \\ \hline
-	\bf time per worker & 28.5 hours per week \\ \hline
-	\bf Total estimated time (without weighted damage) & 720 hours \\ \hline
-	\bf Total estimated time (inclusive weighted damage) & 856 hours \\ \hline
-	\bf Project start & 19.09.2016 \\ \hline
-	\bf Project end & 23.12.2016 \\ \hline
+	\bf Manpower & 2 \\ \hline
+	\bf Effort per person & 28.5 hours per week \\ \hline
+	\bf Total estimated time without weighted damage & 720 hours \\ \hline
+	\bf Total estimated time including weighted damage & 856 hours \\ \hline
+	\bf Project start & September \nth{19} 2016 \\ \hline
+	\bf Project end & December \nth{23} 2016 \\ \hline
   \end{tabular} \\
   \caption{Timetable}
   \label{tab:timetable}
 \end{table}
 
+The average between best case and worst case is $\frac{720 + 856\,hours}{2} =
+788$ hours. Counting in a reserve of 10\% more of additional effort that might be needed to
+mitigate materialized risks, this results in $788\,hours + 10\% *
+136\,hours\approx 800$ hours of total effort.
+
+
 \subsection{Time tracking}
-All schedulings are done with Everhour and with GitHub. GitHub hosts all issues
-and Everhour is used for time tracking (should / is).
+All time spent on the bachelor thesis are done on Everhour. Every time record
+is associated with a GitHub issue where applicable.
+The estimated time is set directly on each GitHub issue using the Everhour pluign.
 
-\subsection{Infrastructure}
-\autoref{tab:infrastructure} shows the infrastructure provided by HSR.
-\begin{table}[H]
-  \centering
-  \scriptsize
-  \begin{tabular}{|p{25mm}|p{30mm}|}
-    \hline 	\bf Servername & sinv-56092.edu.hsr.ch \\ \hline
-	\bf ip address & 152.96.56.92 \\ \hline
-	\bf os & Ubuntu 14.04 LTS \\ \hline
-	\bf VM EndofLife & 03.03.2017 \\ \hline
-	\bf CPU & 1 vCPU max. 2.2 GHz \\ \hline
-	\bf RAM & 1 GB \\ \hline
-	\bf Disk drive & 15 GB \\ \hline
-  \end{tabular} \\
-  \caption{Infrastructure}
-  \label{tab:infrastructure}
-\end{table}
+Everhour allows the export of all time spent on a project, which will be
+included as part of the final submission of this bachelor thesis.
 
-\subsection{Tools}
-The source code of this document and all of our code contributions are hosted
-on GitHub. The students will organize and perform their work directly on the
-site as far as possible. This means creating a Project board for each of the
-development phases, creating, assigning, and closing issues, as well as using
-the Wiki feature to plan and document meetings with the professor and the
-client. Time tracking is done externally on Everhour. See
-\autoref{tab:dev-tools}.
+\subsection{Quality assurance}
 
-% TODO: section: quality assurance
-\begin{table}[H]
-  \centering
-  \scriptsize
-  \begin{tabular}{|p{50mm}|p{15mm}|p{15mm}|}
-    \hline 	\bf Use & Name & Version \\ \hline
-	\bf IDE & Vim, RubyMine &  \\ \hline
-	\bf version control system & Git & 2.* \\ \hline
-	\bf project management  & GitHub, Everhour &  \\ \hline
-  \end{tabular} \\
-  \caption{Development tools}
-  \label{tab:dev-tools}
-\end{table}
 
-\subsection{Quality measures}
+\subsubsection{Software}
+To ensure a consistent code quality in the main development branch
+(\emph{master}), unit tests and integration test are run before every push of
+new changes to the repository on GitHub. Any pending issues found are to be
+fixed before the push.
 
-\subsubsection{Documentation review}
-The project partner proof reads important sections which are then discussed
+
+The development of larger -- requiring more than one commit -- features is done
+on a specific feature branch.  Upon completion, instead of merging the branch
+directly into the main development branch, a pull request is opened on GitHub.
+This allows the other student and/or the client to review, discuss, and improve
+the changes. The final merge is to be done by a person other than the one who
+opened the pull request.
+
+\subsubsection{Documentation}
+The proof reads important sections which are then discussed
 during the weekly stand up meetings.
 
+prof
+mindclue
 
-\subsubsection{Meeting minutes}
-Meeting minutes include the participants, agenda items, decisions, as well as
-pending items. Manuel Schuler takes over this task and logs everything.
-Meeting minutes are saved on the GitHub wiki site 24 hours before the meeting
-starts and after the meeting it will be updated with the new information.
-
-\subsubsection{Git policy}
-% TODO to be defined..
-% FIXME: do we have one?
-It's only allowed to push if all ruby spec tests pass.
-Each project participant is allowed to mutate and check-in each file. 
-In the case of critical changes the remaining project participants must be informed.
 
 
 \subsection{Meetings}
-Meetings are agreed in consultation with the professor or the client.
-The meeting minutes are kept, the individual agenda items, decisions and todos.
-The project team has a weekly standup meeting, placed in early / mid-week and
-serves only as a short exchange of information, to review the last week, recap
-the week goals, problems and plenary for questions or suggestions.
+Meetings are called for by the students on an as-needed basis in consultation
+with the professor or the client. Prior to a meeting, the students prepare a meeting
+agenda on the wiki of the documentation repository on GitHub.
+
+The meeting agenda for meetings with the professor include the new progress
+(incremental), problems, agenda (such as administrative questions), and
+short-term goals.
+
+After each meeting, the students follow up by writing down meeting minutes
+which include the list of actual participants, decisions made, and pending
+tasks.
+
+In addition to the meetings with the client and the professor, the students
+hold a weekly standup meeting placed in early/mid-week, which is to be a short
+exchange of the current project status, review of the last week, and a
+discussion of the next short-term steps.
+
+\subsubsection{Review}
+By the end of the bachelor thesis, a total of six meetings (including the
+kickoff meeting) have been conducted together with the professor. The meeting
+minutes are on \cite[Meetings]{gh:wiki}.
+
+The client mindclue GmbH has been met four times. The first meeting was to
+gather the requirements during the first week. The second meeting was necessary
+to clarify the requirements and decide upon a more structured format of the
+requirements (Cucumber features). The third meeting took place during the
+second Elaboration iteration to help with Roadster's codebase in preparation of
+the upcoming construction phase. The last meeting was a code review meeting
+after the first Construction iteration. Further code reviews were performed
+directly on GitHub.
+
+Acute discussions and more lightweight decisions with the client were held on
+the particular GitHub issues \cite{gh:issues} directly, as well as the Slack
+communication platform.
 
 
 \section{Risks}
@@ -146,25 +149,25 @@ specified in days. One day equals 16 man-hours.
 
 \begin{center}
   \begin{longtable}{|p{6mm}|p{30mm}|p{6mm}|p{8mm}|p{30mm}|p{64mm}|}
-    \hline \multicolumn{1}{l}{\textbf{ID}} &
-    \multicolumn{1}{l}{\textbf{Description}} &
-    \multicolumn{1}{l}{\textbf{P}} &
-    \multicolumn{1}{l}{\textbf{DP}} &
-    \multicolumn{1}{l}{\textbf{Prevention}} &
-	\multicolumn{1}{l}{\textbf{Measures to be taken upon event}} \\ \hline
+    \hline \multicolumn{1}{|l|}{\textbf{ID}} &
+    \multicolumn{1}{l|}{\textbf{Description}} &
+    \multicolumn{1}{l|}{\textbf{P}} &
+    \multicolumn{1}{l|}{\textbf{DP}} &
+    \multicolumn{1}{l|}{\textbf{Prevention}} &
+    \multicolumn{1}{l|}{\textbf{Measures to be taken upon event}} \\ \hline
     \endfirsthead
 
     \multicolumn{6}{c}%
     {{\bfseries \tablename\ \thetable{} -- continues}} \\
-    \hline \multicolumn{1}{c}{\textbf{ID}} &
-    \multicolumn{1}{c}{\textbf{Description}} &
-    \multicolumn{1}{c}{\textbf{P}} &
-    \multicolumn{1}{c}{\textbf{DP}} &
-    \multicolumn{1}{c}{\textbf{Prevention}} &
-	\multicolumn{1}{c}{\textbf{Measures to be taken upon event }} \\ \hline
+    \hline \multicolumn{1}{|l|}{\textbf{ID}} &
+    \multicolumn{1}{l|}{\textbf{Description}} &
+    \multicolumn{1}{l|}{\textbf{P}} &
+    \multicolumn{1}{l|}{\textbf{DP}} &
+    \multicolumn{1}{l|}{\textbf{Prevention}} &
+	\multicolumn{1}{l|}{\textbf{Measures to be taken upon event }} \\ \hline
     \endhead
 
-    \hline \multicolumn{5}{r}{{Continues on the next page}} \\ \hline
+    \hline \multicolumn{6}{c}{{Continues on the next page}} \\ \hline
     \endfoot
 
     \hline
@@ -176,45 +179,45 @@ specified in days. One day equals 16 man-hours.
 		& check with client	(done)
 		& extract and run affected ZMQ \newline sockets in their own process \newline delay: 1-2 days \\ \hline
 	R02
-		& wrong protocols chosen / protocol design flaw
+		& Wrong protocols chosen / protocol design flaw
 		& \cellcolor{orange!50}3
 		& \cellcolor{orange!50}5
-		& architecture \newline reviews prototypes
-		& fix (reevaluate reengineer, redesign) \newline delay: 8-12 days	\\ \hline
+		& Architecture \newline reviews prototypes
+		& Fix (reevaluate reengineer, redesign) \newline delay: 8-12 days	\\ \hline
 	R03
 		& ZMQ communication patterns (such as Binary Star) are difficult to implement as clean, reusable code
 		& \cellcolor{yellow!50}2
 		& \cellcolor{yellow!50}4
-		& use software engineering knowhow to aim for clean, reusable prototypes
-		& nice solution: \newline build more iteratively, step by step \newline delay: 2-4 days \newline \newline dirty solution:
+		& Use software engineering knowhow to aim for clean, reusable prototypes
+		& Nice solution: \newline build more iteratively, step by step \newline delay: 2-4 days \newline \newline dirty solution:
 		\newline customized solution built right into Roadster, not as a public gem \newline delay: 1-2 days \\ \hline
 	R04
 		& CZTop design flaws/limitations
 		& \cellcolor{green!50}2
 		& \cellcolor{green!50}2
-		& check functionality in the elaboration phase
-		& adapt CZtop \newline delay: 1-2 days \\ \hline
+		& Check functionality in the elaboration phase
+		& Adapt CZtop \newline delay: 1-2 days \\ \hline
 	R05
 		& CZMQ changes API
 		& \cellcolor{green!50}1
 		& \cellcolor{green!50}3
 		& (hope)
-		& adapt CZTop, change CZTop adapter in Roadster, or just avoid upgrading CZMQ (use a commit before the breaking change) \newline delay: 1-2 days \\ \hline
+		& Adapt CZTop, change CZTop adapter in Roadster, or just avoid upgrading CZMQ (use a commit before the breaking change) \newline delay: 1-2 days \\ \hline
 	R06
-		& wrong time estimations
+		& Wrong time estimations
 		& \cellcolor{yellow!50}4
 		& \cellcolor{yellow!50}3
-		& use time well during planning, and define clear milestones
+		& Use time well during planning, and define clear milestones
 		& If possible, change the duration of the individual project phases. Otherwise, drop planned features
 		(starting with the optional goal) \newline delay: 4-5 days \\ \hline
 	R07
-		& managing multiple Projects (at least one per repo) on Github too painful
+		& Managing multiple Projects (at least one per repo) on GitHub too painful
 		& \cellcolor{green!50}4
 		& \cellcolor{green!50}1
-		& setup project structure in the elaboration phase
-		& partial solution: \newline CodeTree (cannot seem to be used for private repos like Roadster itself (maybe yes! see  mindclue/roadster\#5) \newline
+		& Setup project structure in the elaboration phase
+		& Partial solution: \newline CodeTree (cannot seem to be used for private repos like Roadster itself (maybe yes! see  mindclue/roadster\#5) \newline
 		\newline complete solution: \newline Use a single Project which just has cards that link to issues from other repos.
-		Linking to "foreign" issues is additional effort but should be straight forward using Github syntax (https://github.com/org/repo/issues/42)
+		Linking to "foreign" issues is additional effort but should be straight forward using GitHub syntax (https://github.com/org/repo/issues/42)
 		\newline delay: 1 day \\ \hline
 	R08
 		& Prolonged loss of a team member
@@ -237,12 +240,50 @@ specified in days. One day equals 16 man-hours.
   \centering
   \scriptsize
   \begin{tabular}{|m{27mm}|m{24mm}|m{20mm}|m{20mm}|m{20mm}|m{20mm}|@{}m{0pt}@{}}
-    \hline 	\bf Propability / Damage & \bf 1-Insignificant. 	& \bf 2-Negligible 				& \bf 3-Moderate 			& \bf 4-Serious 			& \bf 5-Significant 	& \\ [10pt]
-    \hline 	\bf 5-Certain 			& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} 	& \cellcolor{orange!50} 			& \cellcolor{red!50} 		& \cellcolor{red!50} 			& \\ [10pt]
-			\bf 4-Likely 			& \cellcolor{green!50} R07 	& \cellcolor{yellow!50} 	& \cellcolor{yellow!50} R06 	& \cellcolor{orange!50} 		& \cellcolor{red!50} 			& \\ [10pt]
-			\bf 3-Possible 				& \cellcolor{green!50} 		& \cellcolor{green!50} 		& \cellcolor{yellow!50} 		& \cellcolor{yellow!50} 	& \cellcolor{orange!50} R02 		& \\ [10pt]
-			\bf 2-Unlikely 			& \cellcolor{green!50} 	& \cellcolor{green!50} R04 	& \cellcolor{green!50} R08 		& \cellcolor{yellow!50} R03 & \cellcolor{yellow!50} 		& \\ [10pt]
-			\bf 1-Rare 			& \cellcolor{green!50} 		& \cellcolor{green!50} 		& \cellcolor{green!50} R01, R05 & \cellcolor{green!50} R09 	& \cellcolor{green!50} 		& \\ [10pt]
+    \hline
+    \bf Propability / Damage
+  & \bf 1-Insignificant.
+  & \bf 2-Negligible
+  & \bf 3-Moderate
+  & \bf 4-Serious
+  & \bf 5-Significant
+  & \\ [10pt]
+    \hline
+    \bf 5-Certain 
+  & \cellcolor{yellow!50}
+  & \cellcolor{yellow!50}
+  & \cellcolor{orange!50}
+  & \cellcolor{red!50}
+  & \cellcolor{red!50}
+  & \\ [10pt]
+    \bf 4-Likely
+  & \cellcolor{green!50} R07
+  & \cellcolor{yellow!50}
+  & \cellcolor{yellow!50} R06
+  & \cellcolor{orange!50}
+  & \cellcolor{red!50}
+  & \\ [10pt]
+    \bf 3-Possible
+  & \cellcolor{green!50}
+  & \cellcolor{green!50}
+  & \cellcolor{yellow!50}
+  & \cellcolor{yellow!50}
+  & \cellcolor{orange!50} R02
+  & \\ [10pt]
+    \bf 2-Unlikely
+  & \cellcolor{green!50}
+  & \cellcolor{green!50} R04
+  & \cellcolor{green!50} R08
+  & \cellcolor{yellow!50} R03
+  & \cellcolor{yellow!50}
+  & \\ [10pt]
+    \bf 1-Rare
+  & \cellcolor{green!50}
+  & \cellcolor{green!50}
+  & \cellcolor{green!50} R01, R05
+  & \cellcolor{green!50} R09
+  & \cellcolor{green!50}
+  & \\ [10pt]
     \hline
   \end{tabular} \\
   \caption{Initial risk matrix}
@@ -295,10 +336,10 @@ specified in days. One day equals 16 man-hours.
 \autoref{tab:phases} illustrates the project's phases and iterations.
 
 \begin{center}
-  \begin{longtable}{|p{25mm}|p{25mm} p{45mm}|p{10mm}|}
-    \hline \multicolumn{1}{c}{\textbf{Iteration}} &
-    \multicolumn{2}{p{70mm}}{\textbf{Description}} &
-    \multicolumn{1}{c}{\textbf{Due}} \\ \hline
+  \begin{longtable}{ | p{25mm} | p{25mm} p{35mm}| p{5mm} | }
+    \hline \multicolumn{1}{|c|}{\textbf{Iteration}} &
+    \multicolumn{2}{p{70mm}|}{\textbf{Description}} &
+    \multicolumn{1}{c|}{\textbf{Due}} \\ \hline
     \endfirsthead
 
     \multicolumn{4}{c}%
@@ -308,91 +349,104 @@ specified in days. One day equals 16 man-hours.
     \multicolumn{1}{c}{\textbf{Due}} \\ \hline
     \endhead
 
-    \hline \multicolumn{4}{r}{{Continues on the next page}} \\ \hline
+    \hline \multicolumn{4}{c}{{Continues on the next page}} \\ \hline
     \endfoot
 
     \hline
     \endlastfoot
 	Inception
-		& \multicolumn{2}{p{70mm}|}{setup proj mgmt, init documentation, define scope, understand requirements,
-		set priorities, assess \& analyze risks, estimate schedule, get familiar with Roadster}
-		& SW01 \\ \hline
-	MS Inception
-		& \textbf{Date}
-		& \multicolumn{2}{l|}{25th Sept 2016} \\
-		& \textbf{Description}
-		& \multicolumn{2}{l|}{Inceptionphase ended} \\
-		& \textbf{Workproducts}
-		& \multicolumn{2}{l|}{project plan} \\
-		& & \multicolumn{2}{l|}{risk matrix} \\
-		& & \multicolumn{2}{l|}{project mgmt infrastructure} \\ \hline
+	& \multicolumn{2}{p{70mm}|}{Setup proj mgmt, init documentation, define scope, understand requirements,
+	set priorities, assess \& analyze risks, estimate schedule, get familiar with Roadster}
+	& SW01 \\ \hline
+	  \textbf{MS Inception}
+	& \textbf{Date}
+	& \multicolumn{2}{l|}{25th Sept 2016} \\
+	& \textbf{Description}
+	& \multicolumn{2}{l|}{Inception phase complete} \\
+	& \textbf{Workproducts}
+	& \multicolumn{2}{l|}{Project plan} \\
+	& & \multicolumn{2}{l|}{Risk matrix} \\
+	& & \multicolumn{2}{l|}{Project mgmt infrastructure} \\
+	\hline
+	\hline
 	Elaboration 1
-		& \multicolumn{2}{p{70mm}|}{write use cases, fundamental thoughts on testing, roughly design protocols,
-		federation, single \& multi level HA, persistence, key distribution, OPC-UA HA interface}
-		& SW04 \\ \hline
-	MS E1 Protocol
-		& \textbf{Date}
-		& \multicolumn{2}{l|}{16th Oct 2016} \\
-		Designs & \textbf{Description}
-		& \multicolumn{2}{l|}{Protocol designs are defined} \\
-		& \textbf{Workproducts}
-		& \multicolumn{2}{l|}{requirements \& use cases} \\
-		& & \multicolumn{2}{l|}{protocol designs} \\ \hline
+	& \multicolumn{2}{p{70mm}|}{Gather requirements, fundamental thoughts on testing, roughly protocol designs,
+	federation, single \& multi level HA, persistence, key distribution, OPC-UA HA interface}
+	& SW04 \\ \hline
+	  \textbf{MS E1:}
+	& \textbf{Date}
+	& \multicolumn{2}{l|}{16th Oct 2016} \\
+	Protocol & \textbf{Description}
+	Designs & \multicolumn{2}{l|}{Protocol designs are defined} \\
+	& \textbf{Workproducts}
+	& \multicolumn{2}{l|}{Requirements \& use cases} \\
+	&
+	& \multicolumn{2}{l|}{Protocol designs} \\ \hline
 	Elaboration 2
-		& \multicolumn{2}{p{70mm}|}{implement prototypes (federation, single \& multi level HA, persistence, secure socket,
-		communication, OPC-UA HA interface}
-		& SW06 \\ \hline
-	MS E2 Proto-
-		& \textbf{Date}
-		& \multicolumn{2}{l|}{30th Oct 2016} \\
-	types & \textbf{Description}
-		& \multicolumn{2}{l|}{Prototypes are implemented and tested.} \\
-		& \textbf{Workproducts}
-		& \multicolumn{2}{l|}{Runnable prototypes} \\ \hline
+	& \multicolumn{2}{p{70mm}|}{Implement prototypes (federation, single \& multi level HA, persistence, secure socket,
+	communication, OPC-UA HA interface}
+	& SW06 \\ \hline
+	  \textbf{MS E2:}
+	& \textbf{Date}
+	& \multicolumn{2}{l|}{30th Oct 2016} \\
+	Prototypes & \textbf{Description}
+	& \multicolumn{2}{l|}{Prototypes are implemented and tested.} \\
+	& \textbf{Workproducts}
+	& \multicolumn{2}{l|}{Runnable prototypes} \\
+	  \hline
+	  \hline
 	Elaboration 3
-		& \multicolumn{2}{p{70mm}|}{revise risks, finish bulk of documentation, (reserve)}
-		& SW07 \\ \hline
+	& \multicolumn{2}{p{70mm}|}{Revise risks, finish bulk of documentation, (reserve)}
+	& SW07 \\ \hline
 	Construction 1
-		& \multicolumn{2}{p{70mm}|}{port CZTop, federation (refactor \& integrate prototype)}
-		& SW09 \\ \hline
-	MS C1 Federation
-		& \textbf{Date}
-		& \multicolumn{2}{l|}{20th Nov 2016} \\
-		& \textbf{Description}
-		& \multicolumn{2}{l|}{Runnable federation functionality on top of CZTop.} \\
-		& \textbf{Workproducts}
-		& \multicolumn{2}{l|}{Federation functonality, CZTop integration} \\ \hline
+	& \multicolumn{2}{p{70mm}|}{Port CZTop, federation (refactor \& integrate prototype)}
+	& SW09 \\ \hline
+	\textbf{MS C1:}
+	& \textbf{Date}
+	& \multicolumn{2}{l|}{20th Nov 2016} \\
+	Federation & \textbf{Description}
+	& \multicolumn{2}{l|}{Runnable federation functionality on top of CZTop.} \\
+	& \textbf{Workproducts}
+	& \multicolumn{2}{l|}{Federation functonality, CZTop integration} \\
+	\hline
+	\hline
+
 	Construction 2
-		& \multicolumn{2}{p{70mm}|}{refactor, integrate and verify HA prototypes, persistence replication}
-		& SW11 \\ \hline
-	MS C2 HA
-		& \textbf{Date}
-		& \multicolumn{2}{l|}{4th Dec 2016} \\
-		& \textbf{Description}
-		& \multicolumn{2}{l|}{Working HA functionality and persistence replication} \\
-		& \textbf{Workproducts}
-		& \multicolumn{2}{l|}{HA functonality} \\
-		& & \multicolumn{2}{l|}{persistence replication} \\ \hline
+	& \multicolumn{2}{l|}{Refactor, integrate and verify HA prototypes, persistence replication}
+	& SW11 \\ \hline
+	\textbf{MS C2:}
+	& \textbf{Date}
+	& \multicolumn{2}{l|}{4th Dec 2016} \\
+	HA & \textbf{Description}
+	& \multicolumn{2}{l|}{Working HA functionality and persistence replication} \\
+	& \textbf{Workproducts}
+	& \multicolumn{2}{l|}{HA functonality} \\
+	& & \multicolumn{2}{l|}{Persistence replication} \\ \hline
 	Construction 3
-		& \multicolumn{2}{p{70mm}|}{security (implement prototype, test), OPC UA HA (implement prototype, verify)}
-		& SW13 \\ \hline
-	MS C3 Security
-		& \textbf{Date}
-		& \multicolumn{2}{l|}{18th Dec 2016} \\
-		& \textbf{Description}
-		& \multicolumn{2}{l|}{secure communication between nodes} \\
-		& \textbf{Workproducts}
-		& \multicolumn{2}{l|}{Security} \\ \hline
+	& \multicolumn{2}{p{70mm}|}{Security (implement prototype, test), OPC UA HA (implement prototype, verify)}
+	& SW13 \\ \hline
+	\textbf{MS C3:}
+	& \textbf{Date}
+	& \multicolumn{2}{l|}{18th Dec 2016} \\
+	Security & \textbf{Description}
+	& \multicolumn{2}{l|}{Secure communication between nodes} \\
+	& \textbf{Workproducts}
+	& \multicolumn{2}{l|}{Security} \\
+	\hline
+	\hline
+
 	Transition 1
-		& \multicolumn{2}{p{70mm}|}{polish documentation, write abstract, create poster, print documentation \& burn CDs}
-		& SW14 \\ \hline
-	MS T1 Delivery
-		& \textbf{Date}
-		& \multicolumn{2}{l|}{23rd Dec 2016 - 5:00 pm} \\
-		& \textbf{Description}
-		& \multicolumn{2}{l|}{Complete handover of thesis} \\
-		& \textbf{Workproducts}
-		& \multicolumn{2}{l|}{Thesis in paperform} \\ \hline
+	& \multicolumn{2}{p{70mm}|}{Polish documentation, write abstract, create poster, print documentation \& upload artifacts}
+	& SW14 \\ \hline
+	\textbf{MS T1:}
+	& \textbf{Date}
+	& \multicolumn{2}{l|}{23rd Dec 2016 - 5:00 pm} \\
+	Delivery & \textbf{Description}
+	& \multicolumn{2}{l|}{Complete handover of thesis} \\
+	& \textbf{Workproducts}
+	& \multicolumn{2}{l|}{Thesis in paperform} \\
+	\hline
+	\hline
 
    \caption{Phase and iterations} \label{tab:phases}
    \end{longtable}

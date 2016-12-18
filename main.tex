@@ -28,9 +28,10 @@
 \usepackage{amssymb} % for \checkmark
 \usepackage{textgreek} % for \textMu
 \usepackage{enumitem} % for \begin{itemize}[label={...}]
+\usepackage[super]{nth} % for \nth{3} => 3rd with superscript
 \usepackage[export]{adjustbox} % left/right aligned images
 \usepackage{newfloat}
-\usepackage{tikz}
+\usepackage{tikz,pgfplots}
 \usetikzlibrary{arrows,decorations.pathmorphing,backgrounds,fit,positioning,shapes.symbols,chains,shapes.geometric,shapes.arrows,calc}
 \usepackage[
 backend=biber,
@@ -136,7 +137,7 @@ block=none]{biblatex}
 \end{abstract}
 %-----------------------------------------------------------------------------
 
-\chapter*{Declaration of Originality}
+\chapter*{Declaration of originality}
 We hereby confirm that we are the sole authors of this document, the
 described changes to the Roadster framework, and libraries developed as a
 byproduct. Unless stated differently, all illustrations in this document are
@@ -190,7 +191,7 @@ family. Rest in peace.
 % TODO: learned a lot about the usefulness abstraction layers
 
 
-\chapter{Personal development environment}
+\chapter{Development infrastructure}
 % TODO Patrik: personal dev env
 % * Tmux in Linux in VBox on macOS
 % * Tmux tabs ("windows"):
@@ -206,8 +207,49 @@ family. Rest in peace.
 %  - development: RubyMine on Windows
 %  - execution: mounted in Linux VM
 
+\subsection{Tools}
+The source code of this document and all of our code contributions are hosted
+on GitHub. The students will organize and perform their work directly on the
+site as far as possible. This means creating a Project board for each of the
+development phases, creating, assigning, and closing issues, as well as using
+the Wiki feature to plan and document meetings with the professor and the
+client. Time tracking is done externally on Everhour. See
+\autoref{tab:dev-tools}.
 
-\chapter{Task Description}\label{ch:task-desc}
+
+\begin{table}[H]
+  \centering
+  \scriptsize
+  \begin{tabular}{|p{50mm}|p{15mm}|p{15mm}|}
+    \hline 	\bf Use & Name & Version \\ \hline
+	\bf IDE & Vim, RubyMine &  \\ \hline
+	\bf version control system & Git & 2.* \\ \hline
+	\bf project management  & GitHub, Everhour &  \\ \hline
+  \end{tabular} \\
+  \caption{Development tools}
+  \label{tab:dev-tools}
+\end{table}
+
+
+\subsection{Infrastructure}
+\autoref{tab:infrastructure} shows the infrastructure provided by HSR.
+\begin{table}[H]
+  \centering
+  \scriptsize
+  \begin{tabular}{|p{25mm}|p{30mm}|}
+    \hline 	\bf Server name & sinv-56092.edu.hsr.ch \\ \hline
+	\bf IP address & 152.96.56.92 \\ \hline
+	\bf OS & Ubuntu 14.04 LTS \\ \hline
+	  \bf End of Life & March \nth{3} 2017 \\ \hline
+	\bf CPU & 1 @ 2.2 GHz \\ \hline
+	\bf RAM & 1 GiB \\ \hline
+	\bf Disk space & 15 GiB \\ \hline
+  \end{tabular} \\
+  \caption{Infrastructure}
+  \label{tab:infrastructure}
+\end{table}
+
+\chapter{Task description}\label{ch:task-desc}
 The following five pages are the original task description, signed by Prof. Dr. F. Mehta.
 \includepdf[pages={-}]{signed_task_description.pdf}
 % TODO: get signature from prof again to fix HSR logo
@@ -218,6 +260,9 @@ ISC license, which is functionally equivalent to the MIT license and the
 Simplified BSD license, but uses simpler language. In addition to that, we
 hereby explicitly grant mindclue GmbH unrestricted usage of all our code
 contributions.
+
+
+\include{project_monitoring}
 
 % NOTE: meeting minutes are kept online
 % NOTE: time reports are kept online

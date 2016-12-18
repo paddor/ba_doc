@@ -304,6 +304,11 @@ timers sequentially.
 	\label{fig:roadster:layers}
 \end{figure}
 
+
+\subsection{Directory structure}
+% TODO
+
+
 \subsection{Domain Informaton Model}
 The \acrfull{DIM} is a tree data structure that lives inside every actor taking part in business logic (all but LOG and STORAGE) of a Roadster
 node. The CORE actor and every COMM actor build it when starting up by reading the configuration
@@ -582,6 +587,14 @@ actor. Different data goes into different \gls{tc} database files, including:
 		set or read from the database. Credentials for users of the UI
 		are an example parameters.
 \end{description}
+
+
+
+\subsection{Tests}
+Roadster comes with a few unit tests, and a number of integration tests,
+written in RSpec, a well known BDD tool for Ruby projects. Test coverage is
+about 67\% overall, some files being better covered, some files less. There are
+no system tests.
 
 \section{Goals}
 % TODO preprocessed mandatory goals

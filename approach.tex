@@ -6,147 +6,227 @@ requirements. Possible variants as well as the final choices are explained here.
 \section{Testing}
 This section describes the test methods used to check units, the integration of
 multiple components, as well as the behavior of new contributions across the
-entire framework.  All test resuts can described in \autoref{ch:res}.
+entire framework.  All test results are described in \autoref{ch:res}.
 
-\subsection{Setup}
-Due to the fact that Roadster's Github repository is private, online \gls{CI}
-services such as \emph{Travis
-CI}\footnote{url{https://travis-ci.com/}} cannot be used without
-payment\footnote{Payment is required after the first 100 builds.}. Fortunately,
-Gitlab CI is free and can be installed on one's own infrastructure, such as the
-\gls{VM} provided by HSR, where it was installed and configured. Unit and
-integration tests are run every time new commits are checked in. This is useful
-to get informed proactively when something breaks.
+The following subsections describe in detail how testing is performed.
 
 \subsection{Unit tests}
 To ensure the correctness of the implementations, unit tests are written using
 RSpec. 100\% coverage of the students' contributions can be achieved by
-adhering to \gls{TDD}. Naturally, this also simplifies refactoring the code
-without risking things breaking silently. Unit tests reside under the \sh{spec}
+adhering to \gls{TDD}, or more specifically, \gls{BDD}. RSpec offers itself as
+a very valuable testing tool providing very expressive assertion and mocking
+facilities, as well as more advanced features such as testing spies which have
+proven to be a perfect use case for Ruby's duck typing.
+
+Naturally, this also simplifies refactoring the code without the risk of
+breaking functionality unnoticed. Unit tests reside under the \sh{spec}
 directory of Roadster's code base.
 
 \subsection{Integration tests}
 Integration tests verify the interaction between the individual components.
-To test core features like federation, high availability, and persistence
-synchronization, integration tests have been written. Multiple nodes can be
-simulated easily by starting them as different process groups. This is possible
-since \zmq completely abstracts the transport away.
+To test new core functionality like federation, high availability, and persistence
+synchronization, integration tests have been written.
 
 In order to test the failover or synchronization functionality, individual processes
 can simply be killed and restarted later if the scenario defines this.
 
 More details about the integration test scenarios can be found in \autoref{ch:res}.
 
-\subsection{Continous integration}
-\gls{CI} helps us prevent integration problems also known as \emph{integration
-hell}. Each push to the repository will trigger a CI build using a predefined
-build script. This will install Roadster's dependencies, an example app built
-with Roadster, and run finally Roadster's test suites.
+\subsection{System tests}
+System tests are designed to test the application under close-to-reality
+conditions, treating the application as a black box: On a certain input, it is
+supposed to react with a certain output. It shall not matter how it reaches the output.
 
-This is done using a Gitlab CI instance installed on the students' \gls{VM}
-provided by HSR.
+In case multiple nodes are necessary, they can be simulated easily by starting
+them as different process groups. This is possible and feasible since \zmq
+completely abstracts the transport away and thus really doesn't matter if other
+Roadster instances are running on the same (development) machine. This has been
+done at times when manual testing and trouble shooting during development
+turned out to be necessary.
 
-\subsubsection{Doc build}
-% TODO translate
-Das Erstellen dieses Dokuments, sprich LaTeX zu PDF compilieren wird auch von CI gehandhabt. 
-Anschliessend wird das enstandene Artifakt, in diesem Fall ein PDF, 
-mit einer neuen Release Version versehen auf dem öffentlichen Git veröffentlicht.
+Another way to create an even more realistic environment, namely a networked
+federation of Roadster nodes and some field device generating sensor data,
+Mininet and a fake \gls{PLC} have proven to be of great help.
 
-% TODO translate
-\subsubsection{Docker-Container}
-Um eine saubere Testumgebung für die Unit- und System-Tests bereitzustellen wurde indes ein Docker-Container erstellt, 
-welcher die benötigten Komponenten bei jedem Test neulädt. 
-Zu den Haupt-Komponenten gehört: mininet, ruby, python, roadster (die aktuellste Version, welche gepushed wurde).
-
-\subsection{System test}
-System tests are designed to test the application under close-to-reality conditions.
-To create a realistic environment, Mininet and fake \glspl{PLC} are used.
 \begin{description}
 	\item [Mininet:]\hfill\\
 		Mininet allows creating virtual networks instantaneously. It
-		relies on Linux cgroups and network namespaces to isolate the
-		\glspl{VM}, the very same primitives used by Docker.
-		Mininet can also simulate link/connectivity problems between nodes.
-	\item [Fake:]\hfill\\
-		Fake \glspl{PLC} are simple simulation robots written in ruby.
+		relies on a feature of the Linux kernel called \emph{cgroups}
+		and network namespaces to efficiently run multiple \glspl{VM}
+		sharing the same kernel, and provide isolation. These very same
+		primitives are used by Docker itself.
+
+		Network infrastructure such as packet switching hardware and
+		network links can also be modeled in Mininet, including the
+		simulation of link quality issues such as induced latency and
+		packet loss.
+
+	\item [Fake robot:]\hfill\\
+		A fake implementation of a fictional \gls{PLC}, namely a robot
+		that that changes its position randomly in a 2D coordinate
+		system serves the purpose of getting external sensor data.
+		Using Roadster's guards it will also generate cases as soon as
+		it moves out of a predefined, virtual bounding box. This robot
+		is implemented using about 15 lines of Ruby code and is part of
+		the example application provided by mindclue GmbH.
 \end{description}
 
-% TODO translate
-Nach jeder Iterationsphase oder Änderung im Code können die automatischen Systemtests
-auf dem Gitlab Server ausgeführt werden. Die Systemtests führen den Roadster aus
-und es wird anhand des Outputs überprüft ob das Feature korrekt läuft.
+\subsection{Continous integration}
+\Gls{CI} helps prevent problems when integrating big chunks of code changes,
+also known as \emph{integration hell}. A new CI build is triggered upon each
+push of changes to the repository using a predefined build script.
 
+Due to the fact that Roadster's GitHub repository is private, online \gls{CI}
+services such as \emph{Travis~CI}\footnote{\url{https://travis-ci.com/}, requires payment after the
+first 100 builds} cannot be used without payment. Fortunately,
+Gitlab CI is free and can be installed on one's own infrastructure, such as the
+\gls{VM} provided by HSR, where it was installed and configured. Unit and
+integration tests are run every time new commits are checked in. This is useful
+to get informed proactively when something breaks.
+
+At every push of changes to Roadster or the example application, the CI
+solution set up on the HSR VM installs Roadster's dependencies, the Roadster
+framework itself, the example application, and then runs all of Roadster's test
+suites.
+
+\subsubsection{Documentation build}
+It is deemed bad practice to keep generated files in a Git
+repository. Having an additional file to commit is tedious and if done
+frequently, it can bloat the repository's commit history since Git treats PDF
+files as binary files, and thus cannot use efficient algorithms to work out the
+differences only.
+
+This is why compiling the TeX sources for this document is also done reactively
+via a pipeline configured on Gitlab CI. The resulting artifact, a PDF file, is
+then automatically uploaded to Git as a file associated with a newly created
+public release. This is done via GitHub's webservice API for managing
+releases.\footnote{\url{https://developer.github.com/v3/repos/releases/}}
+
+
+\subsubsection{Docker container}
+To provide a clean test environment for every CI build, a Docker container is used.
+It prepares the container with all necessary components before every build
+which then runs the unit and system tests. These components include:
+
+\begin{itemize}
+	\item Mininet
+	\item Ruby
+	\item Python
+	\item The most recent development version of Roadster (of the appropriate branch)
+\end{itemize}
+
+The system tests are run on the Gitlab server after each construction
+iteration. To do so, the Python scripts set up a virtual network and then start
+the appropriate Roadster instances. Some features require a link to fail or a
+node to fail, which can be achieved at any time through Mininet commands or
+simply kiling Roadster instances wherever needed. The generated log data is
+evaluated later to verify that the behavior for each defined feature is
+correct.
 
 
 \subsubsection{Test scenarios}
 Test scenarios are deduced from the features specified in \autoref{ch:reqs}.
-
-The test scenarios contain configurations for mininet and the particular Roadster nodes.
-The procedure of each scenario is described in detail below to make the results reproducible.
-% FIXME: below where? reference please
-
-% TODO work out methodology (maybe with mininet, shell scripts, and analyze logs retrospectively)
-% TODO integration tests at the end of every iteration
-% TODO system tests at end of construction
+They contain configurations for Mininet and the particular Roadster nodes.
+The procedure of each scenario is modeled in feature step files. This subsection
+describes the implementation and general structure of the test scenarios in detail.
 
 
-% TODO describe the actual test scenarios
+Every run of the system tests is based on the current versions of
+
+\begin{itemize}
+	\item The Roadster framework itself
+	\item The example application
+\end{itemize}
+
+In case the current development is taking place in a feature branch, the same
+branch is tried to be checked out in both test working copies. For example to
+test a new feature like encryption, it is developed in a feature branch called
+\emph{encryption} in Roadster's repository. Because the example application
+will need modifications as well (such as the knowledge of public keys for each
+node in a federation), it those changes are implemented in a feature branch of
+the same name.
+
+A shell script creates the appropriate configuration files (fixtures) before
+each test scenario is run and ensures that a directory for each Roadster
+instance exists where log data is stored during the run.
+
+Mininet is a Python library. To interactively use Mininet, it makes sense to
+implement all system test code in Python. This allows taking influence on the
+virtual network and on particular hosts within that network at any time. To
+parse and evaluate the features written in the Cucumber format, the BDD
+framework Behave\footnote{\url{http://pythonhosted.org/behave/}} is used.
+
 % TODO translate
-\subsubsection{Ausgangszustand}
-Bei jedem System-Test wird die aktuellste Version von der ba-roadster-app nachgeladen und der simultane
-Branch ausgewählt, wie der zu testende, der Roadster app.
-Die benötigten Konfiguration Dateien werden vor dem Test mittels eines bash scripts in die ba-roadster-app
-geladen und es werden noch Ordner für das Logging erstellt.
+\subsubsection{Directory structure}
 
-% TODO translate
-\subsubsection{Verwendete Sprache}
-Die Systemtest werden mit Python geschrieben, weil die mininet Schnittstelle
-für die Steuerung des Netwerks und deren Hosts mit Python geschrieben ist.
+The directory structure used within the Docker container is illustrated
+in~\autoref{lst:testing:docker:directory-structure}.
 
-% TODO translate
-\subsubsection{Feature Tests}
-Um mit Python die Feature-Test im Cucumber Format verarbeiten zu können wird das Behave Framework verwendet.
+\begin{listing}
+	\begin{minted}[bgcolor=bg]{Shell}
+/tmp
+  -> /roadster
+      -> /features
+  -> /projects
+      -> /ba-roadster-app
+	\end{minted}
+	\caption{Directory structure of system tests within Docker container}
+	\label{lst:testing:docker:directory-structure}
+\end{listing}
 
-% TODO translate
-\subsubsubsection{Ordnerstruktur}
-Die Ordnerstruktur im Docker für die zu testende App sieht wie folgt aus:
-	/tmp
-	  -> /roadster
-	      -> /features
-          -> /projects
-              -> /ba-roadster-app
-
-% TODO translate			  
-\subsubsection{Roadster Federation Aufbau}
-Die Federation ist wie folgt aufgebaut.
+\subsubsection{Roadster federation topology}
+The federation used for system tests is build as follows:
+\begin{listing}
+% TODO: better node naming, if possible
+% TODO: illustration graphic?
+	\begin{minted}[bgcolor=bg]{Shell}
    np-npB
   /    \ 
  sN1   sN2
+	\end{minted}
+	\caption{Logical federation topology used in system tests}
+	\label{lst:testing:topo:logic}
+\end{listing}
 
-Auf dem Root hat es ein HA Pärchen, welches nur im HA Feature Test 
-aktiv ist und ansonsten nur ein einziger Root aktiv ist.
-Im sN1 Node laufen zwei Simulation-Roboter, welche fortlaufend 
-neue Cases und DIM update generieren. Der sN2 Node
-ist ein stiller zuhörer und hat keine aktive Steuerungen zum überwachen.
+The root node is a HA cluster, which acts as such when appropriate according to
+the feature being tested. At other times, only its primary node is active and
+thus acts as a non-HA supernode of sN1 and sN2. The naming scheme is enforced
+by Mininet and thus somehow clunky and cryptic.
 
-\subsubsection{Netzplan aus Sicht von mininet}
-            s1   
+The configuration also dictates that there are two simulated robots running on
+subnode sN1, which continually update sensor data in the DIM and create new
+cases due to their nature of virtually moving around randomly and thus trying
+to escape the bounding box.
+
+Subnode sN2 merely acts as a listener and is not directly supervising any field
+devices.
+
+\subsubsection{Network plan on Mininet}
+\begin{listing}
+	\begin{minted}[bgcolor=bg]{Shell}
+            s1
       /   |   |    \
    sN1  sN2  np - nPB
+	\end{minted}
+	\caption{Physical federation topology used in system tests}
+	\label{lst:testing:topo:logic}
+\end{listing}
 
-Alle Nodes sind an einem Switch angeschlossen und kommunizieren über diesen. 
-Der root primary Node ist zudem mit dem root backup Node noch zusätzlich verbunden.
-
+All nodes are attached to an \gls{ovs} instance which allows them communicate with each
+other via the TCP/IP transport. In addition to this star topology, there is an
+additional, dedicated link between the two HA peers which form the root HA
+cluster.
 
 %----------------------------------------------------------------------------
 
 \section{Port to new \zmq library}\label{sec:approach:port}
-Porting Roadster to a new \zmq library early on makes sense for the following reasons:
+One of the first changes to Roadster's codebase is porting to a new \zmq
+library. This makes sense for the following reasons:
 
 \begin{itemize}
-\item to exclude possible failures from faults in the unmaintained ffi-rzmq\footnote{\url{https://github.com/chuckremes/ffi-rzmq}} library
-\item encryption is needed later anyway, which is not supported by the currently used library
-\item all other tasks involve \zmq communication anyway
+\item To exclude possible failures from faults in the unmaintained ffi-rzmq\footnote{\url{https://github.com/chuckremes/ffi-rzmq}} library.
+\item Encryption is needed later anyway, which is not supported by the currently used library.
+\item All other tasks involve \zmq communication anyway.
 \end{itemize}
 
 There is currently only a single Ruby library that is maintained, supports

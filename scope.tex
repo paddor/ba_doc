@@ -491,71 +491,88 @@ the \gls{cztop} langauge binding for Ruby, see \autoref{ch:zmq}.
 
 
 \subsection{Existing CSP in a nutshell}\label{sec:scope:csp}
-\emph{This is a brief introduction/refresher for the Clone State Pattern
-implemented by Roadster, which is used for the DIM synchronization. Although Roadster actually sends serialized instances
-of CSP message classes to fulfill this protocol, for better readability the
-\gls{zguide}'s canonical nomenclature of \gls{clone-pattern} messages will be used.}
-% TODO: maybe use class names after all, ICANHAZ is confusing and VERY informal
+The existing \acrfull{CSP} is closely related to the \gls{clone-pattern} from
+the \gls{zguide}. Its goal is to keep the \gls{DIM} (\emph{state}) synchronized
+across the set of DIM-aware actors.  It follows a server-client architecture as
+opposed to a fully decentralized architecture, which allows for greatly reduced
+complexity.
 
-% TODO CSP is bidirectional!
+The server part acts as the authorative source for all modifications to the
+DIM. This is performed by the CORE actor and makes use of its ROUTER, PULL, and
+PUB socket.
 
-This works by
-marking the updated object dirty\footnote{It is marked dirty by setting its
-\rb{@lifecycle_state = "updated"}} so it is subsequently replicated via the
-\gls{CSP}. 
+The client part is performed by all COMM actors and utilizes the respective
+actor's DEALER, PUSH, and SUB socket.
 
-The existing \acrfull{CSP} is closely related to the \gls{clone-pattern} from the \gls{zguide}. Its
-goal is to keep a state (a list of key-value pairs) synchronized across a set
-of participants. To greatly reduce the complexity, it is not decentralized, but
-uses server/client architecture. The server part serves as the authorative
-source for all changes to the DIM.
-
-The server uses a ROUTER, a PULL, and a PUB socket; each client a DEALER, a
-PUSH, and a SUB socket. The protocol consists of three distinct messages flows:
+The protocol consists of three distinct messages flows:
 
 \begin{description}
 	\item [Snapshots:]
 		Requesting and receiving the complete, current snapshot of the
-		state (all key-value pairs). This happens via a
-		ROUTER/DEALER pair of sockets. The request message consists solely of
-		the humorously named ICANHAZ command. The response is the
-		complete set of KVSET messages so a late-joining (or previously
-		disconnected) client can rebuild the current snapshot.
+		state. This is performed via the ROUTER-DEALER pair of sockets
+		during the startup of each COMM actor. The request is answered
+		by the CORE with the complete set of dynamic DIM objects.
+
+		In the best case, the snapshot only needs to be requested once
+		by each COMM actor. However, as there is no guaranteed message
+		delivery, it could happen that an incremental update (issued by
+		another COMM actor or the CORE itself) gets lost. With the next
+		successfully delivered update, this situation is recognized by
+		the receiving COMM actor based on the strictly monotonically
+		increasing sequence number (\emph{version}) associated with
+		each update. The discrepancy is resolved by simply requesting a
+		new snapshot, after which the state has been resynchronized.
 
 	\item [Upstream updates:]
-		Updates always originate from clients and are sent to the
-		server via a PUSH/PULL pair of sockets. These are KVSET messages.
+		Updates can originate from a COMM actor (i.e. a new sensor data
+		from a field device read by the actor's adapter) and are sent to the
+		CORE actor via the PUSH-PULL socket pair.  This works by
+		marking the updated objects as ``dirty'' so they can be sweeped
+		and marked as ``idle'' when sending the next state update.
+
+		The CORE itself can modify the state as well, i.e. re-evaluate
+		aggregates based on changed sensor data, or create/close a
+		case. Of course, this change does not need to be sent through a
+		PUSH socket first, as it happens directly inside the CORE
+		actor. However, the subsequent behavior is the same, namely
+		that the new modifications need to be replicated to the other
+		COMM actors.
 
 	\item [Downstream updates:]
-		After being applied to the server's copy of the state,
-		updates get a sequence number and are published back to all
-		clients. This happens via the PUB socket and
-		uses KVPUB messages.
+		After being applied to the CORE's state,
+		modifications get a sequence number and are replicated to all
+		COMM actors. This happens via the CORE's PUB socket, so all
+		COMM actors' SUB sockets receive the update.
 \end{description}
 
-By making all updates go through the server, a single sequence is enforced,
-which is crucial to keep the state consistent across all clients.
+By making all updates go through the CORE actor, a single sequence is enforced,
+which is crucial to keep the state consistent across all DIM-aware actors.
 
 To avoid risking a gap between requesting the current snapshot and subscribing
-to updates, a client actually subscribes to the updates first, then gets the
-snapshot, and then starts reading the updates from the socket (which has been
+to updates, a COMM actor actually subscribes to the updates first, then gets the
+snapshot, and then starts reading the updates from the SUB socket (which has been
 queueing updates in the meantime, if any). Updates that are older or the same
 age as the received snapshot are skipped, and only successive updates are
 applied (tested by comparing the sequence numbers).
 
 Because message loss via the third message flow (PUB-SUB) is unlikely but
-theoretically possible, the client checks for gaps in the sequence number of
-each KVPUB message. If a gap is detected, the current state is discarded and a
+theoretically possible, the participating actors check for gaps in the sequence number of
+each downstream update. If a gap is detected, the current state is discarded and a
 complete resynchronization happens. This is brutal, but is very simple and thus
 robust; there is no complexity that would leave room for nasty corner cases.
 
-A feature described in the \gls{zguide}, but not implemented in Roadster as of
-this writing, are subtrees.
-Keys can be treated hierarchically (e.g. \sh{topic.subtopic.key}) and thus, a
-client can optionally subscribe to only a particular subtree. This is useful
-when the number of client grows and not all of the state needs to be on every
-client. In that case, the topic of interest is sent by the client along with
-the ICANHAZ message.
+Updates from COMM actors have their own version number, one for each adapter.
+This is to ensure that the CORE is able to do the very same checks to notice
+gaps in the sequence of updates from any COMM actor.
+
+% TODO: mention subtrees somewhere else, maybe in the approach
+%A feature described in the \gls{zguide}, but not implemented in Roadster as of
+%this writing, are subtrees.
+%Keys can be treated hierarchically (e.g. \sh{topic.subtopic.key}) and thus, a
+%client can optionally subscribe to only a particular subtree. This is useful
+%when the number of client grows and not all of the state needs to be on every
+%client. In that case, the topic of interest is sent by the client along with
+%the ICANHAZ message.
 
 % TODO: add illustration
 

@@ -164,11 +164,34 @@ in~\autoref{lst:testing:docker:directory-structure}.
 
 \begin{listing}
 	\begin{minted}[bgcolor=bg]{Shell}
-/tmp
-  -> /roadster
-      -> /features
-  -> /projects
-      -> /ba-roadster-app
+/tmp/
+|-- roadster
+|   |-- ci
+|   |   |-- run_system_tests.sh
+|   |   `-- run_unit_tests.sh
+|   `-- features
+|       |-- autonomy.feature
+|       |-- environment.py
+|       |-- ...
+|       |-- steps
+|       |   |-- autonomy.py
+|       |   |-- behave_util.py
+|       |   `-- ...
+|       |-- support
+|       |   |-- conf.root.primary.rb
+|       |   |-- federation.rb
+|       |   `-- ...
+`-- projects
+	`-- ba-roadster-app
+		|-- conf.root.primary.rb
+		|-- data.root.primary
+		|   |-- eventjournal.tct
+		|   `-- parameters.tch
+		|-- lib
+			|-- domain
+			|   |-- federation.rb
+			|   `-- ...
+			`-- ...
 	\end{minted}
 	\caption{Directory structure of system tests within Docker container}
 	\label{lst:testing:docker:directory-structure}

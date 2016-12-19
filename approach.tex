@@ -156,7 +156,6 @@ virtual network and on particular hosts within that network at any time. To
 parse and evaluate the features written in the Cucumber format, the BDD
 framework Behave\footnote{\url{http://pythonhosted.org/behave/}} is used.
 
-% TODO translate
 \subsubsection{Directory structure}
 
 The directory structure used within the Docker container is illustrated
@@ -199,17 +198,12 @@ in~\autoref{lst:testing:docker:directory-structure}.
 
 \subsubsection{Roadster federation topology}
 The federation used for system tests is build as follows:
-\begin{listing}
-% TODO: better node naming, if possible
-% TODO: illustration graphic?
-	\begin{minted}[bgcolor=bg]{Shell}
-   np-npB
-  /    \ 
- sN1   sN2
-	\end{minted}
+\begin{figure}[]
+	\center
+	\includegraphics[width=0.5\textwidth]{img/logical_federation_setup.pdf}
 	\caption{Logical federation topology used in system tests}
 	\label{lst:testing:topo:logic}
-\end{listing}
+\end{figure}
 
 The root node is a HA cluster, which acts as such when appropriate according to
 the feature being tested. At other times, only its primary node is active and
@@ -225,15 +219,12 @@ Subnode sN2 merely acts as a listener and is not directly supervising any field
 devices.
 
 \subsubsection{Network plan on Mininet}
-\begin{listing}
-	\begin{minted}[bgcolor=bg]{Shell}
-            s1
-      /   |   |    \
-   sN1  sN2  np - nPB
-	\end{minted}
+\begin{figure}[]
+	\center
+	\includegraphics[width=\textwidth]{img/physical_network_mininet.pdf}
 	\caption{Physical federation topology used in system tests}
 	\label{lst:testing:topo:logic}
-\end{listing}
+\end{figure}
 
 All nodes are attached to an \gls{ovs} instance which allows them communicate with each
 other via the TCP/IP transport. In addition to this star topology, there is an
@@ -312,6 +303,15 @@ This actor is responsible for communication with the direct supernode.
 This actor is responsible for communication with direct subnodes.
 \end{description}
 
+
+% TODO: translate, nicht sicher ob der zusammenhang korrekt ist
+Um Nachrichten über die neuen Actors zu senden, wurde ein FCP Protokol
+erstellt. Dabei wurde im Prototyp ein einfaches Hello verschickt.
+Das FCP Protokol wurde nach der Entwicklung der Prototypen dazu verwendet um Nachrichten 
+in der Federation von Punkt A zu Punkt B zu routen. In erster Linie dient es für Routing aber es wird auch für geroutete
+Ping \& Pong Nachrichten verwendet. Die Ping \& Pong Nachrichten
+dienen zur Überwachung der Erreichbarkeit der Subnodes und des Supernodes.
+Weiteres zum Protokol im Kapitel Message routing.
 % TODO: describe in layers
 % TODO: FCP::API, FCP::API::Hello message
 
@@ -382,12 +382,14 @@ functionality to Roadster involves the following aspects:
 \end{figure}
 
 \subsection{Federation definition}
+% TODO: topolofy_conf.rb rename to federation.rb?
 The federation topology has to be defined somewhere. This can be done using a
 \gls{DSL} and then put into a static file (e.g. \sh{topology_conf.rb}) shared
 on all nodes of a Roadster federation. Each actor could then read the file at
 startup, just like it is done for other configuration pieces of a Roadster node.
 \autoref{lst:dsl:topo:no-ha} shows how such a configuration snippet might look.
 
+% TODO: FIXME text isn't correct anymore
 To let the actors of a node know which node they belong to, an additoinal line
 has to be added to the specific configuration file (\sh{conf.rb}), e.g.
 % FIXME: root node could be called nodes.northpole (avoids ambiguity with the
@@ -660,6 +662,19 @@ UPSTREAM actor has to recognize this situation and discard update in question
 immediately.
 
 \subsubsection{Bootstrapping}
+% TODDO: translate
+Durch den Neustart eines Nodes wird seine interne Versionsnummer wieder bei 0 beginnen,
+was dazu führt das seine Updates von anderen Nodes discarded wird bis er die nötige
+Versionsnummer von vor dem Neustart erreicht. Um diesem Problem entgegen zu wirken
+wurde ein Monotonic mechanism erstellt, welches erlaubt das bei einem Snapshot auch die
+eigene Versionsnummer überschrieben werden kann, insofern die eigene Version im Snapshot höher
+ist als die eigene. Deshalb wird bei einem Neustart proactively ein Snapshot vom Supernode oder
+vom Subnode verlangt.
+% TODO: supernode implementation braucht dieses Funktion auch - weil
+
+Beim Start eines Nodes werden die foreign update Versionsnummern auf -1 gesetzt, so
+dass der erste Snapshot nicht discarded ist.
+
 % TODO: requesting snapshot, jumping version to keep it monotonic
 % TODO: initialize foreign node versions to -1 so their first snapshot isn't discarded
 

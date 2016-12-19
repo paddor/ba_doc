@@ -27,6 +27,7 @@
 
 \usepackage{amssymb} % for \checkmark
 \usepackage{textgreek} % for \textMu
+\usepackage{pifont}% http://ctan.org/pkg/pifont, for \ding{#}
 \usepackage{enumitem} % for \begin{itemize}[label={...}]
 \usepackage[super]{nth} % for \nth{3} => 3rd with superscript
 \usepackage[export]{adjustbox} % left/right aligned images
@@ -60,6 +61,7 @@ block=none]{biblatex}
 
 \usepackage{MnSymbol}
 
+
 %----------------------------------------------------------------------------
 \usepackage[newfloat]{minted}
 \usemintedstyle{lovelace}
@@ -68,6 +70,7 @@ block=none]{biblatex}
 %manni % okay, but purple features
 %lovelace
 \definecolor{bg}{rgb}{0.96,0.96,0.96}
+
 
 % inline Ruby
 \newcommand{\rb}[1]{\mintinline[bgcolor=bg]{Ruby};#1;}
@@ -84,6 +87,14 @@ block=none]{biblatex}
 
 % adding source as caption not shown in LOF
 \newcommand{\source}[1]{\vspace{-15pt}\caption*{\hfill \scriptsize Source: {#1}} }
+
+% checkmark and crossmark
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{54}}
+
+
+% 150% of vertical spacing between table rows
+\renewcommand{\arraystretch}{1.5}
 
 \title{Roadster High Availability}
 \author{Patrik Wenger, Manuel Schuler}

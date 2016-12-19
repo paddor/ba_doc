@@ -8,17 +8,26 @@
 \autoref{tab:systemtestresults} shows the system test results.
 \begin{table}[H]
   \centering
-  \scriptsize
-  \begin{tabular}{|p{5mm}|p{5mm}|p{5mm}|p{20mm}|}
-    \hline 	\bf C1 & C2 & C3 & What \\ \hline
-	\bf \color{green!50}X & \color{green!50}X & \color{green!50}X & Federation \\ \hline
-	\bf \color{green!50}X & \color{green!50}X & \color{green!50}X & Dim extension \\ \hline
-	\bf \color{green!50}X & \color{green!50}X & \color{green!50}X & Autonomy \\ \hline
-	\bf \color{green!50}X & \color{green!50}X & \color{green!50}X & Message routing \\ \hline
-	\bf \color{red!50}o & \color{green!50}X & \color{green!50}X & High Availability \\ \hline
-	\bf \color{red!50}o & \color{green!50}X & \color{green!50}X & Persistence Synchronization \\ \hline
-	\bf \color{red!50}o & \color{red!50}o & \color{green!50}X & Encryption \\ \hline
-	\bf \color{red!50}o & \color{red!50}o & \color{green!50}X & OPC-UA (optional) \\ \hline
+  \begin{tabular}{|m{5mm}|m{5mm}|m{5mm}|m{50mm}|}
+    \hline
+    \bf C1 & \bf C2 & \bf C3 & \bf Feature \\
+    \hline
+	  \bf \color{green!65!black}\cmark & \color{green!65!black}\cmark & \color{green!65!black}\cmark & Federation \\
+    %\hline
+    \bf \color{green!65!black}\cmark & \color{green!65!black}\cmark & \color{green!65!black}\cmark & DIM extension \\
+    %\hline
+    \bf \color{green!65!black}\cmark & \color{green!65!black}\cmark & \color{green!65!black}\cmark & Autonomy \\
+    %\hline
+    \bf \color{green!65!black}\cmark & \color{green!65!black}\cmark & \color{green!65!black}\cmark & Message routing \\
+    %\hline
+    \bf \color{red!50}\xmark & \color{green!65!black}\cmark & \color{green!65!black}\cmark & High Availability \\
+    %\hline
+    \bf \color{red!50}\xmark & \color{green!65!black}\cmark & \color{green!65!black}\cmark & Persistence synchronization \\
+    %\hline
+    \bf \color{red!50}\xmark & \color{red!50}\xmark & \color{green!65!black}\cmark & Encryption (optional) \\
+    %\hline
+    \bf \color{red!50}\xmark & \color{red!50}\xmark & \color{green!65!black}\cmark & OPC-UA (optional) \\
+    \hline
   \end{tabular} \\
   \caption{Systen tests results}
   \label{tab:systemtestresults}

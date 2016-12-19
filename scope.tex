@@ -313,7 +313,7 @@ The DIM consists of static objects and dynamic objects. Modifications to the dyn
 objects are replicated across all DIM-aware actors. This is done by the \gls{CSP} as explained in~\autoref{sec:scope:csp}.
 \autoref{fig:roadster:meta-model} illustrates the class diagram of
 all the classes instanciated to constitute the DIM. They all reside within the
-Ruby module namespace \rb{Roadster::Domain::Model}.
+Ruby module namespace \sh{Roadster::Domain::Model}.
 
 \begin{figure}[]
 	\includegraphics[trim=1.5cm 1cm 1cm 1cm, clip=true, width=0.9\textwidth]{img/meta_model.pdf}
@@ -364,7 +364,7 @@ session. Any protocol can make use of this primitive. Source code that
 initiates a dialog looks like a synchronous call, even though
 it is handled asynchronously by Roadster's message passing
 infrastructure.\footnote{This is done by wrapping the affected
-code in a Ruby \rb{Fiber}, which is similar to a thread but
+code in a Ruby \sh{Fiber}, which is similar to a thread but
 allows for cooperative scheduling as opposed to preemtive.}
 \end{description}
 
@@ -581,7 +581,7 @@ actor. Different data goes into different \gls{tc} database files, including:
 		that have been confirmed and thus removed from the DIM. It
 		resides in a \gls{tc} \emph{table} database, where the key is a
 		\gls{UUID}, one of the columns (attributes) is the timestamp of
-		the case, and another one is the actual, serialized \rb{Case}
+		the case, and another one is the actual, serialized \sh{Case}
 		object. Objects in this database can be modified, e.g. when a
 		pending case is confimed.
 

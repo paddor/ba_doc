@@ -170,7 +170,7 @@ The following additional federation topologies must be supported:
 
 	\item [ Multi level, \gls{HA} at root only ] \hfill\\
 		There can be multiple hierarchy levels within a Roadster federation, such as two or
-		three (anything else is considered exotic). Introducing
+		three (anything else is declared out of scope of this thesis). Introducing
 		redundancy is done at the root level in the form of a HA
 		cluster, consisting of a primary and a backup node. An example of this setup is illustrated in
 		\autoref{fig:topo:ml:ha}.
@@ -189,10 +189,9 @@ The following additional federation topologies must be supported:
 	\label{fig:topo:ml:ha}
 \end{figure}
 
-% FIXME: exotic is too colloquial
-The following cases are more exotic and are outside the scope of this thesis;
-however, they should be kept in mind so a future extension to support them is
-feasible:
+The following topologies are unusual, not planned for, and are thus declared
+outside the scope of this thesis; however, they should be kept in mind so a
+future extension to support them is feasible:
 
 \begin{description}
 	\item [ Multi level, \gls{HA} at bottom ] \hfill\\
@@ -207,14 +206,14 @@ feasible:
 \begin{figure}[]
 	\center
 	\includegraphics[width=0.5\textwidth]{img/ml_ha_on_sub_exotic_topology.pdf}
-	\caption{Exotic Federation example: Multi level, \gls{HA} at bottom}
+	\caption{Unusual federation example: Multi level, \gls{HA} at bottom}
 	\label{fig:topo:exotic:ml:ha:on:sub}
 \end{figure}
 
 \begin{figure}[]
 	\center
 	\includegraphics[width=0.5\textwidth]{img/ml_ha_on_mid_exotic_topology.pdf}
-	\caption{Exotic Federation example: Multi level, \gls{HA} in the middle}
+	\caption{Unusual Federation example: Multi level, \gls{HA} in the middle}
 	\label{fig:topo:exotic:ml:ha:on:mid}
 \end{figure}
 

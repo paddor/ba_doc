@@ -329,24 +329,29 @@ authenticates all its communication partners, and vice versa.
 Since the \zmq binding used in the legacy version is unmaintained and does not
 allow encryption, it has to be exchanged with a more appropriate library.
 
-\subsection{Coding Guidelines}
+\subsection{Code style}
 The coding guidelines desired by the client are basically the ones written down
 in the popular Ruby style guide \cite{rb:style-guide}, with the following
 differences or special remarks:
 
 \begin{itemize}
-	\item method calls: only use parenthesis when needed, even with
-		arguments (as opposed to
-		\footnote{\url{https://github.com/bbatsov/ruby-style-guide\#method-invocation-parens}})
-	\item 2 blank lines before method definition (slightly extending
-		\footnote{\url{https://github.com/bbatsov/ruby-style-guide\#empty-lines-between-methods}})
-	\item YARD API doc, 1 blank comment line before param documentation,
-		one blank comment line before code (ignoring
-		\footnote{\url{https://github.com/bbatsov/ruby-style-guide\#rdoc-conventions}})
-	\item Ruby 1.9 symbol keys are required
-		\begin{itemize}
-			\item e.g. \rb{foo: "bar", baz: 42} instead of \rb{:foo => "bar", :baz => 42}, just like
-			\footnote{\url{https://github.com/bbatsov/ruby-style-guide\#hash-literals}}
-		\end{itemize}
-	\item align multiple assignments so there is a column of equal signs
+	\item Non-interpolated strings shall be written as \rb{'foobar'}, not \rb{"foobar"}.
+
+	\item Method invocation: Parenthesis shall be omitted when unnecessary, even with
+		arguments present. This is opposed to the rule
+		\cite[\href{https://github.com/bbatsov/ruby-style-guide\#method-invocation-parens}{Method~Invocation~Syntax}]{rb:style-guide}.
+
+	\item Method definitions shall be preceded by two blank lines. This slightly
+		extends the rule
+		\cite[\href{https://github.com/bbatsov/ruby-style-guide\#empty-lines-between-methods}{Source~Code~Layout}]{rb:style-guide}.
+
+	\item Before and after API documentation there shall be one blank comment line for better readability. This ignores
+		the rule \cite[\href{https://github.com/bbatsov/ruby-style-guide\#rdoc-conventions}{Source~Code~Layout}]{rb:style-guide}.
+
+	\item Syntax sugar for Hashes with Symbol keys ($\geqslant$ Ruby 1.9)
+		is required, as per rule
+		\cite[\href{https://github.com/bbatsov/ruby-style-guide\#hash-literals}{Collections}]{rb:style-guide}.\\
+		Example: \mintinline[bgcolor=bg]{Ruby};{ foo: "bar", baz: 42 }; instead of \mintinline[bgcolor=bg]{Ruby};{ :foo => "bar", :baz => 42 };
+
+	\item Align multiple assignments so there is a column of equal signs.
 \end{itemize}

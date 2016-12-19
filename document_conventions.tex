@@ -1,0 +1,97 @@
+\chapter{This document}
+This chapter briefly describes the conventions used in this document.
+
+\section{Structure}
+The content within each chapter begins with a brief overview,
+followed by detailed, in-depth descriptions including illustrations.
+
+\paragraph*{Pragraph title.} This is what a titled paragraph title looks. After
+chapters, sections, and subsections, it's the smallest structural entitiy in
+this document.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+\section{Ruby}
+\paragraph*{Language.} Ruby is an expressive, dynamically and strong typed, interpreted
+programming language. Classes are defined and can be extended at runtime.
+\autoref{lst:ruby:example} is an example of a Ruby code listing.
+
+Commonly used core classes include:
+\begin{itemize}
+	\item \sh{Integer}:
+		Arbitrary sized integers, such as \rb{42}.
+	\item \sh{Float}:
+		Limited precision floating point number, such as \rb{3.141}.
+	\item \sh{String}:
+		Mutable character sequences associated with an encoding.
+		\rb{'foo'} is a string without interpolation, whereas
+		\mintinline[bgcolor=bg]{Ruby};"bar #{name.capitalize}"; is a string with interpolation.
+	\item \sh{Symbol}:
+		Immutable value objects such as \rb{:foobar}. They are used for identification only,
+		especially as keys in a \sh{Hash}. They are basically strings of
+		which each only exists once in memory.
+	\item \sh{Array}:
+		Mutable, ordered sequences of any objects, such as \rb{[ 42, 3.14, 'foo', :bar]}.
+	\item \sh{Hash}:
+		Hash maps between keys-value pairs, such as
+		\mintinline[bgcolor=bg]{Ruby};{ :foo => 'bar', :baz => 'quux' };.
+		Keys and values can be arbitrary objects, but Symbols are
+		commonly used as keys.
+\end{itemize}
+
+\paragraph*{Class names.} Classes and modules (mix-ins) are the only means of
+namespacing in Ruby. An example of a fully qualified class name is \sh{Roadster::Actors::Base},
+which, by convention, denotes the class name of the "abstact"\footnote{The concept of abstract classes
+does not exist in Ruby as a language construct. Instead, a regular class is defined and merely used
+for inheritance.} base class for all actors.
+
+\paragraph*{Methods names.} An
+instance method is denoted using \mintinline[bgcolor=bg]{Shell}|Class#method_name|, or simply
+\mintinline[bgcolor=bg]{Text};#method_name; if the class
+can be deduced from context. On the other hand, a class method is denoted as
+\sh{Class.method_name}. Method names can end in \sh{=} (setters), \sh{?}
+(Boolean query methods), and \sh{!} (destructive methods, e.g. making a
+modification in-place instead of on a returned copy).
+
+
+\begin{listing}
+	\begin{minted}[bgcolor=bg]{Ruby}
+# The Greeter class
+class Greeter
+
+  # Capitalizes the given name.
+  # @param name [String] the person's name to greet
+  def initialize(name)
+    @name = name.capitalize
+  end
+
+
+  # Greets the person.
+  def salute
+    puts "Hello #{@name}!"
+  end
+
+
+  # Anonymizes the person to greet.
+  def anonymize!
+    @name = 'Anon'
+  end
+
+
+  # @return [Boolean] whether the person's name is 'Anon'
+  def anonymous?
+    @name == 'Anon'
+  end
+end
+
+greeter = Greeter.new('world')
+greeter.salute # prints "Hello World!"
+
+greeter.anonymize!
+greeter.anonymous? #=> true
+greeter.salute # prints "Hello Anon!"
+	\end{minted}
+	\caption{Example Ruby listing}
+	\label{lst:ruby:example}
+\end{listing}
+

@@ -47,7 +47,7 @@ block=none]{biblatex}
 \bibliography{main}
 \hypersetup{
 	unicode=true,
-	colorlinks=true,linkcolor=blue!85!black,
+	colorlinks=true,linkcolor=blue!75!black,citecolor=blue!75!black,urlcolor=blue!75!black,
 	pdftitle={Roadster High Availability},
 	pdfsubject={Extension of a SCADA Framework to support High Availability and Authenticated Encryption},
 	pdfauthor={Patrik Wenger, Manuel Schuler},
@@ -128,11 +128,28 @@ block=none]{biblatex}
 \begin{abstract}
 \pagenumbering{roman}
 
-% TODO introduction
+% introduction
+Roadster is mindclue GmbH’s in-house framework to build modern supervision and
+control applications used in various technical fields including traffic
+systems, energy, and water supply. It is written in Ruby and uses \zmq to pass messages
+within a system of loosely coupled actor processes following a
+shared-nothing architecture.
 
-% TODO approach and technologies
+The missing features include the ability to run a Roadster application in a
+hierarchical federation spanning multiple autonomous nodes, high
+availability, and secure inter-node communications.
 
-% TODO result
+% approach and technologies
+The students gathered exact requirements, worked out soltutions fitting Roadster's
+layered software architecture, and implemented them following software
+engineering methodology. New and a significant amount of existing functionality
+has been covered by comprehensive test suites ranging from unit tests to system tests.
+
+% result
+As a result, Roadster applications can now be declared and run in a federation.
+State is shared through secure inter-node communications.  Highly
+available nodes can be declared and run in the form of hot-standby
+clusters.
 
 \end{abstract}
 %-----------------------------------------------------------------------------
@@ -147,16 +164,21 @@ our creations.
 %\includepdf[width=\textwidth,pages=1,pagecommand=\section{Permissions},trim=1.9cm 3cm 2cm 2cm,clip]{vereinbarung.pdf}
 
 \chapter*{Acknoledgements}
-% TODO anyone we'd like to thank
+We would like to thank Prof. Dr. F. Mehta for his competent guidance during
+this bachelor thesis.  We highly value his opinions. Due to his polite
+parlance, discussing project matters, both of the management and the technical
+kind, has always been an enrichment.
+
+We also thank Andy Rohr of the mindclue GmbH for his help and support in
+finding our bearings within Roadster's codebase and his precious input in the
+design process and decision making.
 
 Special thanks to Pieter Hintjens {\textdagger} (3 December 1962 -- 4 October
 2016) for his amazing work and contagious passion within the \zmq and
 distributed computing communities. We send our deepest condolences to his
 family. Rest in peace.
 
-%-----------------------------------------------------------------------------
-% TODO: Preface? We need a place to explain paragraph titles using an example.
-%-----------------------------------------------------------------------------
+
 % TOC, LOF, LOT, LOL
 \setcounter{tocdepth}{4}
 \tableofcontents
@@ -174,6 +196,7 @@ family. Rest in peace.
 
 %-----------------------------------------------------------------------------
 \part{Technical Report}
+\include{document_conventions}
 \include{scope}
 \include{requirements}
 \include{approach}
@@ -192,22 +215,31 @@ family. Rest in peace.
 
 
 \chapter{Development infrastructure}
-% TODO Patrik: personal dev env
-% * Tmux in Linux in VBox on macOS
-% * Tmux tabs ("windows"):
-%   - first tab (development and specs):
-%     - NeoVim with tabs and windows
-%   - second tab: Guard for live unit tests whenever a file changes
-%   - third tab (log analyzation):
-%     - left pane: Roadster root node instance
-%     - right pane: Roadster subnode instance
-%     - third, small pane: shell to kill -9 all Roadster instances if needed
+\section{Personal development machines}
+P. Wenger's personal development machine for Roadster was an Ubuntu 16.04 VM
+running in VirtualBox on macOS. Most of the work took place within a fullscreen terminal
+emulator (iTerm2\footnote{\url{https://iterm2.com}}) connected to the VM via SSH. Tmux was used within that to
+persist the open workspace (multiple running shells and panes) across
+suspensions of the VM.
 
-% TODO Manuel: personal dev env
-%  - development: RubyMine on Windows
-%  - execution: mounted in Linux VM
+Tmux windows used:
+\begin{enumerate}
+	\item NeoVim\footnote{\url{https://neovim.io}} with tabs and windows for development of features and specs.
+	\item Automatic execution of specs whenever a file (implementation or
+		specs) changes. This is done using
+		Guard.\footnote{\url{https://github.com/guard/guard}}
+	\item Manually started Roadster instances (usually two in side-by-side Tmux panes).
+\end{enumerate}
 
-\subsection{Tools}
+The VM was not used to write this document. Instead, an instance of NeoVim and
+a PDF viewer was used directly on the host OS. The repository's Makefile helped
+automating the build process.
+
+M. Schuler used RubyMine\footnote{\url{https://www.jetbrains.com/ruby}} on Windows for development and an Ubuntu VM to run
+Roadster and the new system tests. To do so, the source code directory being
+modified by the IDE was mounted inside the VM.
+
+\section{Tools}
 The source code of this document and all of our code contributions are hosted
 on GitHub. The students will organize and perform their work directly on the
 site as far as possible. This means creating a Project board for each of the
@@ -219,12 +251,13 @@ client. Time tracking is done externally on Everhour. See
 
 \begin{table}[H]
   \centering
-  \scriptsize
-  \begin{tabular}{|p{50mm}|p{15mm}|p{15mm}|}
-    \hline 	\bf Use & Name & Version \\ \hline
-	\bf IDE & Vim, RubyMine &  \\ \hline
-	\bf version control system & Git & 2.* \\ \hline
-	\bf project management  & GitHub, Everhour &  \\ \hline
+  \begin{tabular}{|p{50mm}|p{35mm}|p{35mm}|}
+    \hline
+    \bf Use & \bf Name & \bf Version \\ \hline
+    \bf Editor & NeoVim & v0.2.0-150-g33319b1b \\ \hline
+    \bf IDE & RubyMine & 2016.3 \\ \hline
+    \bf Version control system & Git & 2.* \\ \hline
+    \bf Project management  & GitHub, Everhour &  \\ \hline
   \end{tabular} \\
   \caption{Development tools}
   \label{tab:dev-tools}
@@ -232,27 +265,33 @@ client. Time tracking is done externally on Everhour. See
 
 
 \subsection{Infrastructure}
-\autoref{tab:infrastructure} shows the infrastructure provided by HSR.
+\autoref{tab:infrastructure} shows the infrastructure provided by HSR. It was mainly used for \gls{CI}.
+
 \begin{table}[H]
   \centering
-  \scriptsize
-  \begin{tabular}{|p{25mm}|p{30mm}|}
-    \hline 	\bf Server name & sinv-56092.edu.hsr.ch \\ \hline
-	\bf IP address & 152.96.56.92 \\ \hline
-	\bf OS & Ubuntu 14.04 LTS \\ \hline
-	  \bf End of Life & March \nth{3} 2017 \\ \hline
-	\bf CPU & 1 @ 2.2 GHz \\ \hline
-	\bf RAM & 1 GiB \\ \hline
-	\bf Disk space & 15 GiB \\ \hline
+  \begin{tabular}{|p{25mm}|p{50mm}|}
+    \hline
+    \bf Server name & sinv-56092.edu.hsr.ch \\ \hline
+    \bf IP address & 152.96.56.92 \\ \hline
+    \bf OS & Ubuntu 14.04 LTS \\ \hline
+    \bf End of life & March \nth{3} 2017 \\ \hline
+    \bf CPU & 1 @ 2.2 GHz \\ \hline
+    \bf RAM & 1 GiB \\ \hline
+    \bf Disk space & 15 GiB \\ \hline
   \end{tabular} \\
-  \caption{Infrastructure}
+  \caption{Technical specifications of VM provided by HSR}
   \label{tab:infrastructure}
 \end{table}
 
+
 \chapter{Task description}\label{ch:task-desc}
-The following five pages are the original task description, signed by Prof. Dr. F. Mehta.
+The following five pages are the original task description, signed by Prof. Dr.
+F. Mehta. Due to administrative changes in the submission process, no optical
+media is submitted. Instead, the digital artifacts are submitted online via
+\url{https://moodle.hsr.ch}.
+
 \includepdf[pages={-}]{signed_task_description.pdf}
-% TODO: get signature from prof again to fix HSR logo
+
 
 \chapter{License}
 As stated in the task description, all of our code contributions underlie the

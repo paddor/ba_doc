@@ -3,11 +3,12 @@
 This chapter describes the approach taken by the students to fulfill the
 requirements. Possible variants as well as the final choices are explained here.
 
-\section{Summary}
+\section{Overview}
 % TODO * testing env, specs (~150 -> ~900)
 % TODO * actor layer: new actors, fed sockets, encryption, codecs (moved down and added authentication feature), messageauthenticator
 % TODO * messaging layer: new handlers, new protocols (FCP, BSP), new messages, "@node",
 % TODO * engine layer: new engines (Upstream, Downstream, BStar), Host extensions (#find_node), CSPMethods, MessageAuthentication, SupernodeSelector, SubnodesSelector, Domain::Model::Node
+
 
 \section{Testing}
 This section describes the test methods used to check units, the integration of
@@ -22,11 +23,16 @@ RSpec. 100\% coverage of the students' contributions can be achieved by
 adhering to \gls{TDD}, or more specifically, \gls{BDD}. RSpec offers itself as
 a very valuable testing tool providing very expressive assertion and mocking
 facilities, as well as more advanced features such as testing spies which have
-proven to be a perfect use case for Ruby's duck typing.
+proven to be a perfect use case for Ruby's dynamic binding (a.k.a \emph{duck typing}
+\footnote{\url{https://en.wikipedia.org/wiki/Duck_typing}}).
 
 Naturally, this also simplifies refactoring the code without the risk of
 breaking functionality unnoticed. Unit tests reside under the \sh{spec}
 directory of Roadster's code base.
+
+% TODO RSpec extension
+% TODO typical test example
+% TODO speccing only public methods and side effects of private methods
 
 \subsection{Integration tests}
 Integration tests verify the interaction between the individual components.
@@ -36,38 +42,63 @@ synchronization, integration tests have been written.
 In order to test the failover or synchronization functionality, individual processes
 can simply be killed and restarted later if the scenario defines this.
 
-More details about the integration test scenarios can be found in \autoref{ch:res}.
 
 \subsection{System tests}
 System tests are designed to test the application under close-to-reality
 conditions, treating the application as a black box: On a certain input, it is
-supposed to react with a certain output. It shall not matter how it reaches the output.
+supposed to react with a certain output. The internal mechanisms to produce said
+output and reach a certain state are insignificant.
 
-In case multiple nodes are necessary, they can be simulated easily by starting
-them as different process groups. This is possible and feasible since \zmq
-completely abstracts the transport away and thus really doesn't matter if other
-Roadster instances are running on the same (development) machine. This has been
-done at times when manual testing and trouble shooting during development
-turned out to be necessary.
+% TODO how to test persistence synchronization
 
-Another way to create an even more realistic environment, namely a networked
-federation of Roadster nodes and some field device generating sensor data,
-Mininet and a fake \gls{PLC} have proven to be of great help.
+\paragraph{Manual} At times when developing a feature, manual testing can give
+useful insights, especially when trouble shooting. Running Roadster manually in
+foreground within a terminal session helps with that.  When, for example,
+developing a new inter-node protocol, running multiple nodes simultaneously
+becomes a necessity. Although on the same development machine, this can be
+simulated by starting them as different process groups. Through the
+configuration, each Roadster instance is given a different set of endpoints,
+e.g. different TCP ports or Unix domain sockets. This is possible and feasible
+since \zmq completely abstracts the transport away and thus really doesn't
+matter if other Roadster instances are running locally or remotely.
+
+\paragraph{Automated} To create an more realistic environment including real
+network conditions, a more lower level approach is taken. Stronger isolation
+between Roadster instances can be achieved using software containers. Network
+virtualization can be used to induce latency and packet loss to simulate the
+properties of a congested network.
+Docker and Mininet together provide all of the required functionality.
+
+When a feature depends on external sensor data from a field device (e.g. a \gls{PLC}),
+a fake adapter is used. It continually fakes the actions of a fictional robot.
 
 \begin{description}
+	\item [Docker:]\hfill\\
+		Docker is a container software that makes use of the
+		\emph{cgroups}\footnote{\url{https://en.wikipedia.org/wiki/Cgroups}}
+		feature of the Linux kernel, which allows the isolation of
+		collections of processes. This includes isolation of CPU,
+		memory, and I/O usage, as well as process ID and network
+		namespaces.
+
+		Docker also provides a programmable way to start with a clean
+		state at the beginning of every run of the test suites. All
+		state changes and file system modifications are discarded after
+		the container is stopped.
+
 	\item [Mininet:]\hfill\\
-		Mininet allows creating virtual networks instantaneously. It
-		relies on a feature of the Linux kernel called \emph{cgroups}
+		Mininet allows creating virtual networks instantaneously.
+		Like Docker, it also relies on \emph{cgroups}
 		and network namespaces to efficiently run multiple \glspl{VM}
 		sharing the same kernel, and provide isolation. These very same
 		primitives are used by Docker itself.
 
 		Network infrastructure such as packet switching hardware and
-		network links can also be modeled in Mininet, including the
+		network links can be modeled in Mininet, including the
 		simulation of link quality issues such as induced latency and
 		packet loss.
 
-	\item [Fake robot:]\hfill\\
+	\item [Fake adapter:]\hfill\\
 		A fake implementation of a fictional \gls{PLC}, namely a robot
 		that that changes its position randomly in a 2D coordinate
 		system serves the purpose of getting external sensor data.
@@ -77,23 +108,24 @@ Mininet and a fake \gls{PLC} have proven to be of great help.
 		the example application provided by mindclue GmbH.
 \end{description}
 
+The system test results from each construction iteration can be found in \autoref{ch:res}.
+
+
 \subsection{Continous integration}
 \Gls{CI} helps prevent problems when integrating big chunks of code changes,
 also known as \emph{integration hell}. A new CI build is triggered upon each
 push of changes to the repository using a predefined build script.
 
-Due to the fact that Roadster's GitHub repository is private, online \gls{CI}
+\paragraph{GitLab CI} Due to the fact that Roadster's GitHub repository is private, online \gls{CI}
 services such as \emph{Travis~CI}\footnote{\url{https://travis-ci.com/}, requires payment after the
 first 100 builds} cannot be used without payment. Fortunately,
-Gitlab CI is free and can be installed on one's own infrastructure, such as the
-\gls{VM} provided by HSR, where it was installed and configured. Unit and
-integration tests are run every time new commits are checked in. This is useful
-to get informed proactively when something breaks.
+GitLab\footnote{\url{https://about.gitlab.com}} is a free, open-source GitHub-like development collaboration software and includes CI functionality. It can be installed on private infrastructure, such as the
+\gls{VM} provided by HSR, where it has been installed and configured.
 
-At every push of changes to Roadster or the example application, the CI
-solution set up on the HSR VM installs Roadster's dependencies, the Roadster
+\paragraph{Auto triggering} Every push of changes to Roadster or the example application triggers the CI
+solution set up on the HSR VM. It then installs Roadster's dependencies, the Roadster
 framework itself, the example application, and then runs all of Roadster's test
-suites.
+suites. This is useful to get informed proactively when something breaks.
 
 \subsubsection{Documentation build}
 It is deemed bad practice to keep generated files in a Git
@@ -103,7 +135,7 @@ files as binary files, and thus cannot use efficient algorithms to work out the
 differences only.
 
 This is why compiling the TeX sources for this document is also done reactively
-via a pipeline configured on Gitlab CI. The resulting artifact, a PDF file, is
+via a pipeline configured on GitLab CI. The resulting artifact, a PDF file, is
 then automatically uploaded to Git as a file associated with a newly created
 public release. This is done via GitHub's webservice API for managing
 releases.\footnote{\url{https://developer.github.com/v3/repos/releases/}}
@@ -112,7 +144,7 @@ releases.\footnote{\url{https://developer.github.com/v3/repos/releases/}}
 \subsubsection{Docker container}
 To provide a clean test environment for every CI build, a Docker container is used.
 It prepares the container with all necessary components before every build
-which then runs the unit and system tests. These components include:
+which then runs all test suites. The components include:
 
 \begin{itemize}
 	\item Mininet
@@ -121,10 +153,10 @@ which then runs the unit and system tests. These components include:
 	\item The most recent development version of Roadster (of the appropriate branch)
 \end{itemize}
 
-The system tests are run on the Gitlab server after each construction
+The system tests are run on the GitLab server after each construction
 iteration. To do so, the Python scripts set up a virtual network and then start
 the appropriate Roadster instances. Some features require a link to fail or a
-node to fail, which can be achieved at any time through Mininet commands or
+node to fail, which can be achieved at arbitrary times through Mininet commands or
 simply kiling Roadster instances wherever needed. The generated log data is
 evaluated later to verify that the behavior for each defined feature is
 correct.
@@ -224,7 +256,7 @@ to escape the bounding box.
 Subnode sN2 merely acts as a listener and is not directly supervising any field
 devices.
 
-\subsubsection{Network plan on Mininet}
+\subsubsection{Virtual network plan}
 \begin{figure}[]
 	\center
 	\includegraphics[width=\textwidth]{img/physical_network_mininet.pdf}
@@ -378,6 +410,7 @@ functionality to Roadster involves the following aspects:
 \begin{itemize}
 	\item A \gls{DSL} to be able to define a federation (including the role of each node)
 	\item Message routing
+	\item Heartbeating
 	\item DIM synchronization
 \end{itemize}
 
@@ -418,26 +451,65 @@ An entirely different approach would solve this problem using a hierarchical
 property list format, e.g. ZPL.\footnote{\url{https://rfc.zeromq.org/spec:4/ZPL}}
 A definite decision has yet to be made.
 
+% TODO node-specific config file
+
 \begin{listing}
 	% TODO: update to declarative form
 	\begin{minted}[bgcolor=bg]{Ruby}
-# * basic method to add a node: #add_node(ID, south_facing_bind_endpoint)
-# * it takes a block for defining subnodes
+module Conf::Federation
+  def self.conf
+    proc do
+      primary_endpoints \
+        router: 'tcp://0.0.0.0:20000',
+        pull:   'tcp://0.0.0.0:20001',
+        pub:    'tcp://0.0.0.0:20002',
+        ha_pub: 'tcp://0.0.0.0:20003'
 
-conf.nodes do |map|
-  map.add_node("root", "tcp://10.0.0.1:5000") do |map|
-    map.add_node("subnode_a", "tcp://10.0.0.10:5000")
-    map.add_node("subnode_b", "tcp://10.0.0.11:5000")
+      adapters do
+        adapter :foobar do
+          # config for 'foobar' adapter and its peers
+        end
+      end
+
+      node :s1 do
+        primary_public_key '4V]RsRk}.=dcAwNkXH0Tj[<jVhyV7l!-Hb}t=YQ$'.b
+
+        adapters do |s1_node|
+
+          adapter :simu do
+            label           'SIMU'
+            desc            'Process simulation adapter'
+            adapter_class   Roadster::Adapters::Simulation
+
+            peer :robot_controller_01 do
+              label 'robot_01'
+              uri   ''
+            end
+
+            peer :robot_controller_02 do
+              label 'robot_02'
+              uri   ''
+            end
+          end
+        end
+
+        objects do |s1_node|
+          robot :robot_01 do
+            label_i18n  de: 'Mein schicker roboter nummer 1',
+                        en: 'My fancy robot number 1'
+          end
+          s1_node.objects.robot_01.reference_peer s1_node.adapters.simu.robot_controller_01
+
+          robot :robot_02 do
+            label_i18n  de: 'Mein schicker roboter nummer 2',
+                        en: 'My fancy robot number 2'
+          end
+          s1_node.objects.robot_02.reference_peer s1_node.adapters.simu.robot_controller_02
+        end
+      end
+    end
   end
 end
-
-# subnode_a can infer its endpoints from its position in the tree:
-conf.system_id = "nodes.root.subnode_a"
-#=> this node is "subnode_a"
-#=> its IP address is 10.0.0.10
-#=> north facing COMM actor's bind port is 5001
-#=> south facing COMM actor's bind port is 5000
-#=> north facing COMM actor will connect to "root" node on "tcp://10.0.0.1:5000"
 	\end{minted}
 	\caption{Federation DSL example without HA}
 	\label{lst:dsl:topo:no-ha}
@@ -445,24 +517,42 @@ conf.system_id = "nodes.root.subnode_a"
 
 \begin{listing}
 	\begin{minted}[bgcolor=bg]{Ruby}
-conf.nodes do |map|
-  map.add_ha_pair("root", "tcp://10.0.0.1:5000", "tcp://10.0.0.2:5000") do |map|
-    map.add_node("subnode_a", "tcp://10.0.0.10:5000")
-    map.add_node("subnode_b", "tcp://10.0.0.11:5000")
+module Conf::Federation
+  def self.conf
+    proc do
+      primary_endpoints \
+        router: 'tcp://0.0.0.0:20000',
+        pull:   'tcp://0.0.0.0:20001',
+        pub:    'tcp://0.0.0.0:20002',
+        ha_pub: 'tcp://0.0.0.0:20003'
+
+      backup_endpoints \
+        router: 'tcp://0.0.0.0:20010',
+        pull:   'tcp://0.0.0.0:20011',
+        pub:    'tcp://0.0.0.0:20012',
+        ha_pub: 'tcp://0.0.0.0:20013'
+
+      adapters do
+        # telnet server for client systems (fake OPC-UA HA interface)
+        adapter :telnet do
+          label           'Telnet'
+          desc            'Telnet Server'
+          adapter_class   Roadster::Adapters::TelnetServer
+
+          peer :server do
+            label   'LTA'
+            desc    'LTA'
+            uri     "tcp://0.0.0.0:#{Roadster.conf.telnet_server_port}"
+          end
+        end
+      end
+
+      node :s1 do
+        # [...]
+      end
+    end
   end
 end
-
-# subnodeA can infer its endpoints from its position in the tree:
-conf.system_id = "nodes.root.subnode_a"
-#=> this node is "subnode_a"
-#=> its IP address is 10.0.0.10
-#=> north facing COMM actor's bind port is 5001
-#=> south facing COMM actor's bind port is 5000
-#=> north facing COMM actor will connect to "root" HA cluster on
-#   "tcp://10.0.0.1:5000" OR "tcp://10.0.0.2:5000" (Lazy Pirate algorithm)
-
-# for primary root:
-conf.system_id = "nodes.root[primary]"
 	\end{minted}
 	\caption{Fedreation DSL example with HA}
 	\label{lst:dsl:topo:with-ha}
@@ -473,29 +563,16 @@ conf.system_id = "nodes.root[primary]"
 % #
 \begin{listing}
 	\begin{minted}[bgcolor=bg]{Ruby}
-# Idea for node topology definition and assigning roles (features/adapters) to
-# diffent kinds of nodes.
-
 module Roadster
   module Domain::Model
 
     build do
-      nodes do
-        node "root" do # or maybe ha_node or bstar_node
-          endpoint "tcp://10.0.0.1:5000", "tcp://10.0.0.2:5000"
-          label 'BA Roadster App'
-	  desc  'Sample application [...]'
+      label 'BA Roadster App'
+      desc  'Sample application for P. Wenger and M. Schuler at HSR.'
 
-          load_conf ::Conf::AccessControl
-          load_conf ::Conf::Objects
-          load_conf ::Conf::Navigation
-
-          node "subnode_a" do
-            endpoint "tcp://10.0.0.1:5000"
-            load_conf ::Conf::Adapters
-            # load_conf ...
-          end
-        end
+      load_conf ::Conf::Federation
+      load_conf ::Conf::AccessControl
+      load_conf ::Conf::Navigation
     end
 
   end # Domain::Model
@@ -504,6 +581,7 @@ end # Roadster
 	\caption{Federation DSL example with HA and roles}
 	\label{lst:dsl:topo:with-roles}
 \end{listing}
+
 
 \subsection{Message routing}
 Messages need to be sent from an actor on one node to an actor on another node.
@@ -561,6 +639,11 @@ browser to the web UI's COMM actor. From there it is sent via the CORE actor out
 on the DOWNSTREAM actor to the subordinate node. There it is routed
 via the CORE actor to the correct COMM actor, where the command can actually be
 executed on the field device.
+
+\subsubsection{Heartbeating}
+% TODO supernode pings subnodes, subnodes send back pong
+* ping/pong with sequence number to match pongs to pings
+  why not dialog? => ping is one-to-many via PUB socket
 
 
 \subsection{DIM synchronization}
@@ -685,6 +768,10 @@ dass der erste Snapshot nicht discarded ist.
 % TODO: initialize foreign node versions to -1 so their first snapshot isn't discarded
 
 
+\subsection{Remote Case Management}
+% TODO gem 'simple_states' failed and thus was dropped, reduced complexity
+% TODO how to write your own FSM
+
 
 \subsection{Access control}
 % TODO: DIM access control
@@ -711,6 +798,7 @@ fully functional backup node in addition to the primary one.
 
 Run together in a hot-standby cluster, the passive node's responsibility is to
 take over in case the active one goes down.
+
 
 \subsection{Defining reliability}
 When speaking about reliability, it is worth listing the failures the solution must be
@@ -880,6 +968,20 @@ devices), callbacks from the \gls{bstar} library can be used to react on
 becoming active and becoming passive. To do something in another actor,
 Roadster's messaging infrastructure can be used.
 
+% TODO Going active:
+% * Core: guards (cases), ...
+% * IoComm: peer connections
+% * Downstream: subnode pinging, CSP publishing
+% * Upstream: CSP pushing to supernode
+% * Storage: ?
+% * Logger: -
+
+
+% TODO: Going passive
+% TODO passive node: why not Ping subnodes too? Upstream sockets would have to be
+%  connected to two nodes. => implement ROUTER-ROUTER
+
+
 \subsubsection{No client, no failover}
 A failover can only happen if there is at least one client. With no clients, a
 vote cannot happen. Thinking about it, it is not a bad thing if the failover
@@ -887,7 +989,8 @@ cannot happen in that case, since there is no client depending on the service
 brought by a HA cluster.
 
 \subsubsection{Alarm generation}
-When a failover happens, it makes sense to create a \rb{Case} (alarm) in the
+% TODO using Guard
+When a failover happens, it makes sense to create an alarm case in the
 DIM, so the outage is visible to operational personnel in one of the web UIs.
 The same applies to the case where the passive node goes down, although it
 does not have an immediate effect on availability.  This is so the operational
@@ -1280,6 +1383,27 @@ the nodes are already installed in a production environment. However, for that t
 secure, the nodes' authenticities must have been established in advance, or
 man-in-the-middle attacks would be possible while logging into the nodes,
 compromising everything.
+
+% TODO: `roadster keygen CONFIG` util
+
+% TODO 256 bit encryption
+% TODO 16 byte authenticator
+% TODO 24 byte nonce
+
+% TODO Entropy without encryption:
+% ```
+% Entropy = 5.390141 bits per byte.
+% 
+% Optimum compression would reduce the size
+% of this 4518 byte file by 32 percent.
+% 
+% Chi square distribution for 4518 samples is 36298.08, and randomly
+% would exceed this value less than 0.01 percent of the times.
+% 
+% Arithmetic mean value of data bytes is 83.2517 (127.5 = random).
+% Monte Carlo value for Pi is 4.000000000 (error 27.32 percent).
+% Serial correlation coefficient is 0.310227 (totally uncorrelated = 0.0).
+% ```
 
 \section{OPC UA Interface: High availability}\label{sec:approach:opc-ua}
 The OPC UA standard seems pretty complicated. And given that the requirement

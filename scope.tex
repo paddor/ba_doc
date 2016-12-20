@@ -79,7 +79,7 @@ byproduct. The intention is that the library makes certain \zmq-based
 communication protocols readily available for other developers facing the same
 problems.
 
-\section{Initial Situation}
+\section{Initial situation}
 
 \subsection{mindclue GmbH}
 The company mindclue GmbH, located in Ziegelbr\"ucke GL, provides its partner
@@ -108,7 +108,7 @@ A Roadster installation combines the following responsibilities:
 
 \begin{itemize}
 	\item Interaction with subordinate field devices (monitoring \& controlling)
-	\item Sophisticated alarm (\emph{case}) management
+	\item Sophisticated alarm case management
 	\item Persisting data (e.g. time series of sensor data, alarm log)
 	\item A machine-to-machine interface to higher level systems (\emph{clients})
 	\item A modern web UI customized for the particular installation to interact with operational and executive personnel
@@ -305,15 +305,46 @@ timers sequentially.
 
 
 \subsection{Domain Informaton Model}
-The \acrfull{DIM} is a tree data structure that lives inside every actor taking part in business logic (all but LOG and STORAGE) of a Roadster
-node. The CORE actor and every COMM actor build it when starting up by reading the configuration
-files available to the installation.
+The \acrfull{DIM} is a tree data structure that is maintained by every actor taking part the in business logic of a Roadster node. These are all but the LOG and STORAGE actors.
+The CORE actor and every COMM actor build it when starting up by reading the configuration
+files available to the installation. The configuration is written in a \gls{DSL} defined as part of the model classes of Roadster. Ruby makes it easy to define concise, expressive DSLs.
 
-The DIM consists of static objects and dynamic objects. Modifications to the dynamic
-objects are replicated across all DIM-aware actors. This is done by the \gls{CSP} as explained in~\autoref{sec:scope:csp}.
+A typical configuration contains declarations for the following:
+\begin{itemize}
+	\item Access control lists (users, roles, authentication and authorization rules)
+	\item Navigation menus for the web UI
+	\item A set of adapters that shall be loaded (each one in its own COMM
+		actor) at application start
+	\item Field devices (\emph{adapter peers}) that are physically attached to the node
+	\item Objects representing an actual peer with all its current sensor data as \emph{variables} and \emph{aggreates} of such
+	\item Guard declarations
+\end{itemize}
+
+The DIM is the collection of domain model instances, commonly resulting in up
+to a few hundred objects, depending on the attached field devices and
+configuration items.
 \autoref{fig:roadster:meta-model} illustrates the class diagram of
-all the classes instanciated to constitute the DIM. They all reside within the
+all the classes instanciated to constitute the DIM. They are all defined within the
 Ruby module namespace \sh{Roadster::Domain::Model}.
+Most of these these objects are static, but some are dynamic:
+
+% TODO show a typical DIM tree
+
+\begin{itemize}
+	\item The current value of a \emph{variable} or \emph{aggreage}, stored in an \sh{Roadster::Domain::Model::DataItem} instance
+	\item Current sessions of web UI users (\sh{Roadster::Domain::Model::Session})
+	\item Pending alarm cases (\sh{Roadster::Domain::Model::Case})
+\end{itemize}
+
+
+Modifications to the dynamic objects are replicated across all DIM-aware
+actors. This is done by the \gls{CSP} as explained in~\autoref{sec:scope:csp}.
+
+\subsubsection{Guards}
+Guards are one of the entity types in of the DIM. Their purpose is to observe
+variables and aggregates for changes. In case a sensor value exceeds the range
+declared as part of the guard, an alarm case is created, which requires
+human interaction.
 
 \begin{figure}[]
 	\includegraphics[trim=1.5cm 1cm 1cm 1cm, clip=true, width=0.9\textwidth]{img/meta_model.pdf}
@@ -321,6 +352,10 @@ Ruby module namespace \sh{Roadster::Domain::Model}.
 	\caption{Class diagram for Roadster's domain model used in the DIM}
 	\label{fig:roadster:meta-model}
 \end{figure}
+
+\subsection{Persistence}
+% TokyoCabinet, serverless KV store, similar to SQLite
+% TODO estimated sizes PD, ~300MiB, should keep for 13 months
 
 
 \subsection{Roadster Messaging Protocols}\label{sec:rmp}
@@ -334,6 +369,8 @@ internally. They reside in the messaging communication layer, and include:
 		Used to synchronize state between the DIM-aware actors.
 	\item [\gls{PDP}:]\hfill\\
 		Used when data needs to be persisted via the STORAGE actor.
+	\item [\gls{CMP}:]\hfill\\
+		Used to accept pending alarm cases.
 	\item [\gls{SMP}:]\hfill\\
 		Used to suppress the generation of certain \glspl{case}, e.g.
 		when a sensor is defect and repeatedly reports critical sensor data.
@@ -407,7 +444,9 @@ A number of socket types are provided, of which the most important pairs are:
 	to any of the connected ROUTER sockets (usually just one). When
 	reading a message from a ROUTER socket, an additional frame is
 	prepended to identify the DEALER socket which sent the message.
-	This identity is a short string either randomly chosen by \zmq
+	In \zmq terminology, this kind of frame is called an
+	\emph{envelope}.
+	This identity is a short string (up to 255 bytes) either randomly chosen by \zmq
 	or set by the application as a socket option. It does NOT
 	resemble an IP address or anything dependent on the chosen
 	transport.
@@ -577,7 +616,7 @@ actor. Different data goes into different \gls{tc} database files, including:
 
 \begin{description}
 	\item [ Event journal: ] \hfill\\
-		This is is a history of all cases (alarms), including the ones
+		This is is a history of all alarm cases, including the ones
 		that have been confirmed and thus removed from the DIM. It
 		resides in a \gls{tc} \emph{table} database, where the key is a
 		\gls{UUID}, one of the columns (attributes) is the timestamp of
@@ -604,7 +643,7 @@ actor. Different data goes into different \gls{tc} database files, including:
 
 \subsection{Tests}
 Roadster comes with a few unit tests, and a number of integration tests,
-written in RSpec, a well known BDD tool for Ruby projects. Test coverage is
+written in RSpec, a well known \gls{BDD} framework for Ruby projects. Test coverage is
 about 67\% overall, some files being better covered, some files less. There are
 no system tests.
 

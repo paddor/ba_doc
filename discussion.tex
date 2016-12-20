@@ -4,6 +4,37 @@
 % TODO general advice: be concise, brief, and specific
 % TODO: modifications to the same DIM objects from different actors at the same time => one update will be lost, but consistency is still guaranteed
 
+% TODO: SOLID principles
+% TODO: security of SCADA applications
+% TODO: fallacies of distributed computing
+
+
+% performance improvements
+%   * circumvent scrypt in test suite
+%   * avoid regex, use bare strings if possible (s[s.rindex('@')+1..-1]
+%   * test suite with profiling activated
+% * future feature: DIM visibility: :federation, :node, :actor
+%   - useful for supernode's last_seen (:node), currently an ivar in engine
+%   - current choice of HA supernode's endpoints (:node)
+% * when closing cases, the flag "all_cases" could fuck up
+%   - especially with multiple nodes
+%   - with single node: race condition, reply could contain a case (now closed) that was not shown in the UI => what to do?
+%   - proposal: remove flag, always just send array of case IDs
+% * maybe: model updates are sent to UI before authentication (TODO: tell Manu)
+% * ideas:
+%   - crystal for performance
+%   - msgpack for safety, show benchmarks
+%   - broadcast messages, signing, domain model level signature so snapshots can be relayed
+% * IDEA for DEPLOYMENT
+%   * 1 git repo per deployment
+%   * keygen phase: on each node, gen key and git commit in fedrb file
+%   * `roadster keygen FILE`
+% * analysis of encrypted traffic is still possible (see CURVE zmq)
+% * cleartext ZMTP commands
+% * talk about factories (MsgPack packer/unpacker) and hook methods, template method
+
+% TODO sign config file: => trash
+
 \section{Value Added}
 % TODO what's better than before
 
@@ -26,6 +57,9 @@ A HA cluster has to be complete (both nodes running) during initialization.
 Otherwise, only primary node can start to serve requests; the backup node will not
 do this.
 
+% TODO refactoring ideas: HANode < Node
+%  => root object in config
+
 \subsection{Persistence replication}
 Message traffic towards root node sums up because of persistence
 replication. This should not be a problem because of \zmq's brilliant
@@ -38,6 +72,7 @@ environments, possibly replacing higher-level systems described in
 
 \section{Ideas for Improvement}
 \subsection{High availability}
+
 \subsubsection{Thoughtful heartbeating}\label{sec:discussion:imp:ha:hb}
 The BSTAR actor currently happily exchanges heartbeats with the BSTAR actor
 running on the other HA peer, even in case all actors but CORE are dead. The
@@ -52,8 +87,7 @@ signal life signs in case all actors are healthy.
 \subsubsection{HA within a node}
 Building upon the previous idea, unhealthy actors could be killed and respawned
 by the CORE actor.  Microrebooting unhealthy components without an attempt at
-any sophisticated recovery would make Roadster belong to the \emph{crash-only
-software} kind of fault-tolerant software.
+any sophisticated recovery would make Roadster belong to the \emph{crash-only} kind of fault-tolerant software.
 
 \subsubsection{Manual failover}\label{sec:discussion:ha:manual-failover}
 A manually induced failover could be useful in some cases, e.g. when a
@@ -61,6 +95,21 @@ component fails that does not provoke an automatic failover.
 
 Providing a less brutal way of inducing a failover than to turn off the
 currently active HA peer could be interesting in a future version.
+
+\subsubsection{Unplanned topologies}
+% TODO
+HA cluster can't have supernode right now, because upstream's DEALER socket
+can't decide which node receives a message sent.
+% Solution 1: ROUTER-ROUTER communication between node and subnodes.
+% Solution 2: Refactor:
+%   - rename Engines::BStar into Engines::Sidestream
+%   - publish CSP updates over PUB socket as well (just like from Downstream->Upstream)
+%   - add DEALER socket (DEALER-DEALER communication works)
+%   - PUSH/PULL socket not needed because passive won't change DIM
+%   - primary always binds, backup always connects
+%   - => Upstream/Downstream are back to a single responsibility only
+%   - => Upstream does not even have to be started on HA nodes
+%   - => Downstream only needs to be started with subnodes
 
 \subsection{Miscellaneous}
 Unordered list of ideas:

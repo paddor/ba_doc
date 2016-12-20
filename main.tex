@@ -132,7 +132,7 @@ block=none]{biblatex}
 \end{center}
 \vfill
 % Bottom of the page
-{\large September -- December, 2016\\}
+{\large September -- December 2016\\}
 \end{titlepage}
 
 %-----------------------------------------------------------------------------
@@ -142,25 +142,47 @@ block=none]{biblatex}
 % introduction
 Roadster is mindclue GmbH’s in-house framework to build modern supervision and
 control applications used in various technical fields including traffic
-systems, energy, and water supply. It is written in Ruby and uses \zmq to pass messages
-within a system of loosely coupled actor processes following a
-shared-nothing architecture.
+systems, energy, and water supply. Event-driven in nature, it is written in Ruby
+and uses \zmq to pass messages within a system of loosely coupled actor processes following a
+shared-nothing architecture. State changes are replicated using messages. A
+web UI and sophisticated alarm case management are part of a normal
+Roadster application.
+% picture: photograph of a field device
 
-The missing features include the ability to run a Roadster application in a
-hierarchical federation spanning multiple autonomous nodes, high
-availability, and secure inter-node communications.
+The following features are missing:
+\begin{itemize}
+	\item Ability to declare and run a Roadster application in a
+hierarchical federation spanning multiple autonomous nodes
+	\item Extension of existing protocols for inter-node operation
+	\item High availability clustering of two nodes
+	\item Secure inter-node communications (optional)
+	\item HA extensions for the standardized M2M interface (OPC-UA) for client systems (optional)
+\end{itemize}
 
 % approach and technologies
-The students gathered exact requirements, worked out soltutions fitting Roadster's
-layered software architecture, and implemented them following software
-engineering methodology. New and a significant amount of existing functionality
-has been covered by comprehensive test suites ranging from unit tests to system tests.
+% picture: technology cloud
+The students gathered exact requirements, developed solutions fitting Roadster's
+layered software architecture, including prototypes, new protocols and full-stack actors.
+All software contributions have been made following engineering methodology and
+apply the SOLID principles of OOP.
+The modern high-security cryptography software
+Libodium (NaCl) is used to encrypt and authenticate inter-node network
+traffic as well as cryptographically sign messages to provide
+end-to-end security.
+	New and a significant amount of existing functionality
+has been covered by comprehensive test suites ranging from unit tests to system
+tests encompassing virtual networks of fully isolated Roadster nodes.
+BDD frameworks and technologies such as GitLab CI, Mininet, and Docker have been used for
+continuous integration and quality assurance.
 
 % result
-As a result, Roadster applications can now be declared and run in a federation.
-State is shared through secure inter-node communications.  Highly
-available nodes can be declared and run in the form of hot-standby
-clusters.
+% picture: terminal screenshot of startup sequence
+Federations of autonomous Roadster nodes (including HA clusters) can now be declared using an expressive DSL.
+State is replicated across nodes through secure inter-node communication sockets.
+HA clusters are run in hot-standby mode. A straight-forward integration of HA
+awareness into the OPC-UA interface is prepared. Utilities to simplify
+the bootstrapping process of a new Roadster application (key generation
+and distribution) are provided and described.
 
 \end{abstract}
 %-----------------------------------------------------------------------------
@@ -177,7 +199,7 @@ our creations.
 \chapter*{Acknoledgements}
 We would like to thank Prof. Dr. F. Mehta for his competent guidance during
 this bachelor thesis.  We highly value his opinions. Due to his polite
-parlance, discussing project matters, both of the management and the technical
+parlance, discussing project matters, both of the administrative and the technical
 kind, has always been an enrichment.
 
 We also thank Andy Rohr of the mindclue GmbH for his help and support in
@@ -191,7 +213,7 @@ family. Rest in peace.
 
 
 % TOC, LOF, LOT, LOL
-\setcounter{tocdepth}{4}
+\setcounter{tocdepth}{3}
 \tableofcontents
 \listoffigures
 \listoftables
@@ -222,7 +244,10 @@ family. Rest in peace.
 \part{Appendix}
 \chapter{Self Reflection}
 % TODO how did we perform, completion of goals, accuracy of estimated efforts, efficiency, resourcefulness
-% TODO: learned a lot about the usefulness abstraction layers
+% TODO learned a lot about the usefulness abstraction layers
+% TODO could have done better with better knowledge about roadster's architecture
+% TODO lost time with naming
+% TODO pair programming to teach Ruby
 
 
 \chapter{Development infrastructure}

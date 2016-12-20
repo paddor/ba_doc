@@ -1,13 +1,100 @@
 % vim: ft=tex
-\chapter{Approach}
+\chapter{Approach}\label{ch:approach}
 This chapter describes the approach taken by the students to fulfill the
 requirements. Possible variants as well as the final choices are explained here.
 
 \section{Overview}
-% TODO * testing env, specs (~150 -> ~900)
+Numerous changes throughout Roadster's three architectural layers have been
+performed. This section summarizes them quickly, before the rest of the chapter
+goes into detailed descriptions regarding testing techniques, porting Roadster
+to a new \zmq library, developing the prototypes, and how each required feature
+was designed and implemented exactly.
+
+With the exception of the tests, almost all of these changes took place within
+Roadster's \sh{lib} directory.
+
+\subsection{Reactor layer}
 % TODO * actor layer: new actors, fed sockets, encryption, codecs (moved down and added authentication feature), messageauthenticator
+The following actor classes have been added to allow a hierarchical inter-node
+communication with a supernode, subnodes, and a HA peer node:
+\begin{description}
+	\item [\sh{Roadster::Actors::Upstream}] Registers sockets to communicate with a supernode.
+	\item [\sh{Roadster::Actors::Downstream}] Registers sockets to communicate with subnodes.
+	\item [\sh{Roadster::Actors::BStar}] Registers sockets to communicate with the \gls{HA} peer.
+\end{description}
+The above mentioned inter-node sockets are registered in addition to the sockets of a normal COMM actor.
+The CORE actor \sh{Roadster::Actors::Core} has been adapted to start the
+appropriate set of actors, depending on the actual federation topology
+configured.
+
+The module \sh{Roadster::Actors::Codecs}, which performs the serialization and
+deserialization of messages when they're sent/received on a socket, has been
+moved down from the messaging layer and extended with message authentication.
+The new class \sh{Roadster::Actors::MessageAuthenticator} performs the actual
+process of generating and verifiying cryptographic signatures.
+
+\subsection{Messaging layer}
 % TODO * messaging layer: new handlers, new protocols (FCP, BSP), new messages, "@node",
+The following new protocols have been added:
+\begin{description}
+	\item [\sh{Roadster::Messaging::FCP}] The Federation Communication
+		Protocol. The initial purpose was prototyping inter-node
+		message passing. Eventually it is used for ping/pong
+		heartbeating, as well as routing messages through nodes to
+		arbitrary actors.
+
+	\item [\sh{Roadster::Messaging::BSP}] The Binary Star Protocol. High
+		availability mechanisms use it to perform heartbeating and
+		communicate the current state within two HA peer nodes.
+
+\end{description}
+
+Analogous to the reactor layer, the following handler classes have been added:
+\begin{itemize}
+	\item \sh{Roadster::Messaging::Handlers::Upstream}
+	\item \sh{Roadster::Messaging::Handlers::Downstream}
+	\item \sh{Roadster::Messaging::Handlers::BStar}
+\end{itemize}
+The exact set of protocols used and supported by each actor are enabled in the
+definitions of these handler classes.
+
+Minor changes to two further classes of the messaging layer were necessary to
+allow specifying a destination node (in addition to the actor name) as the
+recipient of a message, and enable message routing using the new Federation
+Communication Protocol.
+
+
+\subsection{Engine layer}
 % TODO * engine layer: new engines (Upstream, Downstream, BStar), Host extensions (#find_node), CSPMethods, MessageAuthentication, SupernodeSelector, SubnodesSelector, Domain::Model::Node
+The following engine classes have been added:
+\begin{description}
+	\item [\sh{Roadster::Engines::Upstream}]
+		Implements mechanisms such as answering pings from the
+		supernode with pongs, sending DIM updates to the supernode, and
+		providing the lower layers with cryptographic keys to enable
+		secure communications.
+
+		IF the supernode is configured to be a \gls{HA} cluster,
+		this engine helps initiating a failover when necessary.
+
+	\item [\sh{Roadster::Engines::Downstream}]
+		Periodically pings subnodes, publishes DIM updates to all
+		direct subnodes, and provides cryptographic keys to secure
+		communication with subnodes.
+
+
+	\item [\sh{Roadster::Engines::BStar}]
+		The exact high availability mechanisms are implemented here.
+		Just like the Downstream and Upstream engines of a supernode
+		and its subnodes, the two instances of this engine continuously
+		stay in contact to determine which HA peer is active, which one
+		stays passive, and recognize the situation where one of them
+		becomes unresponsive.
+\end{description}
+
+Common CSP functionality has been extracted into the mix-in \sh{Roadster::Engines::CSPMethods}.
+
+% TODO * testing env, specs (~150 -> ~900)
 
 
 \section{Testing}
@@ -291,26 +378,27 @@ the \zmq options \sh{ZMQ_FD} and \sh{ZMQ_EVENTS}. Getters for these had to be
 added to in CZTop, which was a matter of minutes.
 
 \subsection{Actual port}
-Due to Roadster's software architecture which cleanly separates different concerns, code that actually made use
-of the ffi-rzmq library directly was located in a single file. The following
+Due to Roadster's software architecture which cleanly separates different concerns, code that actually depended
+on the ffi-rzmq library directly was located in a single file. The following
 things needed to be done:
 
 \begin{itemize}
-\item Tell Ruby to load CZTop instead of ffi-rzmq.
+\item Load CZTop instead of ffi-rzmq.
 \item Remove code to manually send and receive the parts of multi-part messages. This has been simplified
-in CZMQ and thus is a single method call using CZTop.
+in CZMQ and thus is now a single method call.
 \item Remove error checking code. CZTop always checks error codes, and raises
-an appropriate exception if needed.
-\item Simplify code that reads option values such as \sh{ZMQ_FD} and \sh{ZMQ_EVENTS}.
-\item Rewrite library calls to use CZTop instead of ffi-rzmq.
+an appropriate exception if needed. These exceptions are now translated to Roadster's internal exceptions.
+\item Simplify code that deals with \zmq options such as \sh{ZMQ_FD} and \sh{ZMQ_EVENTS}.
+\item Replace library calls to use CZTop instead of ffi-rzmq.
 \end{itemize}
 
 This was about an hour's work.
 
 \section{Getting familiar with Roadster}
+% TODO
 
 
-\section{Prototypes}
+\section{Prototypes}\label{sec:approach:prototypes}
 As a way of getting familiar with the Roadster code base, as well as to prove
 the concepts worked out during the early elaboration phase, two prototypes have
 been programmed during the later elaboration phase of this thesis. The client
@@ -685,7 +773,7 @@ objects it owns. For that, every object in the DIM has to have a reference
 the configuration that is loaded from the static configuration loaded by every
 actor at initialization.
 
-Some objects like parameters (described in \autoref{sec:scope:persisted_data})
+Some objects like parameters (described in \autoref{sec:scope:persistence})
 will apply to a whole federation and will thus be owned by the root node.
 Examples of these are UI user credentials.
 

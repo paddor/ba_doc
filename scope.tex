@@ -300,51 +300,91 @@ timers sequentially.
 \end{figure}
 
 
-\subsection{Directory structure}
-% TODO
-
-
 \subsection{Domain Informaton Model}
-The \acrfull{DIM} is a tree data structure that is maintained by every actor taking part the in business logic of a Roadster node. These are all but the LOG and STORAGE actors.
-The CORE actor and every COMM actor build it when starting up by reading the configuration
-files available to the installation. The configuration is written in a \gls{DSL} defined as part of the model classes of Roadster. Ruby makes it easy to define concise, expressive DSLs.
+The \acrfull{DIM} is a tree data structure that is maintained by every actor
+taking part the in business logic of a Roadster node, which are all but the LOG
+and STORAGE actors.  The CORE actor and every COMM actor build the DIM from the
+installation's configuration files\footnote{The configuration is written in a
+\gls{DSL} defined as part of the model classes of Roadster. Ruby makes it easy
+to define concise, expressive DSLs.} when starting up. The resulting collection
+of domain model instances commonly counts up to a few hundred objects,
+depending on the attached field devices and configuration items.
 
-A typical configuration contains declarations for the following:
+
+\autoref{lst:roadster:dim-tree} shows the hierarchical structure of a
+DIM comprising about 60 objects (shortened to increase readability), including:
 \begin{itemize}
 	\item Access control lists (users, roles, authentication and authorization rules)
-	\item Navigation menus for the web UI
-	\item A set of adapters that shall be loaded (each one in its own COMM
-		actor) at application start
-	\item Field devices (\emph{adapter peers}) that are physically attached to the node
-	\item Objects representing an actual peer with all its current sensor data as \emph{variables} and \emph{aggreates} of such
-	\item Guard declarations
+	\item Navigation menus and pages for the web UI
+	\item An adapter for a robot field device (utilized by a COMM actor) and its peer, the robot
+	\item \emph{Variables} and \emph{aggregates} based on the robot's current position
+	\item A guard for the robot
 \end{itemize}
 
-The DIM is the collection of domain model instances, commonly resulting in up
-to a few hundred objects, depending on the attached field devices and
-configuration items.
+The purpose of guards (instances of \sh{Roadster::Domain::Model::Guard}) is to
+observe certain variables and aggregates for changes. In case a sensor value
+exceeds the range declared as part of the guard, an alarm case is created,
+which requires human interaction.
+
+
 \autoref{fig:roadster:meta-model} illustrates the class diagram of
 all the classes instanciated to constitute the DIM. They are all defined within the
 Ruby module namespace \sh{Roadster::Domain::Model}.
 Most of these these objects are static, but some are dynamic:
-
-% TODO show a typical DIM tree
-
 \begin{itemize}
-	\item The current value of a \emph{variable} or \emph{aggreage}, stored in an \sh{Roadster::Domain::Model::DataItem} instance
+	\item The current value of a \emph{variable} or an \emph{aggreate}, stored in an instance of \\
+		\sh{Roadster::Domain::Model::DataItem}
 	\item Current sessions of web UI users (\sh{Roadster::Domain::Model::Session})
 	\item Pending alarm cases (\sh{Roadster::Domain::Model::Case})
 \end{itemize}
-
-
 Modifications to the dynamic objects are replicated across all DIM-aware
-actors. This is done by the \gls{CSP} as explained in~\autoref{sec:scope:csp}.
+actors, which is performed by the \gls{CSP} as explained in~\autoref{sec:scope:csp}.
 
-\subsubsection{Guards}
-Guards are one of the entity types in of the DIM. Their purpose is to observe
-variables and aggregates for changes. In case a sensor value exceeds the range
-declared as part of the guard, an alarm case is created, which requires
-human interaction.
+
+\begin{listing}
+	\begin{minted}[bgcolor=bg]{Text}
+root (Root)
+root.navigation (Entity)
+root.navigation.home (Page)
+root.navigation.home.process (Menu)
+# [...] 6 more Menu and Page objects clipped
+root.var_map (Entity)
+root.access_control (Acl)
+root.access_control.users (Entity)
+root.access_control.users.admin (User)
+# [...] user credentials (Parameters) clipped
+root.access_control.users.guest (User)
+# [...] user credentials (Parameters) clipped
+root.access_control.roles (Entity)
+root.access_control.roles.superuser (Role)
+# [...] 5 Role and Parameter objects clipped
+root.access_control.sessions (Entity)
+root.version (Variable)
+root.version.datum (DataItem) = 0
+root.adapters (Entity)
+root.adapters.simu (Adapter)
+root.adapters.simu.version (Variable)
+root.adapters.simu.version.datum (DataItem) = 0
+root.adapters.simu.robot_controller (Peer)
+root.adapters.simu.robot_controller.conn_state (Variable)
+root.adapters.simu.robot_controller.conn_state.datum (DataItem) = "CONNECTED"
+root.objects (Entity)
+root.objects.robot (Robot)
+root.objects.robot.control_mode (Parameter)
+root.objects.robot.control_mode.datum (DataItem) = "AUTO"
+root.objects.robot.position_x (Variable)
+root.objects.robot.position_x.datum (DataItem) = 30.0
+root.objects.robot.position_y (Variable)
+root.objects.robot.position_y.datum (DataItem) = -9.0
+root.objects.robot.polar_position_radius (Aggregate)
+root.objects.robot.polar_position_radius.datum (DataItem) = 31.32092
+root.objects.robot.polar_position_radius.alarm_guard (Guard)
+root.objects.robot.polar_position_angle (Aggregate)
+root.objects.robot.polar_position_angle.datum (DataItem) = -16.69924
+  \end{minted}
+  \caption{An example list of objects in a DIM}
+  \label{lst:roadster:dim-tree}
+\end{listing}
 
 \begin{figure}[]
 	\includegraphics[trim=1.5cm 1cm 1cm 1cm, clip=true, width=0.9\textwidth]{img/meta_model.pdf}
@@ -353,11 +393,6 @@ human interaction.
 	\label{fig:roadster:meta-model}
 \end{figure}
 
-\subsection{Persistence}
-% TokyoCabinet, serverless KV store, similar to SQLite
-% TODO estimated sizes PD, ~300MiB, should keep for 13 months
-
-
 \subsection{Roadster Messaging Protocols}\label{sec:rmp}
 The \gls{RMP} are a collection of protocols implemented and used by Roadster
 internally. They reside in the messaging communication layer, and include:
@@ -365,20 +400,20 @@ internally. They reside in the messaging communication layer, and include:
 \begin{description}
 	\item [\gls{ACP}:]\hfill\\
 		Used to control the application state, e.g. shutdown.
+	\item [\gls{CMP}:]\hfill\\
+		Used to accept pending \glspl{case}.
 	\item [\gls{CSP}:]\hfill\\
 		Used to synchronize state between the DIM-aware actors.
-	\item [\gls{PDP}:]\hfill\\
-		Used when data needs to be persisted via the STORAGE actor.
-	\item [\gls{CMP}:]\hfill\\
-		Used to accept pending alarm cases.
-	\item [\gls{SMP}:]\hfill\\
-		Used to suppress the generation of certain \glspl{case}, e.g.
-		when a sensor is defect and repeatedly reports critical sensor data.
-	\item [\gls{PCP}:]\hfill\\
-		Used for command execution via COMM peers with feedback.
 	\item [\gls{LOG}:]\hfill\\
 		Used for system logging. Log messages from all actors are sent
 		to the LOGGER actor via this protocol.
+	\item [\gls{PCP}:]\hfill\\
+		Used for command execution via COMM peers with feedback.
+	\item [\gls{PDP}:]\hfill\\
+		Used when data needs to be persisted via the STORAGE actor.
+	\item [\gls{SMP}:]\hfill\\
+		Used to suppress the generation of certain alarm cases, e.g.
+		when a sensor is defect and repeatedly reports critical sensor data.
 \end{description}
 
 Every actor in Roadster uses a subset of these protocols to perform the part it
@@ -406,12 +441,53 @@ allows for cooperative scheduling as opposed to preemtive.}
 \end{description}
 
 
+\subsection{Directory structure}
+\autoref{lst:roadster:directory-structure} gives an annotated overview of Roadster's directory structure.
+
+\begin{listing}
+	\begin{minted}[bgcolor=bg]{Text}
+roadster
+|-- benchmarks                # Benchmark scripts
+|-- bin                       # The `roadster` utility
+|-- doc                       # Generated API documentation
+|-- lib                       # Framework implementation
+|   `-- roadster
+|       |-- actors            # Reactor layer: Base, Core, Comm, ...
+|       |   `-- em-zmq        # Adapter for ZMQ library
+|       |-- adapters          # IEC-104, Modbus TCP, OPC, ...
+|       |-- engines           # Engine layer: Base, Core, Comm, ...
+|       |-- messaging         # Messaging layer: Dialog
+|       |   |-- handlers      # Base, Core, Comm, dispatching, ...
+|       |   |-- messages
+|       |   `-- protocols     # ACP, CMP, CSP, LOG, PCP, PDP, SMP, ...
+|       |-- misc              # Conf, Exceptions, Ruby core extensions
+|       `-- tools             # CLI
+|-- roadster-webui-core
+`-- spec                      # Unit and integration tests of the above
+    |-- actors
+    |   |-- em-zmq
+    |-- adapters
+    |-- engines
+    |-- messaging
+    |   |-- handlers
+    |   |-- messages
+    |   `-- protocols
+    `-- support               # Fixtures
+        `-- domains
+  \end{minted}
+  \caption{Directory structure of the Roadster framework}
+  \label{lst:roadster:directory-structure}
+\end{listing}
+
+
+
+
 \subsection{\zmq}\label{sec:scope:zmq}
 As mentioned earlier, Roadster uses \zmq to carry messages between its actors.
 To understand the rest of this document, it is
 helpful to understand the basics of \zmq. This is a brief introduction to
 \zmq for the unfamiliar reader. What follows is a quote from the \gls{zguide}
-which does a fairly good job at describing \zmq in a 100 words:
+which does a fairly good job at describing \zmq in a hundred words:
 
 \begin{quote}
 ``ZeroMQ (also known as \zmq, 0MQ, or zmq) looks like an embeddable networking
@@ -610,16 +686,24 @@ gaps in the sequence of updates from any COMM actor.
 
 % TODO: add illustration
 
-\subsection{Persisted data}\label{sec:scope:persisted_data}
+\subsection{Persistence}\label{sec:scope:persistence}
 Certain data on a Roadster node is persisted, which is done by the STORAGE
-actor. Different data goes into different \gls{tc} database files, including:
+actor. It uses the
+\gls{tc} library as a
+serverless key-value store, similar to what the more commonly known
+SQLite\footnote{\url{https://www.sqlite.org}} library provides for relational data.
+
+A rough estimation from mindclue GmbH states that, according to data retention
+policies, the long-term accumulated data of a Roadster node can be up to $\sim$300 MiB.
+
+There are three kinds of persisted data which are stored in different database files:
 
 \begin{description}
 	\item [ Event journal: ] \hfill\\
-		This is is a history of all alarm cases, including the ones
+		This is is a history of all \glspl{case}, including the ones
 		that have been confirmed and thus removed from the DIM. It
 		resides in a \gls{tc} \emph{table} database, where the key is a
-		\gls{UUID}, one of the columns (attributes) is the timestamp of
+		\acrshort{UUID}, one of the columns (attributes) is the timestamp of
 		the case, and another one is the actual, serialized \sh{Case}
 		object. Objects in this database can be modified, e.g. when a
 		pending case is confimed.
@@ -635,10 +719,9 @@ actor. Different data goes into different \gls{tc} database files, including:
 		Roadster. Parameters are typically changed by a user. Each
 		parameter is backed by a default value from the configuration,
 		which is used as long as there is no actual corresponding value
-		set or read from the database. Credentials for users of the UI
-		are an example parameters.
+		set or read from the database. Examples include credentials for
+		users of the web UI.
 \end{description}
-
 
 
 \subsection{Tests}
@@ -648,10 +731,7 @@ about 67\% overall, some files being better covered, some files less. There are
 no system tests.
 
 \section{Goals}
-% TODO preprocessed mandatory goals
-% TODO retrospective, diff with initial goals
-
-To summarize the mandatory goals from the Task Description in \autoref{ch:task-desc}:
+To summarize the mandatory goals from the task description in \autoref{ch:task-desc}:
 
 \begin{enumerate}
 	\item Getting familiar with Roadster
@@ -668,10 +748,43 @@ The optional goals are:
 	\item Providing of the highly available \gls{opc-ua} server interface
 \end{enumerate}
 
+
+\subsection{In retrospect}
+During the Elaboration phase when gathering requirements (\autoref{ch:reqs})
+and implementing prototypes (\autoref{sec:approach:prototypes} in \autoref{ch:approach}), the
+aforementioned goals developed into the following more concrete tasks
+(documentation tasks excluded):
+
+\begin{enumerate}
+	\item Get familiar with Roadster, especially its layered software architecture
+	\item Port Roadster onto a new \zmq binding
+	\item Provide the ability to declare a federation of Roadster nodes
+	\item Inter-node messaging
+	\item Heartbeating between a supernode and its subnodes
+	\item Message routing to arbitrary nodes in the federation
+	\item Creation of alarm cases when a neighboring node is unresponsive
+	\item Provide the ability to declare a HA node's primary and backup endpoints
+	\item Correctly start engines on two HA peers (going either active or passive)
+	\item Selection of the correct supernode (if it's a HA node), which could trigger a failover
+	\item Correctly recognize the situation where the passive HA peer needs
+		to promote itself to the new active peer
+	\item Correctly activate engines on the passive node during failover
+	\item Creation of an alarm case when one of the HA peers becomes unresponsive
+	\item Reliably replicate persisted data to the supernode
+	\item Secure the communication on inter-node sockets using authenticated encryption
+	\item Restrict secure communication to selected neighbors based on their public keys
+	\item Perform message authentication to ensure end-to-end security (not
+		only hop-by-hop which is encompassed by the previous goal)
+	\item Provide the ability to declare a node's public key
+	\item Provide an utility to generate a new private key
+	\item Provide infrastructure so client system interfaces can also trigger a failover
+\end{enumerate}
+
+
 \subsection{Additional goals}
-The following goals were not explicitly part of the original task description,
-but developed during the elaboration phase out of interest in the technical
-matter.
+The goals described in this section are neither explicitly, nor implicitly part
+of the original task description, but developed out of personal interest in the
+technical matter.
 
 \subsubsection{Security concerns of SCADA applications}
 Secure inter-node communication within a Roadster federation is important to

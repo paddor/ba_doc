@@ -193,8 +193,8 @@ industrial grade \gls{SSD} or two (in a software \gls{RAID} level 1 setup) are u
 
 
 \subsection{Software architecture}
-As mentioned earlier, Roadster is event-driven\footnote{\url{https://en.wikipedia.org/wiki/Event-driven_programming}} and built on the Actor model, meaning it exhibits a
-shared-nothing architecture. Each Roadster node runs a number of Ruby processes
+As mentioned earlier, Roadster is \gls{event-driven} and built on the Actor model, meaning it exhibits a
+\gls{shared-nothing-arch}. Each Roadster node runs a number of Ruby processes
 which communicate via \zmq sockets. The key here is communication:
 
 \begin{quote}

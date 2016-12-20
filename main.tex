@@ -275,37 +275,64 @@ M. Schuler used RubyMine\footnote{\url{https://www.jetbrains.com/ruby}} on Windo
 Roadster and the new system tests. To do so, the source code directory being
 modified by the IDE was mounted inside the VM.
 
-\section{Tools}
+\section{Tools and technologies}
 The source code of this document and all of our code contributions are hosted
-on GitHub. The students will organize and perform their work directly on the
-site as far as possible. This means creating a Project board for each of the
-development phases, creating, assigning, and closing issues, as well as using
+on GitHub. The students will plan and organize contributions directly on the
+collaboration platform as far as possible. This means creating a Project board\footnote{\url{https://github.com/thewesch/ba-roadster-doc/projects?sort=oldest}} for each of the
+development iterations, creating, assigning, and closing issues, as well as using
 the Wiki feature to plan and document meetings with the professor and the
-client. Time tracking is done externally on Everhour. See
-\autoref{tab:dev-tools}.
+client. Time tracking is done externally on Everhour. For an overview of
+particular development tools used, see \autoref{tab:dev:tools}.
+The versions of languages and libraries used are listed in \autoref{tab:dev:libs}.
 
 
-\begin{table}[H]
+\begin{table}[]
   \centering
   \begin{tabular}{|p{50mm}|p{35mm}|p{35mm}|}
     \hline
     \bf Use & \bf Name & \bf Version \\ \hline
     \bf Editor & NeoVim & v0.2.0-150-g33319b1b \\ \hline
     \bf IDE & RubyMine & 2016.3 \\ \hline
-    \bf Version control system & Git & 2.* \\ \hline
-    \bf Project management  & GitHub, Everhour &  \\ \hline
+    \bf Version control system & Git & 2.7.4 \\ \hline
+    \bf Source code hosting & GitHub & Sep -- Dec 2016 \\ \hline
+    \bf Project management & GitHub & Sep -- Dec 2016 \\ \hline
+    \bf Time tracking & Everhour & Sep -- Dec 2016 \\ \hline
+    \bf CI & GitLab & 8.12.6 \\ \hline
   \end{tabular} \\
   \caption{Development tools}
-  \label{tab:dev-tools}
+  \label{tab:dev:tools}
+\end{table}
+
+\begin{table}[]
+  \centering
+  \begin{tabular}{|p{35mm}|p{30mm}|}
+    \hline
+    \bf Name & \bf Version \\ \hline
+    \bf Roadster & 0.9.2 \\ \hline
+    \bf Ruby & 2.3.1p112 \\ \hline
+    \bf Eventmachine & 1.2.1 \\ \hline
+    \bf TokyoCabinet & 1.32.0 \\ \hline
+    \bf RSpec & 3.5.0 \\ \hline
+    \bf Docker & 1.12.3 \\ \hline
+    \bf CZTop & 0.11.2 \\ \hline
+    \bf Libsodium & 1.0.8 \\ \hline
+    \bf \zmq & 4.2.0 \\ \hline
+    \bf CZMQ & 4.0.0 \\ \hline
+    \bf Python & 2.7.6 \\ \hline
+    \bf Mininet & 2.2.1 \\ \hline
+    \bf Behave & 1.2.5 \\ \hline
+  \end{tabular} \\
+  \caption{Languages and libraries}
+  \label{tab:dev:libs}
 \end{table}
 
 
 \subsection{Infrastructure}
 \autoref{tab:infrastructure} shows the infrastructure provided by HSR. It was mainly used for \gls{CI}.
 
-\begin{table}[H]
+\begin{table}[]
   \centering
-  \begin{tabular}{|p{25mm}|p{50mm}|}
+  \begin{tabular}{|p{35mm}|p{50mm}|}
     \hline
     \bf Server name & sinv-56092.edu.hsr.ch \\ \hline
     \bf IP address & 152.96.56.92 \\ \hline

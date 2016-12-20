@@ -447,10 +447,6 @@ Not every node in a federation has the same role: Some are only connected with o
 nodes, some directly communicate with field devices. To define different node roles, a
 syntax as shown in \autoref{lst:dsl:topo:with-roles} is possible.
 
-An entirely different approach would solve this problem using a hierarchical
-property list format, e.g. ZPL.\footnote{\url{https://rfc.zeromq.org/spec:4/ZPL}}
-A definite decision has yet to be made.
-
 % TODO node-specific config file
 
 \begin{listing}
@@ -472,8 +468,6 @@ module Conf::Federation
       end
 
       node :s1 do
-        primary_public_key '4V]RsRk}.=dcAwNkXH0Tj[<jVhyV7l!-Hb}t=YQ$'.b
-
         adapters do |s1_node|
 
           adapter :simu do

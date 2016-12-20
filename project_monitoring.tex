@@ -11,35 +11,10 @@ labels. The legend along the x-axis represents the semester weeks, including
 the particular RUP phases.
 
 
-\begin{figure}
-	% TODO Fillup the right data
-	\begin{tikzpicture}
-	\begin{axis}[
-	    title={Weekly hours},
-	    xlabel={semester weeks},
-	    ylabel={hours},
-	    xmin=0, xmax=14,
-	    ymin=15, ymax=45,
-	    xtick={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14},
-	    ytick={0,5,10,15,20,25,30,35,40,45},
-	    legend pos=north west,
-	    ymajorgrids=true,
-	    grid style=dashed,
-	]
-	 
-	\addplot[
-	    color=blue,
-	    mark=square,
-	    ]
-	    coordinates {
-	    (0,23.1)(10,27.5)(20,32)(30,37.8)(40,44.6)(60,61.8)(80,83.8)(100,114)
-	    };
-	    \legend{test line}
-	 
-	\end{axis}
-	\end{tikzpicture}
-	\caption{Weekly performance analysis}
-	\label{fig:projmon:weekly}
+\begin{figure}[]
+	\includegraphics[trim=4cm 2cm 3.5cm 2.8cm, clip=true, width=\textwidth]{img/project_monitoring_weekly_diagram.pdf}
+	\caption{weekly hours}
+	\label{fig:weekly:hours}
 \end{figure}
 
 % TODO Translate
@@ -50,77 +25,55 @@ oder einer Rückmeldung an bestimmten Punkten weiterarbeiten konnten.
 Vor dem Meilenstein „Release“ hatten wir alle Informationen zusammen und 
 konnten mit vollem Elan die Anforderungen umsetzen.
 
-\subsection{Overall overview}
-% TODO Fillup the right data
-\begin{tikzpicture}
-\begin{axis}[
-	title={total hours - project},
-	x tick label style={
-		/pgf/number format/1000 sep=},
-	ylabel=Hours,
-	enlargelimits=0.05,
-	legend style={at={(0.5,-0.1)},
-	anchor=north,legend columns=-1},
-	ybar interval=0.7,
-]
-\addplot 
-	coordinates {(1, 720)};
-\addplot 
-	coordinates {(2, 800)};
-\legend{should, is}
-\end{axis}
-\end{tikzpicture}
 
-% TODO translate
-In dieser Abbildung wird ersichtlich, dass wir die, von der Modulbeschreibung geforderten, 
-Soll-Stunden um 10% überschritten haben. Der Grund der Überschreitung ist unteranderem
-die Implementation des optionalen Features und die grossflächig angelegten Tests.
-
-% TODO Fillup the right data
-\begin{tikzpicture}
-\begin{axis}[
-	title={weekly average hours},
-	x tick label style={
-		/pgf/number format/1000 sep=},
-	ylabel=Hours,
-	enlargelimits=0.05,
-	legend style={at={(0.5,-0.1)},
-	anchor=north,legend columns=-1},
-	ybar interval=0.7,
-]
-\addplot 
-	coordinates {(1, 27)};
-\addplot 
-	coordinates {(2, 25)};
-\legend{P. Wenger, M. Schuler}
-\end{axis}
-\end{tikzpicture}
-
-\begin{tikzpicture}
-\begin{axis}[
-	title={total hours per person},
-	x tick label style={
-		/pgf/number format/1000 sep=},
-	ylabel=Hours,
-	enlargelimits=0.05,
-	legend style={at={(0.5,-0.1)},
-	anchor=north,legend columns=-1},
-	ybar interval=0.7,
-]
-\addplot 
-	coordinates {(1, 410)};
-\addplot 
-	coordinates {(2, 399)};
-\legend{P. Wenger, M. Schuler}
-\end{axis}
-\end{tikzpicture}
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|p{100mm}|p{35mm}|}
+    \hline 	\bf Planned HSR hours & 720h \\ \hline
+	\hline 	\bf Estimated hours & 816h \\ \hline
+	\hline 	\bf P.Wenger & 413h \\ \hline
+	\hline 	\bf M.Schuler & 403h \\ \hline
+	\bf Everhour tags & 14 \\ \hline
+	\bf Github issues & 94 \\ \hline
+	\bf Github tasks & 230 \\ \hline
+	\bf Biggest issue #33 Refine Document & 80h \\ \hline
+  \end{tabular} \\
+  \caption{project stats}
+  \label{tab:projectstats}
+\end{table}
 
 
 % TODO translate
+Die von der Modulbeschreibung geforderten, Soll-Stunden wurden um 10% überschritten haben. 
+Der Grund der Überschreitung ist unteranderem
+die Implementation der optionalen Features und die grossflächig angelegten Tests.
 Die einzelnen Personen haben ein sehr ausgeglichenes Stundentotal. 
 Das liegt daran, dass wir in regelmässigen Abständen eine Auswertung 
 in Everhour gemacht haben und dadurch die Tasks gerechter verteilen konnten. 
 
+\begin{figure}[]
+	\includegraphics[trim=4cm 2cm 3.5cm 2.8cm, clip=true, width=\textwidth]{img/project_monitoring_diagrams.pdf}
+	\caption{hours per tag}
+	\label{fig:hours:per:tag}
+\end{figure}
+
+
+\begin{figure}[]
+	\includegraphics[trim=4cm 2cm 3.5cm 2.8cm, clip=true, width=\textwidth]{img/project_monitoring_diagrams.pdf}
+	\caption{hours per feature}
+	\label{fig:hours:per:feature}
+\end{figure}
+
+% TODO translate
+Die ersten Feature brauchten knapp mehr Zeit als geplant. Es wurde schon früh während der Prototyp Phase
+gemerkt das es mehr Zeit braucht als geplant in die Einarbeitung in Roadster. Das fehlende Wissen und
+die "Perfektionswut" waren unteranderem Grund dafür.
+Im weiteren Projektverlauf konnte die Performance der einzelnen Projektmitarbeiter gesteigert werden
+was auf das erlernte Wissen über Roadster zurückzuführen war, sowie durch die gut
+Strukturiere Architektur von Roadster was uns das Erweitern der Software sichtlich erleichtert hat.
+
+
+% TODO translate
 Die Archivdaten unseres Everhour Projekts befinden sich auf dem Moodle. 
 In diesem kann detailliert nachverfolgt werden, 
 für welche Tasks wir wie viel Zeit aufgewendet haben.

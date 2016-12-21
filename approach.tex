@@ -373,13 +373,12 @@ encryption, and freely available, which is \gls{cztop}. Technically it's a
 binding for the \gls{czmq} library, which is the modern and recommended way of
 using \zmq. More info about CZMQ can be found in \autoref{ch:zmq}.
 
-As stated in the Task Description already, Roadster's event loop makes use of
+As stated in the task description already, Roadster's event loop makes use of
 the \zmq options \sh{ZMQ_FD} and \sh{ZMQ_EVENTS}. Getters for these had to be
 added to in CZTop, which was a matter of minutes.
 
-\subsection{Actual port}
-Due to Roadster's software architecture which cleanly separates different concerns, code that actually depended
-on the ffi-rzmq library directly was located in a single file. The following
+Due to Roadster's software architecture where different concerns are cleanly separated, all code that actually depended
+on the ffi-rzmq library was located in a single file. The following
 things needed to be done:
 
 \begin{itemize}
@@ -394,15 +393,12 @@ an appropriate exception if needed. These exceptions are now translated to Roads
 
 This was about an hour's work.
 
-\section{Getting familiar with Roadster}
-% TODO
-
 
 \section{Prototypes}\label{sec:approach:prototypes}
 As a way of getting familiar with the Roadster code base, as well as to prove
-the concepts worked out during the early elaboration phase, two prototypes have
-been programmed during the later elaboration phase of this thesis. The client
-and main author of Roadster was immensely helpful by giving an introduction to
+the concepts worked out during the first elaboration iteration, two prototypes have
+been developed during the second elaboration phase. Andy Rohr, as the
+main author of Roadster, was immensely helpful by giving an introduction to
 the code base early on.  Although quite overwhelming, the first impression was
 that the code is clean, makes good use of abstractions and has loosely coupled
 classes.
@@ -410,12 +406,14 @@ classes.
 % TODO: describe approach of getting more familiar with Roadster, during prototyping
 
 The two prototypes, namely the inter-node communication and the high availability
-mechanism, have been developed with "cheap, quick, and dirty" in mind. The
-approach to these two prototypes are described briefly in the next sections.
+mechanism, have been developed with "cheap, quick, and dirty" in mind. This
+allows silent experimentation and allows a failed approach to be discarded as
+cheaply as possible.
+The approach to these two prototypes are described briefly in the next sections.
 
 
 \subsection{Inter-node communication}
-The idea of this prototype was to achieve rudimentary communication between two
+The idea of this prototype is to achieve rudimentary communication between two
 Roadster nodes.
 % TODO general idea of prototype
 
@@ -428,6 +426,15 @@ This actor is responsible for communication with the direct supernode.
 \item [COMM.DOWNSTREAM]\hfill\\
 This actor is responsible for communication with direct subnodes.
 \end{description}
+
+The necessary classes in each architectural layer have been implemented as
+subclasses of
+\begin{itemize}
+\item \sh{Roadster::Actors::Base},
+\item \sh{Roadster::Messaging::Handlers::Base}, and
+\item \sh{Roadster::Engines::Base}.
+\end{itemize}
+
 
 
 % TODO: translate, nicht sicher ob der zusammenhang korrekt ist

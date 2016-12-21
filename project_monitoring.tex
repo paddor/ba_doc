@@ -57,9 +57,21 @@ in Everhour gemacht haben und dadurch die Tasks gerechter verteilen konnten.
 	\label{fig:hours:per:tag}
 \end{figure}
 
+8% der ganzen Projektdauer wurde für Projektmanagement
+und Meetings aufgewendet. 2% davon sind für Requirements besprechung mit dem Kunden. Die Verteilung
+entspricht vollumfänglich der geplanten Phasen. Es gibt kein \#Tag welches speziell heraussticht. 
+
+
+\subsection{Aufgewendete Stunden nach Feature}
+% TODO Translate
+Da wir in dieser Arbeit ein bestehendes Produkt erweitert haben war es zu beginn an
+schwierig die Aufwände abzuschätzen. Die Soll/Ist Abschätzungen wurden von Iteration zu Iteration
+immer genauer. Nachfolgend die Soll/Ist Aufwandschätzung der einzelnen Feature.
+
+% TODO checklist item: each up to 4h
 
 \begin{figure}[]
-	\includegraphics[trim=2cm 12cm 3.5cm 11.5cm, clip=true, width=\textwidth]{img/project_monitoring_diagrams.pdf}
+	\includegraphics[trim=2cm 11cm 3.5cm 11.5cm, clip=true, width=\textwidth]{img/project_monitoring_diagrams.pdf}
 	\caption{hours per feature}
 	\label{fig:hours:per:feature}
 \end{figure}
@@ -78,31 +90,3 @@ Die Archivdaten unseres Everhour Projekts befinden sich auf dem Moodle.
 In diesem kann detailliert nachverfolgt werden, 
 für welche Tasks wir wie viel Zeit aufgewendet haben.
 
-
-\subsection{Aufgewendete Stunden nach Feature}
-% TODO Translate
-Da wir in dieser Arbeit ein bestehendes Produkt erweitert haben war es zu beginn an
-schwierig die Aufwände abzuschätzen. Die Soll/Ist Abschätzungen wurden von Iteration zu Iteration
-immer genauer. Nachfolgend die Soll/Ist Aufwandschätzung der einzelnen Feature.
-
-% TODO checklist item: each up to 4h
-
-% TODO Fillup the right data
-\begin{tikzpicture}
-\begin{axis}[
-	title={hours per feature},
-	x tick label style={
-		/pgf/number format/1000 sep=},
-	ylabel=Hours,
-	enlargelimits=0.05,
-	legend style={at={(0.5,-0.1)},
-	anchor=north,legend columns=-1},
-	ybar interval=0.7,
-]
-\addplot 
-	coordinates {(1, 50)};
-\addplot 
-	coordinates {(2, 40)};
-\legend{is, should}
-\end{axis}
-\end{tikzpicture}

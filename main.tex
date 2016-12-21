@@ -139,9 +139,12 @@ block=none]{biblatex}
 \begin{abstract}
 \pagenumbering{roman}
 
+% Subtitle (for DAB tool):
+% Increasing safety and security of systems supervising industrial equipment in tunnels, traffic systems, and water supply systems.
+
 % introduction
 Roadster is mindclue GmbH’s in-house framework to build modern supervision and
-control applications used in various technical fields including traffic
+control applications found in various technical fields including traffic
 systems, energy, and water supply. Event-driven in nature, it is written in Ruby
 and uses \zmq to pass messages within a system of loosely coupled actor processes following a
 shared-nothing architecture. State changes are replicated using messages. A
@@ -149,40 +152,38 @@ web UI and sophisticated alarm case management are part of a normal
 Roadster application.
 % picture: photograph of a field device
 
-The following features are missing:
-\begin{itemize}
-	\item Ability to declare and run a Roadster application in a
-hierarchical federation spanning multiple autonomous nodes
-	\item Extension of existing protocols for inter-node operation
-	\item High availability clustering of two nodes
-	\item Secure inter-node communications (optional)
-	\item HA extensions for the standardized M2M interface (OPC-UA) for client systems (optional)
-\end{itemize}
+To increase flexibility Roadster installations, the framework
+is extended with the abilities to run on multiple autonomous machines. Furthermore, to
+provide a highly available service, pairs of identical machines shall be able to
+operate in a redundant setup. This ensures a continious service delivery in case one of
+the machines fails. The communication between such machines shall be secured through the use
+of encryption. Interoperability with client systems interacting with
+such a redundant setup shall be guaranteed.
 
 % approach and technologies
 % picture: technology cloud
 The students gathered exact requirements, developed solutions fitting Roadster's
-layered software architecture, including prototypes, new protocols and full-stack actors.
-All software contributions have been made following engineering methodology and
-apply the SOLID principles of OOP.
-The modern high-security cryptography software
-Libodium (NaCl) is used to encrypt and authenticate inter-node network
-traffic as well as cryptographically sign messages to provide
-end-to-end security.
+software architecture, including prototypes, new communication protocols and required components.
+All contributions have been made following software engineering methodology and
+applying best-practices.
+Modern cryptography software is used to encrypt network
+traffic as well as verify the authenticity of messages passed between machines.
 	New and a significant amount of existing functionality
 has been covered by comprehensive test suites ranging from unit tests to system
-tests encompassing virtual networks of fully isolated Roadster nodes.
-BDD frameworks and technologies such as GitLab CI, Mininet, and Docker have been used for
+tests encompassing virtual networks of fully isolated Roadster machines.
+Behavior-driven testing frameworks and technologies such as GitLab CI, Mininet, and Docker have been leveraged for
 continuous integration and quality assurance.
 
 % result
 % picture: terminal screenshot of startup sequence
-Federations of autonomous Roadster nodes (including HA clusters) can now be declared using an expressive DSL.
-State is replicated across nodes through secure inter-node communication sockets.
-HA clusters are run in hot-standby mode. A straight-forward integration of HA
-awareness into the OPC-UA interface is prepared. Utilities to simplify
-the bootstrapping process of a new Roadster application (key generation
+Groups of Roadster machines (including the aforementioned high availability
+clusters) can now be configured using a domain-specific language.
+State is replicated across machines through secure network communications.
+Rendundant machines operate in an active/passive setup while ensuring
+interoperability with external client systems. Utilities to simplify
+the bootstrapping process of new Roadster machine (key generation
 and distribution) are provided and described.
+All steps taken to reach the final result are documented comprehensively.
 
 \end{abstract}
 %-----------------------------------------------------------------------------

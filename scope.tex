@@ -1,8 +1,15 @@
 % vim: ft=tex
 \chapter{Scope}
-The technical goals of this bachelor thesis include extending mindclue GmbH's
-Roadster framework by adding features such as clustering, high availability and
-transport security. This chapter outlines the general scope of this project.
+This chapter outlines the general scope of this project, beginning with the
+students' motivation to work on this bachelor thesis.
+
+The \autoref{sec:scope:init} introduces mindclue GmbH and its Roadster
+framework in its state prior to this bachelor thesis to provide the reader with
+an understanding detailed enough to comprehend the contributions described in
+\autoref{ch:approach}.
+
+Finally, \autoref{sec:scope:goals} elucidates the goals from the original task description
+(\autoref{ch:task-desc}), as well as in retrospect.
 
 \section{Motivation}
 \subsection{Backgrounds}
@@ -39,9 +46,9 @@ In essence, both students are thrilled to gain more experience in the following
 fields and technologies:
 
 \begin{itemize}
-	\item Distributed Computing
-	\item High Availability
-	\item Information Security
+	\item Distributed computing
+	\item High availability
+	\item Information security
 	\item \gls{actor-model}
 	\item \gls{zmq}
 	\item \gls{ruby}
@@ -69,17 +76,17 @@ result in the future, either between the students themselves, or between the
 students and the client. Even if our paths will part, this project will
 serve as a valuable reference for future job hunting.
 
-\subsection{Open-Source engagement}
+\subsection{Open-source engagement}
 Getting the chance to use \gls{cztop} and watch it perform definitely adds to
 the motivation as well. Its software design has yet to be proven in more
-serious settings.
+productive settings.
 
 Another personal goal is to create a reusable open-source library as a
 byproduct. The intention is that the library makes certain \zmq-based
 communication protocols readily available for other developers facing the same
 problems.
 
-\section{Initial situation}
+\section{Initial situation}\label{sec:scope:init}
 
 \subsection{mindclue GmbH}
 The company mindclue GmbH, located in Ziegelbr\"ucke GL, provides its partner
@@ -162,7 +169,7 @@ follows, from the bottom up:
 	\gls{opc-ua}.
 
 	\item [ \gls{AS}: ] \hfill\\
-	This is Roadster's domain, or of course the one of another product with similar
+	This is Roadster's domain, or, of course, the domain of another product with similar
 	functionality. An AS is responsible for one facility (e.g. emergency call system,
 	lighting system, fire alarm system, video monitoring system, ventilation
 	system, power supply system, train signaling system).
@@ -210,7 +217,7 @@ Every Roadster node runs a group of actors:
 
 \begin{description}
 	\item [CORE:]\hfill\\
-		The CORE actor is responsible to maintain aggreagates of supervisory data
+		The CORE actor is responsible to maintain aggregates of supervisory data
 		(e.g. sensor data) and create alarm cases to inform
 		about critical situations.
 
@@ -332,7 +339,7 @@ all the classes instanciated to constitute the DIM. They are all defined within 
 Ruby module namespace \sh{Roadster::Domain::Model}.
 Most of these these objects are static, but some are dynamic:
 \begin{itemize}
-	\item The current value of a \emph{variable} or an \emph{aggreate}, stored in an instance of \\
+	\item The current value of a \emph{variable} or an \emph{aggregate}, stored in an instance of \\
 		\sh{Roadster::Domain::Model::DataItem}
 	\item Current sessions of web UI users (\sh{Roadster::Domain::Model::Session})
 	\item Pending alarm cases (\sh{Roadster::Domain::Model::Case})
@@ -416,13 +423,16 @@ internally. They reside in the messaging communication layer, and include:
 		when a sensor is defect and repeatedly reports critical sensor data.
 \end{description}
 
-Every actor in Roadster uses a subset of these protocols to perform the part it
-is responsible for. The next section provides more detail about the different
+Each protocol offers \glspl{API} endpoints for the different roles of
+participants, a subset of which are then registered in every actor to fulfill
+its responsibilities.
+
+The next section provides more detail about the different
 delivery guarantees available for message passing.
 
 \subsubsection{Reliability modes}
-Message passing between actors is always asynchronous, and happens in one of
-two reliability modes:
+Following the \gls{actor-model}, messages are passed between actors
+asynchronously. This happens in one of two reliability modes:
 
 \begin{description}
 \item [Fire \& Forget:]\hfill\\
@@ -608,7 +618,7 @@ opposed to a fully decentralized architecture, which allows for greatly reduced
 complexity.
 
 The server part acts as the authorative source for all modifications to the
-DIM. This is performed by the CORE actor and makes use of its ROUTER, PULL, and
+DIM. This part is performed by the CORE actor and makes use of its ROUTER, PULL, and
 PUB socket.
 
 The client part is performed by all COMM actors and utilizes the respective
@@ -620,8 +630,8 @@ The protocol consists of three distinct messages flows:
 	\item [Snapshots:]
 		Requesting and receiving the complete, current snapshot of the
 		state. This is performed via the ROUTER-DEALER pair of sockets
-		during the startup of each COMM actor. The request is answered
-		by the CORE with the complete set of dynamic DIM objects.
+		during the startup of each COMM actor. The CORE actor responds
+		with the complete set of dynamic DIM objects.
 
 		In the best case, the snapshot only needs to be requested once
 		by each COMM actor. However, as there is no guaranteed message
@@ -672,7 +682,7 @@ complete resynchronization happens. This is brutal, but is very simple and thus
 robust; there is no complexity that would leave room for nasty corner cases.
 
 Updates from COMM actors have their own version number, one for each adapter.
-This is to ensure that the CORE is able to do the very same checks to notice
+This ensures that the CORE is able to do the very same checks to notice
 gaps in the sequence of updates from any COMM actor.
 
 % TODO: mention subtrees somewhere else, maybe in the approach
@@ -700,7 +710,7 @@ There are three kinds of persisted data which are stored in different database f
 
 \begin{description}
 	\item [ Event journal: ] \hfill\\
-		This is is a history of all \glspl{case}, including the ones
+		The event journal is a history of all \glspl{case}, including the ones
 		that have been confirmed and thus removed from the DIM. It
 		resides in a \gls{tc} \emph{table} database, where the key is a
 		\acrshort{UUID}, one of the columns (attributes) is the timestamp of
@@ -730,7 +740,7 @@ written in RSpec, a well known \gls{BDD} framework for Ruby projects. Test cover
 about 67\% overall, some files being better covered, some files less. There are
 no system tests.
 
-\section{Goals}
+\section{Goals}\label{sec:scope:goals}
 To summarize the mandatory goals from the task description in \autoref{ch:task-desc}:
 
 \begin{enumerate}
@@ -845,7 +855,7 @@ distributed computing, as explained on \cite{dcomp:fallacies}.
 
 	\item [There is one administrator.] \hfill\\
 		The overhead introduced by having coordinate multiple
-		administrators is not negilible and can constrain one's options
+		administrators is not negligible and can constrain one's options
 		when e.g. having to upgrade software.
 
 	\item [Transport cost is zero.] \hfill\\

@@ -8,7 +8,7 @@ push-pull.
 % TODO: decenralized, scalable
 
 A single socket can bind/connect to multiple endpoints, which allows \zmq to
-use round-robbin on the sender side, and fair-queueing on the receiver side,
+use round-robin on the sender side, and fair-queueing on the receiver side,
 where applicable. It does not matter whether the communication happens
 in-process (between threads), inter-process (e.g. over \glspl{unix-domain-socket}), or
 inter-node (e.g. over \acrshort{TCP}/\acrshort{PGM}/\acrshort{TIPC}), since the transport is completely
@@ -16,15 +16,27 @@ abstracted away. The same goes for connection handling; an arbitrary amount of
 connections is handled over a single socket and reconnecting after short
 network failures is done transparently.
 
-\zmq is lightweight and allows for extremely low latencies, which means it can
+\paragraph{Order of bind() and connect()}
+Usually in network programming, the server is the one performing the
+\cpp{bind()} operation and the client is the one performing the \cpp{connect()}
+operation. This restriction does not hold true in \zmq. Since \zmq completely
+abstracts the connection handling away, the order in which these two operations
+happen is insignificant. In case the other side has not bound its socket
+yet, \zmq will just retry establishing a connection if the last attempt failed,
+by default every 100 milliseconds. This means that it is a free choice as to which socket
+performs what action. Each socket type merely has default action.
+
+
+\paragraph{Performance} \zmq is lightweight and allows for extremely low latencies, which means it can
 also be used as the fabric of concurrent applications, e.g. for the \gls{actor-model}.
 In case of the TCP transport, it incorporates advanced techniques such
 as smart message batching to achieve significantly higher throughputs than with
-raw TCP or other \gls{MOM} solutions \cite[Figure 2, Middleware evaluation and
-prototyping, p.~4]{cern:new-cmw}.
-% TODO explain brilliant batching
+raw TCP or other \gls{MOM} solutions as observed and described by the CERN in
+\cite[Figure 2, Middleware evaluation and prototyping, p.~4]{cern:new-cmw}.
+This is done by avoiding redundant networking stack traversals as explained on
+\cite[Performance]{zmq:faq}.
 
-To build a solution with \zmq, its sockets are used as building blocks to
+\paragraph{Communication patterns} To build a solution with \zmq, its sockets are used as building blocks to
 design custom message flows. Certain patterns are used to achieve reliability
 with respect to the failure types that need to be addressed in particular.  The
 \gls{zguide} explains best practices, including commonly needed, resilient
@@ -82,7 +94,7 @@ Go, Tcl, PHP, and .Net. This allows for building distributed software systems
 using modern approaches like service-oriented architectures, where different
 parts may be implemented in different languages.
 
-\section{CZMQ}
+\section{CZMQ}\label{sec:zmq:czmq}
 \gls{czmq} is a high-level abstraction layer for \zmq. It makes working with the \zmq
 library more expressive and allows for better portability. It also provides
 additional functionality such as a reactor, a simple actor implementation, as

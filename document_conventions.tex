@@ -6,7 +6,7 @@ The content within each chapter begins with a brief overview,
 followed by detailed, in-depth descriptions including illustrations.
 
 \paragraph*{Pragraph title.} This is what a titled paragraph title looks. After
-chapters, sections, and subsections, it's the smallest structural entitiy in
+chapters, sections, and subsections, it is the smallest structural entitiy in
 this document.
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
 eiusmod tempor incididunt ut labore et dolore magna aliqua.
@@ -41,7 +41,7 @@ Commonly used core classes include:
 
 \paragraph*{Class names.} Classes and modules (mix-ins) are the only means of
 namespacing in Ruby. An example of a fully qualified class name is \sh{Roadster::Actors::Base},
-which, by convention, denotes the class name of the "abstact"\footnote{The concept of abstract classes
+which, by convention, denotes the class name of the abstract\footnote{The concept of abstract classes
 does not exist in Ruby as a language construct. Instead, a regular class is defined and merely used
 for inheritance.} base class for all actors.
 
@@ -49,9 +49,10 @@ for inheritance.} base class for all actors.
 instance method is denoted using \mintinline[bgcolor=bg]{Shell}|Class#method_name|, or simply
 \mintinline[bgcolor=bg]{Text};#method_name; if the class
 can be deduced from context. On the other hand, a class method is denoted as
-\sh{Class.method_name}. Method names can end in \sh{=} (setters), \sh{?}
-(Boolean query methods), and \sh{!} (destructive methods, e.g. making a
-modification in-place instead of on a returned copy).
+\sh{Class.method_name}. Method names ending in \sh{=} are setters. Analogously, \sh{?}
+is for Boolean query methods, and \sh{!} is for destructive methods, e.g. making a
+modification in-place instead of on a returned copy. See
+\autoref{lst:ruby:example} for example usages of these conventions.
 
 
 \begin{listing}

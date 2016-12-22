@@ -1,13 +1,20 @@
 % vim: ft=tex
 \chapter{Approach}\label{ch:approach}
 This chapter describes the approach taken by the students to fulfill the
-requirements. Possible variants as well as the final choices are explained here.
+requirements. An introductory overview of all changes in retrospect is given in
+\autoref{sec:approach:overview}.
 
-\section{Overview}
+Prototypes developed as proof-of-concepts are explained in \autoref{sec:approach:prototypes}.
+% TODO: testing
+% TODO: features
+
+Possible variants as well as the final choices are explained here.
+
+\section{Overview}\label{sec:approach:overview}
 Numerous changes throughout Roadster's three architectural layers have been
 performed. This section summarizes them quickly, before the rest of the chapter
 goes into detailed descriptions regarding testing techniques, porting Roadster
-to a new \zmq library, developing the prototypes, and how each required feature
+to a new \zmq binding, developing the prototypes, and how each required feature
 was designed and implemented exactly.
 
 With the exception of the tests, almost all of these changes took place within
@@ -95,6 +102,80 @@ The following engine classes have been added:
 Common CSP functionality has been extracted into the mix-in \sh{Roadster::Engines::CSPMethods}.
 
 % TODO * testing env, specs (~150 -> ~900)
+
+
+\section{Prototypes}\label{sec:approach:prototypes}
+As a way of getting familiar with the Roadster code base, as well as to prove
+the concepts worked out during the first elaboration iteration, two prototypes have
+been developed during the second elaboration phase. Andy Rohr, as the
+main author of Roadster, was immensely helpful by giving an introduction to
+the code base early on.  Although quite overwhelming, the first impression was
+that the code is clean, makes good use of abstractions and has loosely coupled
+classes.
+
+% TODO: describe approach of getting more familiar with Roadster, during prototyping
+
+The two prototypes, namely the inter-node communication and the high availability
+mechanism, have been developed with "cheap, quick, and dirty" in mind. This
+allows silent experimentation and allows a failed approach to be discarded as
+cheaply as possible.
+The approach to these two prototypes are described briefly in the next sections.
+
+
+\subsection{Inter-node communication}
+The idea of this prototype is to achieve rudimentary communication between two
+Roadster nodes.
+% TODO general idea of prototype
+
+To do so, two new actors need to be added for the communication with neighboring nodes of the
+federation.  Since COMM actors are used to communicate with systems outside of
+a node, the new actors are:
+\begin{description}
+\item [COMM.UPSTREAM]\hfill\\
+This actor is responsible for communication with the direct supernode.
+\item [COMM.DOWNSTREAM]\hfill\\
+This actor is responsible for communication with direct subnodes.
+\end{description}
+
+The necessary classes in each architectural layer have been implemented as
+subclasses of
+\begin{itemize}
+\item \sh{Roadster::Actors::Base},
+\item \sh{Roadster::Messaging::Handlers::Base}, and
+\item \sh{Roadster::Engines::Base}.
+\end{itemize}
+
+To send messages via new actors, the new protocol \gls{FCP} has been defined.
+Encompassing a single message type \sh{Roadster::Messaging::FCP::Messages::Hello}, it provides a
+simple means to prototype rudimentary inter-node communication. The supernode's
+API of this protocol (\sh{Roadster::Messaging::FCP::API::Supernode}) provides
+the ability to send messages of the aforementioned message type to all direct
+subnodes via the COMM.DOWNSTREAM actor's PUB \zmq socket.
+
+The final version of the FCP protocol includes means to route arbitrary
+messages through a federation of nodes to its destination actor, as well as
+message types for ping/pong heartbeating. \autoref{sec:approach:msg-routing}
+and \autoref{sec:approach:hb} go into more detail.
+
+As described in \autoref{sec:scope:csp}, there are three distinct message flows
+in the \gls{CSP}. The same applies to inter-node DIM synchronization. A
+supernode with multiple subnodes will act as the server in CSP terminology.
+
+\begin{description}
+	\item [COMM.UPSTREAM:]
+		This actor's responsibility is to provide a communication
+		interface to the supernode. To allow fulfilling its set of
+		tasks, it registers three different sockets of type
+		DEALER, PUSH, and SUB.
+
+	\item [COMM.DOWNSTREAM:]
+		To fulfill its part of the CSP, this actor registers
+		three sockets of type ROUTER, PULL, and PUB.
+\end{description}
+
+
+\subsection{High availability}
+% TODO: standalone tests
 
 
 \section{Testing}
@@ -198,7 +279,7 @@ a fake adapter is used. It continually fakes the actions of a fictional robot.
 The system test results from each construction iteration can be found in \autoref{ch:res}.
 
 
-\subsection{Continous integration}
+\subsection{Continuous integration}
 \Gls{CI} helps prevent problems when integrating big chunks of code changes,
 also known as \emph{integration hell}. A new CI build is triggered upon each
 push of changes to the repository using a predefined build script.
@@ -278,7 +359,7 @@ instance exists where log data is stored during the run.
 Mininet is a Python library. To interactively use Mininet, it makes sense to
 implement all system test code in Python. This allows taking influence on the
 virtual network and on particular hosts within that network at any time. To
-parse and evaluate the features written in the Cucumber format, the BDD
+parse and evaluate the features written in the Cucumber format, the \gls{BDD}
 framework Behave\footnote{\url{http://pythonhosted.org/behave/}} is used.
 
 \subsubsection{Directory structure}
@@ -358,9 +439,9 @@ cluster.
 
 %----------------------------------------------------------------------------
 
-\section{Port to new \zmq library}\label{sec:approach:port}
+\section{Port to new \zmq binding}\label{sec:approach:port}
 One of the first changes to Roadster's codebase is porting to a new \zmq
-library. This makes sense for the following reasons:
+binding. This makes sense for the following reasons:
 
 \begin{itemize}
 \item To exclude possible failures from faults in the unmaintained ffi-rzmq\footnote{\url{https://github.com/chuckremes/ffi-rzmq}} library.
@@ -368,17 +449,18 @@ library. This makes sense for the following reasons:
 \item All other tasks involve \zmq communication anyway.
 \end{itemize}
 
-There is currently only a single Ruby library that is maintained, supports
-encryption, and freely available, which is \gls{cztop}. Technically it's a
-binding for the \gls{czmq} library, which is the modern and recommended way of
-using \zmq. More info about CZMQ can be found in \autoref{ch:zmq}.
+There is currently only a single Ruby package that is maintained, supports
+encryption, and is freely available, which is \gls{cztop}. Technically it is a
+binding for the \gls{czmq} abstraction library, which is the modern and recommended way of
+using \zmq. \autoref{sec:zmq:czmq} explains CZMQ in further detail.
 
 As stated in the task description already, Roadster's event loop makes use of
 the \zmq options \sh{ZMQ_FD} and \sh{ZMQ_EVENTS}. Getters for these had to be
 added to in CZTop, which was a matter of minutes.
 
-Due to Roadster's software architecture where different concerns are cleanly separated, all code that actually depended
-on the ffi-rzmq library was located in a single file. The following
+Due to Roadster's software architecture where different concerns
+are cleanly separated, all code that actually depended
+on ffi-rzmq was located in a single file. The following
 things needed to be done:
 
 \begin{itemize}
@@ -393,109 +475,6 @@ an appropriate exception if needed. These exceptions are now translated to Roads
 
 This was about an hour's work.
 
-
-\section{Prototypes}\label{sec:approach:prototypes}
-As a way of getting familiar with the Roadster code base, as well as to prove
-the concepts worked out during the first elaboration iteration, two prototypes have
-been developed during the second elaboration phase. Andy Rohr, as the
-main author of Roadster, was immensely helpful by giving an introduction to
-the code base early on.  Although quite overwhelming, the first impression was
-that the code is clean, makes good use of abstractions and has loosely coupled
-classes.
-
-% TODO: describe approach of getting more familiar with Roadster, during prototyping
-
-The two prototypes, namely the inter-node communication and the high availability
-mechanism, have been developed with "cheap, quick, and dirty" in mind. This
-allows silent experimentation and allows a failed approach to be discarded as
-cheaply as possible.
-The approach to these two prototypes are described briefly in the next sections.
-
-
-\subsection{Inter-node communication}
-The idea of this prototype is to achieve rudimentary communication between two
-Roadster nodes.
-% TODO general idea of prototype
-
-To do so, new actors need to be added for the communication with neighboring nodes of the
-federation.  Since COMM actors are used to communicate with systems outside of
-a node, the new actors are:
-\begin{description}
-\item [COMM.UPSTREAM]\hfill\\
-This actor is responsible for communication with the direct supernode.
-\item [COMM.DOWNSTREAM]\hfill\\
-This actor is responsible for communication with direct subnodes.
-\end{description}
-
-The necessary classes in each architectural layer have been implemented as
-subclasses of
-\begin{itemize}
-\item \sh{Roadster::Actors::Base},
-\item \sh{Roadster::Messaging::Handlers::Base}, and
-\item \sh{Roadster::Engines::Base}.
-\end{itemize}
-
-
-
-% TODO: translate, nicht sicher ob der zusammenhang korrekt ist
-Um Nachrichten über die neuen Actors zu senden, wurde ein FCP Protokol
-erstellt. Dabei wurde im Prototyp ein einfaches Hello verschickt.
-Das FCP Protokol wurde nach der Entwicklung der Prototypen dazu verwendet um Nachrichten 
-in der Federation von Punkt A zu Punkt B zu routen. In erster Linie dient es für Routing aber es wird auch für geroutete
-Ping \& Pong Nachrichten verwendet. Die Ping \& Pong Nachrichten
-dienen zur Überwachung der Erreichbarkeit der Subnodes und des Supernodes.
-Weiteres zum Protokol im Kapitel Message routing.
-% TODO: describe in layers
-% TODO: FCP::API, FCP::API::Hello message
-
-
-% FIXME: this is too detailed
-\paragraph{Background info: Servers and clients in \zmq}
-Usually in network programming, the server is the one performing the
-\cpp{bind()} operation and the client is the one performing the \cpp{connect()}
-operation. This restriction does not hold true in \zmq. Since \zmq completely
-abstracts the connection handling away, the order in which these two operations
-happen is insignificant. In case the other side has not bound its socket
-yet, \zmq will just retry establishing a connection if the last attempt failed,
-by default every 100 milliseconds. This means that it is a free choice as to which socket
-performs what action. Each socket type merely has default action for the case
-it is initialized with a given endpoint.
-
-\paragraph{Intuitive server and client roles}
-% FIXME: needed?
-Even though the client of a Roadster federation (if it is not a standalone
-Roadster installation) logically resides above the root node, within a Roadster
-federation, the choice has been made to assign the roles more intuitively. A
-supernode's DOWNSTREAM actor will \cpp{bind()} its socket, and a subnode's
-UPSTREAM actor will \cpp{connect()} to its supernode. This is consistent
-with the server role mentioned in \autoref{sec:scope:csp}, and will later be
-relevant for transport security as well (see \autoref{sec:approach:encryption}).
-
-Of course, in a multi level hierarchy with three or more levels, the
-intermediate nodes would act as servers of their subnodes, and as clients of
-their supernodes. This translates to: They are running both an UPSTREAM and a DOWNSTREAM
-actor.
-
-As described in \autoref{sec:scope:csp}, there are three distinct message flows
-in the \gls{CSP}. The same applies to inter-node DIM synchronization. A
-supernode with multiple subnodes will act as the server in CSP terminology.
-
-\begin{description}
-	\item [UPSTREAM:]
-		This actor's responsibilities are providing a
-		communication interface to the supernode, if any. To do so, it
-		creates and \cpp{connect()}s three different sockets to fulfill
-		its complete set of tasks. These three sockets are of type
-		DEALER, PUSH, and SUB.
-
-	\item [DOWNSTREAM:]
-		To fulfill its part of the CSP, this actor creates
-		and \cpp{bind()}s three sockets of type ROUTER, PULL, and PUB.
-\end{description}
-
-
-\subsection{High availability}
-% TODO: standalone tests
 
 %----------------------------------------------------------------------------
 \section{Federation}\label{sec:approach:federation}
@@ -643,7 +622,7 @@ module Conf::Federation
   end
 end
 	\end{minted}
-	\caption{Fedreation DSL example with HA}
+	\caption{Federation DSL example with HA}
 	\label{lst:dsl:topo:with-ha}
 \end{listing}
 
@@ -672,7 +651,7 @@ end # Roadster
 \end{listing}
 
 
-\subsection{Message routing}
+\subsection{Message routing}\label{sec:approach:msg-routing}
 Messages need to be sent from an actor on one node to an actor on another node.
 The best place to put this logic is the CORE actor which already does this for
 messages exchanged within a node. It needs to be extended to know about nodes
@@ -729,13 +708,13 @@ on the DOWNSTREAM actor to the subordinate node. There it is routed
 via the CORE actor to the correct COMM actor, where the command can actually be
 executed on the field device.
 
-\subsubsection{Heartbeating}
+\subsubsection{Heartbeating}\label{sec:approach:hb}
 % TODO supernode pings subnodes, subnodes send back pong
 * ping/pong with sequence number to match pongs to pings
   why not dialog? => ping is one-to-many via PUB socket
 
 
-\subsection{DIM synchronization}
+\subsection{Inter-node CSP}
 The DIM has to be replicated across a hierarchical federation of nodes.
 % TODO: more/better
 
@@ -807,7 +786,7 @@ their subnodes. This variant is very easy to implement at first.
 
 \paragraph{Variant 3: Either sync on subtree or complete tree}
 Make it configurable: Either sync on subtree or on complete tree. The
-toplogy DSL would allow to specify this property for each node. This is
+topology DSL would allow to specify this property for each node. This is
 the best of both worlds, but more effort.
 
 Variant 2 will be the first step, as following the \gls{KISS} principle is one
@@ -832,7 +811,7 @@ called by the template method, are then implemented (or their default
 implementations extended) in each particular class.
 
 \subsubsection{Ignoring update reflections}
-Becaues of the way the \gls{CSP} works, modifications to the \gls{DIM} pushed
+Because of the way the \gls{CSP} works, modifications to the \gls{DIM} pushed
 to the supernode have to be published back to all subnodes (just like the CORE
 actor publishes modifications to back to all actors). That means the update is
 also reflected back to the subnode on which the update originated. A subnode's
@@ -850,6 +829,10 @@ ist als die eigene. Deshalb wird bei einem Neustart proactively ein Snapshot vom
 vom Subnode verlangt.
 % TODO: supernode implementation braucht dieses Funktion auch - weil
 
+% TODO: upstream activity diagram
+% TODO: downstream activity diagram
+% TODO: CSP version sequence diagram
+
 Beim Start eines Nodes werden die foreign update Versionsnummern auf -1 gesetzt, so
 dass der erste Snapshot nicht discarded ist.
 
@@ -857,7 +840,7 @@ dass der erste Snapshot nicht discarded ist.
 % TODO: initialize foreign node versions to -1 so their first snapshot isn't discarded
 
 
-\subsection{Remote Case Management}
+\subsection{Remote case management}
 % TODO gem 'simple_states' failed and thus was dropped, reduced complexity
 % TODO how to write your own FSM
 
@@ -1020,6 +1003,8 @@ is illustrated in \autoref{fig:ml:ha}.
 	\label{fig:ml:ha}
 \end{figure}
 
+% TODO: BStar state diagram
+
 \subsubsection{Socket types}
 The sockets used by both HA peers to send and receive heartbeats/state
 information is a PUB-SUB pair each. This is useful to avoid queues filling up
@@ -1091,7 +1076,7 @@ or backup. Since there is already an active node (either the primary one,
 or the backup one), the newly repaired node will become the new passive node.
 
 \subsubsection{Failover from backup to primary node}
-Once failed over, the newly actve backup node stays active. It does so until it
+Once failed over, the newly active backup node stays active. It does so until it
 fails itself or is manually stopped. It never automatically switches back to
 make the primary node the new active one without a failure. This is key. If a
 node becomes unreachable, the failover happens automatically, but anything else will

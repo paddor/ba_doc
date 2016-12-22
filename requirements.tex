@@ -36,12 +36,12 @@ the client-facing server. This is formally specified in
 \autoref{lst:feature:federation}. Typical node topologies include:
 
 \begin{description}
-	\item [ Single level with a single node ] \hfill\\
+	\item [ Single level with a single node: ] \hfill\\
 		This is the legacy setup and is what Roadster is already able
 		to do. It consists of a single node. This is illustrated in
 		\autoref{fig:topo:sl:noha}, where the single node is denoted as node R.
 
-	\item [ Multi level ] \hfill\\
+	\item [ Multi level: ] \hfill\\
 		This is the most basic federation setup. There is a root node, and
 		a number of subnodes. Each subnode is directly connected to a number of field devices such as
 		\glspl{PLC} or emergency phones. This is illustrated in
@@ -157,7 +157,7 @@ this is done by adding redundant Roadster nodes.
 
 The following additional federation topologies must be supported:
 \begin{description}
-	\item [ Single level \gls{HA} ] \hfill\\
+	\item [ Single level \gls{HA}: ] \hfill\\
 		This is when there are exactly two nodes, both of them
 		connected to the same set of field devices. The difference to a
 		non-redundant case is the added backup node, forming a HA
@@ -168,7 +168,7 @@ The following additional federation topologies must be supported:
 		(the active one) must do so. This is illustrated in
 		\autoref{fig:topo:sl:ha}.
 
-	\item [ Multi level, \gls{HA} at root only ] \hfill\\
+	\item [ Multi level, \gls{HA} at root only: ] \hfill\\
 		There can be multiple hierarchy levels within a Roadster federation, such as two or
 		three (anything else is declared out of scope of this thesis). Introducing
 		redundancy is done at the root level in the form of a HA
@@ -194,11 +194,11 @@ outside the scope of this thesis; however, they should be kept in mind so a
 future extension to support them is feasible:
 
 \begin{description}
-	\item [ Multi level, \gls{HA} at bottom ] \hfill\\
+	\item [ Multi level, \gls{HA} at bottom: ] \hfill\\
 	A single root node at the top and a subordinate HA pair each connected
 	to the same field device.
 
-	\item [ Multi level, \gls{HA} in the middle ] \hfill\\
+	\item [ Multi level, \gls{HA} in the middle: ] \hfill\\
 	A single root node at the top, a subordinate HA pair, which in turn has
 	a subordinate node connected to some field device.
 \end{description}

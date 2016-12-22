@@ -13,10 +13,25 @@ The exact approach taken to develop every feature can be found in
 
 \section{Overview}\label{sec:approach:overview}
 Numerous changes throughout Roadster's three architectural layers have been
-performed. This section summarizes them quickly, before the rest of the chapter
+performed. This section summarizes them briefly, before the rest of the chapter
 goes into detailed descriptions regarding testing techniques, porting Roadster
 to a new \zmq binding, developing the prototypes, and how each required feature
 was designed and implemented exactly.
+
+Throughout the elaboration and construction phases, contributions have been
+designed and implemented with the SOLID principles \cite{wp:solid} of
+object-oriented programming in mind.
+
+Especially in multilayer software architectures it is important to respect the
+Law of Demeter \cite{wp:demeter}, a.k.a. the \emph{principle of least
+knowledge}. This means that no layer must directly access the interface of
+another layer that is not directly above or below it. Each component should only
+have (limited) knowledge of closely related other components. Adhering to this
+principle reduces the required effort to mock behavior in unit tests and thus
+allows for better maintainability. This goes in accordance with the principle
+of information hiding, where a stable public interface exhibits only a minimal
+amount of information while hiding the implementation details (like private
+methods and instance variables).
 
 With the exception of the tests, almost all of these changes took place within
 Roadster's \sh{lib} directory.
@@ -45,9 +60,16 @@ The following new protocols have been added:
 \begin{description}
 	\item [\sh{Roadster::Messaging::FCP}] The Federation Communication
 		Protocol. The initial purpose was prototyping inter-node
-		message passing. Eventually it is used for ping/pong
+		message passing. In the final version, it is used for ping/pong
 		heartbeating, as well as routing messages through nodes to
 		arbitrary actors.
+
+		Following the \emph{Interface segregation
+		principle}\footnote{\url{https://en.wikipedia.org/wiki/Interface_segregation_principle}},
+		separate API endpoints different components have been created.
+		These include the different hearbeating roles for supernodes
+		and subnodes, as well as different routing aspects required by
+		the CORE actor and edge (inter-node communication) actors.
 
 	\item [\sh{Roadster::Messaging::BSP}] The Binary Star Protocol. High
 		availability mechanisms use it to perform heartbeating and
@@ -608,7 +630,7 @@ This was about an hour's work.
 
 
 %----------------------------------------------------------------------------
-\pagebreak
+\clearpage
 \section{Federation}\label{sec:approach:federation}
 Running multiple Roadster nodes can be useful to aggregate information from
 several field devices, especially if they cannot be connected to the same node,
@@ -994,11 +1016,19 @@ consequence, the whole configuration of adapters, field devices, aggregates,
 and such now belong to the root node. Of course, the same goes for any subnodes
 and their configuration.
 
-\subsubsection{Access control}
+\subsubsection{Write access control}
 % TODO: DIM access control
-The new class \sh{Roadster::Domain::Host::ModelUpdater} is used to apply
-updates, as well as enforcing access control. All updates to objects owned by
-the local node (except version numbers) must originate from the local node.
+The class \sh{Roadster::Domain::Host} provides functionality around accessing
+and traversing DIM objects. A few existing, cohesive methods in it used to
+apply model updates have been refactored and extracted into a new class
+\sh{Roadster::Domain::Host::ModelUpdater}.
+% TODO: composition over inheritance
+
+This new class also enforces write access control, which is new functionality.
+All updates to objects owned by the local node (except version numbers) must
+originate from the local node. Updates affecting foreign objects are allowed by
+any node. Further access control checks are not performed, since the updates
+could traverse several nodes before reaching the local node.
 
 % NOTE: This is a different kind of access control:
 %Each node has its own access control. Only roles and user data are obtained 
@@ -1086,6 +1116,7 @@ the sender node has the appropriate session saved.
 
 
 %----------------------------------------------------------------------------
+\clearpage
 \section{High availability}\label{sec:approach:ha}
 If Roadster is going to be run in a federation, measures need to be taken to
 mitigate the risk of failure, since one in many nodes is more likely to fail than a
@@ -1310,6 +1341,156 @@ end
 One of the non-functional goals demanded the HA solution be developed with
 \gls{opc-ua} in mind. OPC-UA describes several ways of non-transparent server
 redundancy, which seems to map closely to how the \gls{bstar} works.
+
+\subsubsection{State machine}
+A finite state machine comprises the core of the \gls{bstar}. It is implemented
+as a private method \mintinline[bgcolor=bg]{Text};#fsm; which does nothing but
+state transitions based on the current state and a trigger event.
+\autoref{lst:approach:bstar:fsm_1} and \autoref{lst:approach:bstar:fsm_2}
+illustrate the complete method.
+
+The actual states and events are \sh{Symbol}s registered as
+constants in the modules
+\begin{itemize}
+	\item \sh{Roadster::Engines::BStar::States} and
+	\item \sh{Roadster::Engines::BStar::Events}
+\end{itemize}
+The first module is illustrated in \autoref{lst:approach:bstar:states}.
+This is a good practice because manually
+retyping every Symbol such as \rb{:active}, \rb{:passive}, \rb{:client_vote},
+etc. is prone to errors. Ruby cannot recognize typing mistakes in Symbol
+literals, but it can do so for constants.
+
+\begin{listing}[H]
+  \begin{minted}[bgcolor=bg]{Ruby}
+      # The states a BStar peer can be in.
+      #
+      module States
+        PRIMARY = :primary # peer is the designated primary peer
+        BACKUP  = :backup  # peer is the designated backup peer
+
+        # possible initial states
+        INITIAL = [ PRIMARY, BACKUP ].freeze
+
+        ACTIVE  = :active  # peer is currently active
+        PASSIVE = :passive # peer is currently passive
+
+        # an array of all possible states
+        ALL = [ PRIMARY, BACKUP, ACTIVE, PASSIVE ].freeze
+      end
+  \end{minted}
+	\caption{The BSTAR actor's state.}
+  \label{lst:approach:bstar:states}
+\end{listing}
+
+\begin{listing}[H]
+  \begin{minted}[bgcolor=bg]{Ruby}
+# Processes an event using a finite state machine.
+#
+# @param event [Symbol] the event to process
+# @see Events
+# @return [void]
+# @raise [NotActive] if client request can't be processed because this
+#   peer either still in {States::PRIMARY}, {States::BACKUP} or is in
+#   {States::PASSIVE} and peer still seems alive
+# @raise [SplitBrain] if this peer is {States::ACTIVE} and the other peer
+#   reported {States::ACTIVE} as well
+# @raise [DualPassives] if this peer is {States::PASSIVE} and the other
+#   peer reported {States::PASSIVE} as well
+# @return [void]
+#
+def fsm(event)
+  log.debug "processing event #{event.inspect} ..."
+  case @state
+  when States::PRIMARY
+    case event
+    when Events::PEER_PRIMARY
+      fail UserError, 'Invalid config: double primary'
+    when Events::PEER_BACKUP
+      log.info 'connected to backup (passive), ready active'
+      app_active!
+    when Events::PEER_ACTIVE
+      log.info 'connected to backup (active), ready passive'
+      app_passive!
+    when Events::CLIENT_VOTE
+      # NOTE: Not going active immediately here because backup node could
+      # currently be active.
+
+      if peer_expired?
+        # Backup peer seems offline, switch to the active state and
+        # accept client connections
+        log.warn 'I: backup seems dead, going ready active'
+        app_active!
+      else
+        # If peer is alive, reject connections
+        fail NotActive
+      end
+    end
+
+  when States::BACKUP
+    case event
+    when Events::PEER_BACKUP
+      fail UserError, 'Invalid config: double backup'
+    when Events::PEER_ACTIVE
+      log.info 'connected to primary (active), ready passive'
+      app_passive!
+    when Events::CLIENT_VOTE
+      # Reject client connections when acting as backup
+      fail NotActive
+    end
+  \end{minted}
+	\caption{The BSTAR actor's finite state machine (part 1/2).}
+  \label{lst:approach:bstar:fsm_1}
+\end{listing}
+
+\begin{listing}[H]
+  \begin{minted}[bgcolor=bg]{Ruby}
+        when States::ACTIVE
+          case event
+          when Events::PEER_ACTIVE
+            # Two actives would mean split-brain
+            log.error 'fatal error - dual actives, aborting'
+            fail SplitBrain
+          end
+
+        when States::PASSIVE
+          case event
+          when Events::PEER_PRIMARY
+            # Peer is restarting - become active, peer will go passive
+            log.warn 'primary (passive) is restarting, ready active'
+            app_active!
+
+          when Events::PEER_BACKUP
+            # Peer is restarting - become active, peer will go passive
+            log.warn 'backup (passive) is restarting, ready active'
+            app_active!
+
+          when Events::PEER_PASSIVE
+            # Two passives would mean cluster would be non-responsive
+            log.error 'fatal error - dual passives, aborting'
+            fail DualPassives
+
+          when Events::CLIENT_VOTE
+            # Peer becomes active if timeout has passed
+            # It's the client request that triggers the failover
+            if peer_expired?
+
+              # OPTIMIZE: Only go active with enough votes
+
+              # If peer is dead, switch to the active state
+              log.warn 'failover successful, ready active'
+              app_active!
+            else
+              # If peer is alive, reject connections
+              fail NotActive
+            end
+          end
+        end
+      end
+  \end{minted}
+	\caption{The BSTAR actor's finite state machine (part 2/2).}
+  \label{lst:approach:bstar:fsm_2}
+\end{listing}
 
 \subsection{Failover}
 The passive node takes over when the following two conditions are met:

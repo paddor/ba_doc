@@ -829,9 +829,23 @@ ist als die eigene. Deshalb wird bei einem Neustart proactively ein Snapshot vom
 vom Subnode verlangt.
 % TODO: supernode implementation braucht dieses Funktion auch - weil
 
-% TODO: upstream activity diagram
-% TODO: downstream activity diagram
-% TODO: CSP version sequence diagram
+\begin{figure}[]
+	\includegraphics[width=\textwidth]{img/activity_diagram_upstream.pdf}
+	\caption{CSP upstream activity diagram}
+	\label{fig:csp:upstream:activty:diagram}
+\end{figure}
+
+\begin{figure}[]
+	\includegraphics[width=\textwidth]{img/activity_diagram_downstream.pdf}
+	\caption{CSP downstream activity diagram}
+	\label{fig:csp:downstream:activty:diagram}
+\end{figure}
+
+\begin{figure}[]
+	\includegraphics[width=\textwidth]{img/sequence_diagram_model_update_pub.pdf}
+	\caption{CSP version sequence diagram}
+	\label{fig:csp:version:sequence:diagram}
+\end{figure}
 
 Beim Start eines Nodes werden die foreign update Versionsnummern auf -1 gesetzt, so
 dass der erste Snapshot nicht discarded ist.
@@ -1003,7 +1017,11 @@ is illustrated in \autoref{fig:ml:ha}.
 	\label{fig:ml:ha}
 \end{figure}
 
-% TODO: BStar state diagram
+\begin{figure}[]
+	\includegraphics[width=\textwidth]{img/state_machine_diagram_bstar.pdf}
+	\caption{BStar machine state diagram}
+	\label{fig:bstar:state:diagram}
+\end{figure}
 
 \subsubsection{Socket types}
 The sockets used by both HA peers to send and receive heartbeats/state

@@ -40,6 +40,11 @@
 
 \section{Limitations}
 % TODO identify potential limitations and weaknesses of the product
+% limitation: to followed HA nodes in a layer aren't possible (middle layer with HA and supernode with HA) the problem is the diagonal approach (upstream)
+% solution: share data over the bstar sockets and don't use the upstream with the diagonal approach
+% weakness: message packages can be identified and if someone would capture the traffic it would be possible to assign the payload to the right
+% message type. => solution: filled it with padding...
+%  
 Limitations imposed by the design and implementation of the new features are
 discussed here.
 
@@ -50,7 +55,8 @@ modify the same DIM objects at roughly the same time. However, some updates
 might get lost. In those cases, the last writer wins.
 
 \subsubsection{Message routing}
-% TODO: would have been easier if CORE had inter-node sockets itself, but:
+% TODO: would have been easier if CORE had inter-node sockets itself, but: 
+% seperation of concern would be injured and the core would be come a big fat monolythic class
 
 \subsection{HA}
 A HA cluster has to be complete (both nodes running) during initialization.

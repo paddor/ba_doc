@@ -1,15 +1,12 @@
 % vim: ft=tex
 \chapter{Approach}\label{ch:approach}
 This chapter describes the approach taken by the students to fulfill the
-requirements. An introductory overview of all changes in retrospect is given in
-\autoref{sec:approach:overview}.
-
+requirements. The first section gives an introductory overview of all changes in retrospect
+in \autoref{sec:approach:overview}.
 Prototypes developed as proof-of-concepts are explained in
-\autoref{sec:approach:prototypes}.
-
-The \autoref{sec:approach:testing} shows the comprehensive testing
-infrastructure set up to test all contributions.
-
+\autoref{sec:approach:prototypes}, whereas the \autoref{sec:approach:testing}
+shows the comprehensive testing infrastructure set up to test all
+contributions.
 The exact approach taken to develop every feature can be found in
 \autoref{sec:approach:federation} and the following sections.
 
@@ -180,16 +177,65 @@ supernode with multiple subnodes will act as the server in CSP terminology.
 
 
 \subsection{High availability}
-As suggested by the task description in \autoref{app:task-description}, the
+As suggested by the task description in \autoref{ch:task-desc}, the
 \gls{bstar} has been implemented as two standalone Ruby scripts: One for the
 server process, and one for the client process. \gls{cztop} is used as the \zmq
 Ruby language binding.
+
+\begin{listing}[H]
+	\begin{minted}[bgcolor=bg]{Ruby}
+require 'cztop'
+REQUEST_TIMEOUT = 1000 # msecs
+SETTLE_DELAY = 2000 # before failing over
+SERVERS = %w[tcp://localhost:5001 tcp://localhost:5002]
+server_nbr = 0
+
+puts "I: connecting to server at %s…" % SERVERS[server_nbr]
+client = CZTop::Socket::REQ.new SERVERS[server_nbr]
+sequence = 0
+poller = CZTop::Poller.new client
+
+while true
+  sequence += 1
+  puts sequence
+  client << "#{sequence}"
+
+  expect_reply = true
+  while expect_reply
+    if poller.simple_wait REQUEST_TIMEOUT
+      reply = client.receive
+      if reply[0].to_i == sequence
+        puts "I: server replied OK (%p)" % reply[0]
+        expect_reply = false
+        sleep 1 # one request per second
+      else
+        puts "E: bad reply from server: %p" % reply
+      end
+    else
+      puts "W: no response from server, failing over"
+      poller.remove_reader client
+      client.close # close and discard confused socket
+      server_nbr = (server_nbr + 1) % 2
+      sleep SETTLE_DELAY/1000.0
+      puts "I: connecting to server at %s…\n" % SERVERS[server_nbr]
+      client = CZTop::Socket::REQ.new SERVERS[server_nbr]
+      poller.add_reader client
+      client << "#{sequence}"
+    end
+  end
+end
+	\end{minted}
+	\caption{Prototype implementation of a Binary Star client.}
+	\label{lst:proto:bstar:client}
+\end{listing}
 
 All the client does is periodically send a request to its currently selected
 server process along with an increasing number, which the active server simply
 echoes. In case no response from the server is received within a certain amount
 of time, the client destroys its socket and registers a new one to connect it
-to the other server.
+to the other server. This simple mechanism is implemented in the prototype
+\autoref{lst:proto:bstar:client}.
+
 
 Manual tests have shown that it works as expected and reliably. The two server
 processes (primary and backup) can be started in any order, immediately start
@@ -250,7 +296,11 @@ end
 \end{listing}
 
 
-% TODO speccing only public methods and side effects of private methods
+Special care has been taken to test only observable, public behavior.
+Private methods are not verified directly, but only their side effects. In
+other words, the interface is tested, not the implementation, as described by
+\cite{rb:testing:magic-tricks}. This allows for reduced maintenance effort and
+arbitrary refactoring of the actual implementations.
 
 % TODO * testing env, specs (~150 -> ~900)
 
@@ -354,7 +404,7 @@ frequently, it can bloat the repository's commit history since Git treats PDF
 files as binary files, and thus cannot use efficient algorithms to work out the
 differences only.
 
-This is why compiling the TeX sources for this document is also done reactively
+This is why compiling the \LaTeX{} sources for this document is also done reactively
 via a pipeline configured on GitLab CI. The resulting artifact, a PDF file, is
 then automatically uploaded to Git as a file associated with a newly created
 public release. This is done via GitHub's webservice API for managing
@@ -458,12 +508,13 @@ in~\autoref{lst:testing:docker:directory-structure}.
 The federation used for system tests is build as follows:
 \begin{figure}[]
 	\center
-	\includegraphics[width=0.5\textwidth]{img/logical_federation_setup.pdf}
+	\includegraphics[width=0.4\textwidth]{img/logical_federation_setup.pdf}
 	\caption{Logical federation topology used in system tests.}
-	\label{lst:testing:topo:logic}
+	\label{fig:testing:topo:logic}
 \end{figure}
 
-The root node is a HA cluster, which acts as such when appropriate according to
+As per \autoref{fig:testing:topo:logic}, the root node is a HA cluster, which
+acts as such when appropriate according to
 the feature being tested. At other times, only its primary node is active and
 thus acts as a non-HA supernode of sN1 and sN2. The naming scheme is enforced
 by Mininet and thus somehow clunky and cryptic.
@@ -481,9 +532,10 @@ devices.
 	\center
 	\includegraphics[width=\textwidth]{img/physical_network_mininet.pdf}
 	\caption{Physical federation topology used in system tests.}
-	\label{lst:testing:topo:logic}
+	\label{fig:testing:topo:physical}
 \end{figure}
 
+\autoref{fig:testing:topo:physical} illustrates the virtual network plan used in the system tests.
 All nodes are attached to an \gls{ovs} instance which allows them communicate with each
 other via the TCP/IP transport. In addition to this star topology, there is an
 additional, dedicated link between the two HA peers which form the root HA
@@ -491,13 +543,28 @@ cluster.
 
 % TODO how to test persistence synchronization
 \subsubsection{Feature tests in detail}
-In general all features tests are monitoring the output of each roadster instance.
-On demand the output is evaluated with different regex patterns.
-To ensure encryption it monitors the network traffic too and calculates
-the entropy of the captured messages. The boundary for the entropy value is set
-above 95%.
-In order to test persistence synchronization not only the roadster console outputs are checked, 
-but also the files are monitored for change. This ensures that the requested data
+In general all feature tests directly monitor the console output of each roadster instance.
+The output is observed using different regular expressions to verify the behavior is correct.
+To verify that the inter-node traffic is encrypted, it is captured too. The entropy is then calculated
+based on that traffic dump of the exchanged messages. The minimum for the entropy efficency is set
+above 95\%. It does not approach 100\% because \gls{ZMTP} control
+commands are sent unencrypted, as defined in \cite[High-level
+Grammar]{zmq:curvezmq}.
+
+The entropy efficiency is defined as $\eta(X)$ as follows, which has been
+implemented as part of the system test suites:
+
+\begin{center}
+$\eta(X) = -\sum_{i=1}^n \frac{p(x_i) \log_b (p(x_i))}{\log_b (n)}$,
+\end{center}
+
+where $p(x_i)$ is the probability of a certain character (the byte $x_i$)
+within the encrypted traffic $X$, and $n$ is the cardinality of the chosen
+script, which are all 256 possible values of one octet. More about the exact
+approach to implement encryption in \autoref{sec:approach:encryption}.
+
+In order to test persistence synchronization not only the Roadster console output is captured, 
+but also the files are monitored for modifications. This ensures that the requested data
 are persisted.
 
 
@@ -565,6 +632,7 @@ Adding federation functionality to Roadster involves the following aspects:
 	\item Message routing
 	\item Heartbeating
 	\item Inter-node CSP
+	\item Remote alarm case management
 \end{itemize}
 
 \subsection{Federation definition}
@@ -859,7 +927,48 @@ federation must be autonomous, the obvious choice is availability. Eventual
 consistency is achieved when recovering from a network partition by simply
 reinitiating the DIM replication process.
 
-\subsubsection{Object ownership}
+
+\subsubsection{Degree of replication}
+There are several variants when it comes to what exactly of the DIM should be replicated:
+\paragraph{Variant 1: Self-subtree only}
+Synchronize on subtree only, which means a node only knows the DIM part of
+itself. The big disadvantage is that it will not have a copy of the rest of the
+DIM, which can be useful to inspect variables on neighboring nodes, especially
+when they're unreachable.
+
+Note that this would only work because of the rearrangement of DIM objects
+described in \autoref{sec:approach:dim:ownership}. Otherwise the objects
+belonging to a single node would reside within separate subtrees.
+
+\paragraph{Variant 2: Complete tree}\label{par:approach:dim:var2}
+Always synchronize on complete tree, which means getting the snapshot from the
+supernode and merge the own subtree into it, replacing whatever subtree is
+already there. This works because of the autonomy requirement for nodes and
+their subnodes. This variant is very easy to implement at first.
+
+\paragraph{Variant 3: Either subtree or complete tree}
+Make it configurable: Either synchronize on the subtree or on complete tree. The
+topology DSL could allow specifying this as a property for each node. This is
+the best of both worlds, but more effort.
+
+Variant 2 will be the first step, as following the \gls{KISS} principle is one
+of the non-functional requirements. Variant 3 will be the second step, if at
+all. This depends on whether it will be necessary, e.g. if replicating the
+total DIM is feasible performance-wise.
+
+\subsubsection{Ignoring update reflections}
+Because of the way the \gls{CSP} works, modifications to the \gls{DIM} pushed
+to the supernode have to be published back to all subnodes, just like the CORE
+actor publishes modifications to back to all local actors. That means the update is
+also reflected back to the subnode on which the update originated. A subnode's
+UPSTREAM actor has to recognize this situation and discard the update in question
+immediately.
+
+This is easily achieved by comparing the version number, because a reflected
+update always has a version number $\leqslant$ the local version number.
+
+
+\subsubsection{Object ownership}\label{sec:approach:dim:ownership}
 The concept of ownership has to be introduced. Every object within the DIM
 shall belong to a particular node. Modifications to the objects shall be done via
 that node, and only that node, so the node is the authorative instance for all modifications of its own objects.
@@ -885,58 +994,16 @@ consequence, the whole configuration of adapters, field devices, aggregates,
 and such now belong to the root node. Of course, the same goes for any subnodes
 and their configuration.
 
-\subsubsection{Degree of replication}
-There are several variants when it comes to what exactly of the DIM should be replicated:
+\subsubsection{Access control}
+% TODO: DIM access control
+The new class \sh{Roadster::Domain::Host::ModelUpdater} is used to apply
+updates, as well as enforcing access control. All updates to objects owned by
+the local node (except version numbers) must originate from the local node.
 
-\paragraph{Variant 1: Self-subtree only}
-Synchronize on subtree only, which means a node only knows the DIM part of
-itself. The big disadvantage is that it will not have a copy of the rest of the
-DIM, which can be useful to inspect variables on neighboring nodes, especially
-when they're unreachable.
+% NOTE: This is a different kind of access control:
+%Each node has its own access control. Only roles and user data are obtained 
+%from the root node.
 
-\paragraph{Variant 2: Sync complete tree}\label{par:approach:dim:var2}
-Always sync on complete tree, which means getting the snapshot from the
-supernode and merge the own subtree into it, replacing whatever subtree is
-already there. This works because of the autonomy requirement for nodes and
-their subnodes. This variant is very easy to implement at first.
-
-\paragraph{Variant 3: Either sync on subtree or complete tree}
-Make it configurable: Either sync on subtree or on complete tree. The
-topology DSL would allow to specify this property for each node. This is
-the best of both worlds, but more effort.
-
-Variant 2 will be the first step, as following the \gls{KISS} principle is one
-of the non-functional requirements. Variant 3 will be the second step, if at
-all. This depends on whether it will be needed performance-wise.
-
-\subsubsection{Avoiding code duplication}
-The \gls{CSP} has to work as an intra-node protocol (within a node, which is
-the legacy behavior), as well as an inter-node protocol (within a federation).
-That means \gls{CSP}-related server functionality has to be present in the CORE
-engine, as well as in the DOWNSTREAM engine. CSP-related client functionality has
-to be present in all existing COMM engines, the UPSTREAM engine, \emph{as well
-as the DOWNSTREAM engine}, since it also acts as a CSP-client to the CORE engine on
-the same node.
-
-To avoid a considerable amount of code duplication, CSP-related functionality
-is extracted into its own reusable module, which is then mixed into all
-relevant actors. The \emph{Template Method} design pattern is used to handle
-the common case of handling a received
-\rb{Roadster::Messaging::CSP::Messages::ModelUpdate} message. The hook methods,
-called by the template method, are then implemented 
-in each particular class where necessary. Where no special behvior is needed,
-the mixed-in methods are left unchanged.
-
-\subsubsection{Ignoring update reflections}
-Because of the way the \gls{CSP} works, modifications to the \gls{DIM} pushed
-to the supernode have to be published back to all subnodes, just like the CORE
-actor publishes modifications to back to all local actors. That means the update is
-also reflected back to the subnode on which the update originated. A subnode's
-UPSTREAM actor has to recognize this situation and discard the update in question
-immediately.
-
-This is easily achieved by comparing the version number, because a reflected
-update always has a version number $\leqslant$ the local version number.
 
 \subsubsection{Version monotonizing}
 In case a node has to be rebooted due to whatever reason, its version numbers
@@ -960,43 +1027,59 @@ initialized to version -1, so the very first update ($\geqslant 0$) is always
 applied.
 % TODO: supernode implementation braucht dieses Funktion auch - weil
 
+\subsubsection{Shared functionality}
+The \gls{CSP} has to work as an intra-node protocol (within a node, which is
+the legacy behavior), as well as an inter-node protocol (within a federation).
+That means \gls{CSP}-related server functionality has to be present in the CORE
+engine, as well as in the DOWNSTREAM engine. CSP-related client functionality has
+to be present in all existing COMM engines, the UPSTREAM engine, \emph{as well
+as the DOWNSTREAM engine}, since it also acts as a CSP client to the CORE engine on
+the same node.
+
+To avoid a considerable amount of code duplication, CSP-related functionality
+has been extracted into its own reusable module \sh{Roadster::Engines::CSPMethods}, which is then mixed into all
+relevant actors. The \emph{Template Method} design pattern is used to handle
+the common case of handling a received
+\sh{Roadster::Messaging::CSP::Messages::ModelUpdate} message. The hook methods,
+called by the template method, are then implemented
+in each particular class where necessary. Where no special behvior is needed,
+the mixed-in methods are left unchanged.
+
+\subsubsection{Summary}
+\autoref{fig:csp:upstream-activity} and \autoref{fig:csp:downstream-activity}
+are the exact activity diagrams for the COMM.UPSTREAM and COMM.DOWNSTREAM
+actors, respectively.
+
+A sequence diagram showing the replication process from an update from a
+simulated field device across a supernode to another subnode is illustrated in
+\autoref{fig:csp:version-sequence}.
+
 \begin{figure}[]
 	\includegraphics[width=\textwidth]{img/activity_diagram_upstream.pdf}
 	\caption{CSP upstream activity diagram.}
-	\label{fig:csp:upstream-activty}
-	% TODO link
+	\label{fig:csp:upstream-activity}
 \end{figure}
 
 \begin{figure}[]
 	\includegraphics[width=\textwidth]{img/activity_diagram_downstream.pdf}
 	\caption{CSP downstream activity diagram.}
-	\label{fig:csp:downstream-activty}
-	% TODO link
+	\label{fig:csp:downstream-activity}
 \end{figure}
 
 \begin{figure}[]
 	\includegraphics[width=\textwidth]{img/sequence_diagram_model_update_pub.pdf}
 	\caption{CSP version sequence diagram.}
 	\label{fig:csp:version-sequence}
-	% TODO link
 \end{figure}
 
 
-\subsection{Access control}
-% TODO: DIM access control
-The new class \sh{Roadster::Domain::Host::ModelUpdater} is used to apply
-updates, as well as enforcing access control. All updates to objects owned by
-the local node must originate from the local node.
-
-% NOTE: This is a different kind of access control:
-%Each node has its own access control. Only roles and user data are obtained 
-%from the root node.
 
 
 \subsection{Remote case management}
-A case can only be closed on the owner node of the case. Therefore, the command
-for closeing the case must be sent to the owner node. To check the authorization 
-on the owner node it must use ACL of the sender node, because only
+As defined by the access control restriction in the previous section, a case
+can only be closed on the owning node of the case. Therefore, the command
+for closeing the case must be sent to the owner node. To check the authorization
+on the owner node, the sender node's ACL configuration --- part of the DIM --- is used, because only
 the sender node has the appropriate session saved.
 % TODO gem 'simple_states' failed and thus was dropped, reduced complexity
 % TODO how to write your own FSM
@@ -1005,11 +1088,15 @@ the sender node has the appropriate session saved.
 %----------------------------------------------------------------------------
 \section{High availability}\label{sec:approach:ha}
 If Roadster is going to be run in a federation, measures need to be taken to
-mitigate the risk of failure, since many nodes are more likely to fail than a
-single node. Availability shall be ensured by
-adding redundancy on certain levels of the node hierarchy (e.g. at the bottom
-of the topology, or at root level), in the form of a
-fully functional backup node in addition to the primary one.
+mitigate the risk of failure, since one in many nodes is more likely to fail than a
+single node alone. This can be especially degrading to the service quality if
+it is a common supernode, e.g. the root node in particular.
+
+Availability shall be improved by adding redundancy on certain levels of the
+node hierarchy in the form of a fully functional, running backup node in
+addition to the primary one. Common usecases, as defined in \autoref{ch:reqs}
+require that this works at least at the highest hierarchy level, i.e. the root
+node.
 
 Run together in a hot-standby cluster, the passive node's responsibility is to
 take over in case the active one fails to deliver its service.
@@ -1138,7 +1225,10 @@ actors usually do in Roadster.
 Two HA peers are started either as primary or as backup. After an initial
 handshake, the primary one becomes active, the backup node becomes passive. The
 two continually exchange heartbeats (and their current state with regards to
-the \gls{bstar}). Clients always connect to the primary node's endpoint first. This
+the \gls{bstar}). The state machine of the \gls{bstar} is illustrated in the
+diagram \autoref{fig:bstar:state}.
+
+Clients always connect to the primary node's endpoint first. This
 is illustrated in \autoref{fig:ml:ha}.
 
 \begin{figure}[]
@@ -1150,7 +1240,7 @@ is illustrated in \autoref{fig:ml:ha}.
 \begin{figure}[]
 	\includegraphics[width=\textwidth]{img/state_machine_diagram_bstar.pdf}
 	\caption{BStar machine state diagram}
-	\label{fig:bstar:state:diagram}
+	\label{fig:bstar:state}
 \end{figure}
 
 \subsubsection{Socket types}

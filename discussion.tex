@@ -54,6 +54,13 @@ Eventual consistency is guaranteed even in situations where multiple actors
 modify the same DIM objects at roughly the same time. However, some updates
 might get lost. In those cases, the last writer wins.
 
+
+Subtree synchronization has not been implemented, as deemed as not necessary at
+this moment. Replication performance is by far sufficient, with messages being
+sent and received within 1 -- 3 milliseconds, and the space requirements of a
+complete DIM was observed to be very small so far, being just a small number of
+plain Ruby objects.
+
 \subsubsection{Message routing}
 % TODO: would have been easier if CORE had inter-node sockets itself, but: 
 % seperation of concern would be injured and the core would be come a big fat monolythic class

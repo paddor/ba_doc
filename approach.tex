@@ -962,29 +962,36 @@ applied.
 
 \begin{figure}[]
 	\includegraphics[width=\textwidth]{img/activity_diagram_upstream.pdf}
-	\caption{CSP upstream activity diagram}
-	\label{fig:csp:upstream:activty:diagram}
+	\caption{CSP upstream activity diagram.}
+	\label{fig:csp:upstream-activty}
+	% TODO link
 \end{figure}
 
 \begin{figure}[]
 	\includegraphics[width=\textwidth]{img/activity_diagram_downstream.pdf}
-	\caption{CSP downstream activity diagram}
-	\label{fig:csp:downstream:activty:diagram}
+	\caption{CSP downstream activity diagram.}
+	\label{fig:csp:downstream-activty}
+	% TODO link
 \end{figure}
 
 \begin{figure}[]
 	\includegraphics[width=\textwidth]{img/sequence_diagram_model_update_pub.pdf}
-	\caption{CSP version sequence diagram}
-	\label{fig:csp:version:sequence:diagram}
+	\caption{CSP version sequence diagram.}
+	\label{fig:csp:version-sequence}
+	% TODO link
 \end{figure}
 
-Beim Start eines Nodes werden die foreign update Versionsnummern auf -1 gesetzt, so
-dass der erste Snapshot nicht discarded ist.
 
 \subsection{Access control}
 % TODO: DIM access control
-Each node has its own access control. Only roles and user data are obtained 
-from the root node.
+The new class \sh{Roadster::Domain::Host::ModelUpdater} is used to apply
+updates, as well as enforcing access control. All updates to objects owned by
+the local node must originate from the local node.
+
+% NOTE: This is a different kind of access control:
+%Each node has its own access control. Only roles and user data are obtained 
+%from the root node.
+
 
 \subsection{Remote case management}
 A case can only be closed on the owner node of the case. Therefore, the command

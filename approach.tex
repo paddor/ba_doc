@@ -271,8 +271,6 @@ conditions, treating the application as a black box: On a certain input, it is
 supposed to react with a certain output. The internal mechanisms to produce said
 output and reach a certain state are insignificant.
 
-% TODO how to test persistence synchronization
-
 \paragraph{Manual} At times when developing a feature, manual testing can give
 useful insights, especially when trouble shooting. Running Roadster manually in
 foreground within a terminal session helps with that.  When, for example,
@@ -490,6 +488,18 @@ All nodes are attached to an \gls{ovs} instance which allows them communicate wi
 other via the TCP/IP transport. In addition to this star topology, there is an
 additional, dedicated link between the two HA peers which form the root HA
 cluster.
+
+% TODO how to test persistence synchronization
+\subsubsection{Feature tests in detail}
+In general all features tests are monitoring the output of each roadster instance.
+On demand the output is evaluated with different regex patterns.
+To ensure encryption it monitors the network traffic too and calculates
+the entropy of the captured messages. The boundary for the entropy value is set
+above 95%.
+In order to test persistence synchronization not only the roadster console outputs are checked, 
+but also the files are monitored for change. This ensures that the requested data
+are persisted.
+
 
 %----------------------------------------------------------------------------
 
@@ -973,8 +983,14 @@ dass der erste Snapshot nicht discarded ist.
 
 \subsection{Access control}
 % TODO: DIM access control
+Each node has its own access control. Only roles and user data are obtained 
+from the root node.
 
 \subsection{Remote case management}
+A case can only be closed on the owner node of the case. Therefore, the command
+for closeing the case must be sent to the owner node. To check the authorization 
+on the owner node it must use ACL of the sender node, because only
+the sender node has the appropriate session saved.
 % TODO gem 'simple_states' failed and thus was dropped, reduced complexity
 % TODO how to write your own FSM
 
@@ -1245,9 +1261,17 @@ cannot happen in that case, since there is no client depending on the service
 brought by a HA cluster.
 
 \subsubsection{Alarm generation}
-% TODO using Guard
 When a failover happens, it makes sense to create an alarm case in the
 DIM, so the outage is visible to operational personnel in one of the web UIs.
+
+% TODO using Guard + proof reading
+To generate an alarm case it is possible to set a guard which observes
+a variable in the DIM and when the variable changes and the appropriate 
+condition is met the guard will automatically generate a defined alarm case.
+Only core actors can have guard, the feature is disabled on the ohter actors,
+therefore it is important to publish the DIM update to the core otherwise
+it will never generate an alarm case.
+
 The same applies to the case where the passive node goes down, although it
 does not have an immediate effect on availability.  This is so the operational
 personnel can act upon the alarm and e.g. initiate field forces to inspect the
@@ -1391,7 +1415,7 @@ Further ideas based on this fundamental mechanism are discussed in
 
 %----------------------------------------------------------------------------
 \section{Persistence synchronization}\label{sec:approach:psync}
-% TODO: big picture
+% TODO: big picture - not necessary
 The persisted data and updates to it, handled by the STORAGE actor, need to
 bubble up and collected in the root node.
 
@@ -1507,9 +1531,13 @@ for whenever the supernode is back available.
 \subsection{Chosen Variant}
 No definite choice has been made yet. The client seems to favor the polling variant.
 % TODO: choose a persistence synchronization variant
+We have choosen the polling variant because our client favored this variant and
+it seemed to be the easiest solution to implement. 
+Subnodes doesn't need extra logic if a supernode isn't reachable and the supernode
+can control the data flow by itself.
 
 \section{Encryption}\label{sec:approach:encryption}
-% TODO: entropy measurement
+% TODO: entropy measurement - describe in the tests.. i did it
 % TODO: big picture
 It is fairly easy to enable transport security to secure the communication
 between \zmq sockets over an unsecure network.

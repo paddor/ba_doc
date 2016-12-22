@@ -1,0 +1,30 @@
+Self reflexion Manuel Schuler
+
+Den Projektstart empfand ich als eher harzig. Man musste bereits von Anfang an alles verstehen um deren Aufwand abschätzen zu können.
+Gerade die Aufwandabschätzung war extrem schwierig auf ein Feature bezogen da man noch nicht einmal genau ausspezifiziert hat wie man alles umsetzen möchte.
+Nach diesen Anfänglichen Schwierigkeiten lief das Projekt aus meiner Sicht perfekt. Es ist uns gelungen, dass alle dieselbe Vision des Endproduktes bekommen haben.
+Auf dieser Basis war es einfach gemeinsam Architektur entscheide zu treffen und dann umzusetzen. Auch die Arbeitsaufteilung, das Einsetzen professioneller Tools hat problemlos geklappt.
+Sehr positiv war auch, dass wir Anfangs Pair Programming gemacht haben. Dies hat es wesentlich einfacher gemacht Ruby zu erlernen,
+Bugs zu fixen, Entscheide über die Protokolle zu diskutieren oder auszuarbeiten.
+Durch die Vielfältigkeit unserer Arbeit konnte ich mich in neue Themengebiete vertiefen und das erlernte des Studiums anwenden.
+Dazu gehörte das Erlernen von ZMQ, mininet und Docker, welche allesamt eine Bereicherung für mich waren.
+Ebenfalls positiv bewerte ich, dass wir von Anfang an voll Gas gegeben haben, um Nacht und Nebelaktionen gegen Projektende zu verhindern.
+Dies ist uns definitiv gelungen und wir können nun zumindest aus unserer Sicht ein Qualitativ hochwertiges Endprodukt präsentieren.
+Ich bedanke mich für die strukturierte und lehrreiche Zusammenarbeit mit meinem Projektpartner - Patrik Wenger,
+für die interessanten Diskussionen mit unserem Kunden Andreas Rohr und Prof. F. Metha für die Ünterstützung bei der Arbeit.
+
+% TODO proof reading
+The project start I felt as rather hard. From the first minute you had to understand everything to be able to estimate their time cost.
+Exactly the expenditure estimation was extremely difficult on a feature referred because one did not even have exactly specified how we will implement it.
+In the first two elaboration phases we have incorrectly planned the time. One of the reason was that we have underestimated the effort to incorporate into the architecture.
+After these initial difficulties the project ran perfectly from my point of view. We have managed to get the same vision of the end product.
+On this basis it was easy to make common decisions on the software architecture and later to implement them.
+Also the division of work, the use of professional tools has worked perfectly.
+I was positively suprised of the effect of pair programming and i was happy that we made it at beginning of the project. This has made it much easier to learn Ruby,
+bugs to fix, to discuss decisions on the protocols or elaborate them.
+Due to the diversity of our work, I was able to deepen myself into new areas of interest and apply the learned study.
+This included the learning of ZMQ, mininet and Docker, which were all an enrichment for me.
+I also positively rate that we have been full throttle right from the start to prevent night and fogging against projects.
+We have definitely succeeded in this and we can now present at least from our point of view a qualitatively high-quality end product.
+I would like to thank my project partner -- Patrik Wenger for the structured and educational cooperation,
+for the interesting discussions with our customer Andreas Rohr and Prof. F. Metha for the support at work.

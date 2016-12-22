@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><project name="roadster" company="" webLink="http://" view-date="2016-09-11" view-index="0" gantt-divider-location="851" resource-divider-location="300" version="2.8.1" locale="en_US">
+    <description/>
+    <view zooming-state="default:4" id="gantt-chart">
+        <field id="tpd3" name="Name" width="359" order="0"/>
+        <field id="tpd4" name="Begin date" width="237" order="1"/>
+        <field id="tpd5" name="End date" width="236" order="2"/>
+    </view>
+    <view id="resource-table">
+        <field id="0" name="Name" width="210" order="0"/>
+        <field id="1" name="Default role" width="86" order="1"/>
+    </view>
+    <!-- -->
+    <calendars>
+        <day-types>
+            <day-type id="0"/>
+            <day-type id="1"/>
+            <default-week id="1" name="default" sun="0" mon="0" tue="0" wed="0" thu="0" fri="0" sat="0"/>
+            <only-show-weekends value="false"/>
+            <overriden-day-types/>
+            <days/>
+        </day-types>
+    </calendars>
+    <tasks empty-milestones="true">
+        <taskproperties>
+            <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+            <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+            <taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+            <taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+            <taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+            <taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+            <taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+            <taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+            <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+            <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+        </taskproperties>
+        <task id="0" name="Roadster" color="#000000" meeting="false" start="2016-09-19" duration="96" complete="0" expand="true">
+            <task id="2" name="Inception" meeting="false" start="2016-09-19" duration="11" complete="0" expand="true">
+                <task id="37" name="estimated schedule" meeting="false" start="2016-09-19" duration="1" complete="0" expand="true"/>
+                <task id="31" name="init documentation" meeting="false" start="2016-09-19" duration="4" complete="0" expand="true"/>
+                <task id="29" name="setup project management" meeting="false" start="2016-09-19" duration="11" complete="0" expand="true"/>
+                <task id="40" name="define scope" meeting="false" start="2016-09-19" duration="2" complete="0" expand="true"/>
+                <task id="30" name="understand requirements" meeting="false" start="2016-09-22" duration="3" complete="0" expand="true"/>
+                <task id="38" name="asses &amp; analyze risks" meeting="false" start="2016-09-22" duration="4" complete="0" expand="true"/>
+                <task id="39" name="set priorities" meeting="false" start="2016-09-19" duration="1" complete="0" expand="true"/>
+            </task>
+            <task id="4" name="Elaboration 1" meeting="false" start="2016-09-26" duration="21" complete="0" expand="true">
+                <task id="45" name="plan project" meeting="false" start="2016-09-26" duration="1" complete="0" expand="true"/>
+                <task id="48" name="define time tracking activity - hashtag" meeting="false" start="2016-09-26" duration="1" complete="0" expand="true"/>
+                <task id="50" name="change structure" meeting="false" start="2016-09-26" duration="1" complete="0" expand="true"/>
+                <task id="46" name="Integrate requirements" meeting="false" start="2016-09-26" duration="2" complete="0" expand="true"/>
+                <task id="53" name="describe zmq" meeting="false" start="2016-09-28" duration="2" complete="0" expand="true"/>
+                <task id="55" name="design persistence synchronization model" meeting="false" start="2016-09-30" duration="4" complete="0" expand="true"/>
+                <task id="54" name="design single &amp; multi level HA" meeting="false" start="2016-09-30" duration="5" complete="0" expand="true"/>
+                <task id="69" name="desig cluster protocol" meeting="false" start="2016-09-30" duration="3" complete="0" expand="true"/>
+                <task id="52" name="describe initial situation roadster" meeting="false" start="2016-10-02" duration="1" complete="0" expand="true"/>
+                <task id="56" name="design key distribution model" meeting="false" start="2016-10-03" duration="3" complete="0" expand="true"/>
+                <task id="65" name="design OPC-UA HA interface" meeting="false" start="2016-10-03" duration="1" complete="0" expand="true"/>
+                <task id="57" name="plan testing infrastructure" meeting="false" start="2016-10-03" duration="12" complete="0" expand="true"/>
+                <task id="51" name="write use cases" meeting="false" start="2016-10-04" duration="2" complete="0" expand="true"/>
+                <task id="58" name="integrate risks" meeting="false" start="2016-10-06" duration="1" complete="0" expand="true"/>
+                <task id="59" name="adjust requirements" meeting="false" start="2016-10-06" duration="4" complete="0" expand="true"/>
+                <task id="60" name="adjust HA approach" meeting="false" start="2016-10-07" duration="6" complete="0" expand="true"/>
+                <task id="76" name="write documentation" meeting="false" start="2016-10-08" duration="9" complete="0" expand="true"/>
+            </task>
+            <task id="11" name="Elaboration 2" meeting="false" start="2016-10-17" duration="11" complete="0" expand="true">
+                <task id="64" name="recheck risks" meeting="false" start="2016-10-17" duration="1" complete="0" expand="true"/>
+                <task id="77" name="plan project phase" meeting="false" start="2016-10-17" duration="1" complete="0" expand="true"/>
+                <task id="78" name="get familiar with roadster" meeting="false" start="2016-10-20" duration="6" complete="0" expand="true"/>
+                <task id="79" name="set up auto build of documentation" meeting="false" start="2016-10-27" duration="1" complete="0" expand="true"/>
+                <task id="82" name="port roadster to cztop" meeting="false" start="2016-10-21" duration="1" complete="0" expand="true"/>
+                <task id="87" name="implement OPC-UA HA interface" meeting="false" start="2016-10-22" duration="1" complete="0" expand="true"/>
+                <task id="81" name="set up auto build of documentation" meeting="false" start="2016-10-20" duration="8" complete="0" expand="true"/>
+                <task id="83" name="recheck risks" meeting="false" start="2016-10-23" duration="1" complete="0" expand="true"/>
+                <task id="85" name="implement secure socket communication prototype" meeting="false" start="2016-10-22" duration="3" complete="0" expand="true"/>
+            </task>
+            <task id="80" name="implement HA prototype" meeting="false" start="2016-10-21" duration="19" complete="0" expand="true"/>
+            <task id="84" name="implement federation prototype" meeting="false" start="2016-10-21" duration="17" complete="0" expand="true"/>
+            <task id="86" name="setup test environment - CI" meeting="false" start="2016-10-18" duration="27" complete="0" expand="true"/>
+            <task id="12" name="Elaboration 3" meeting="false" start="2016-10-30" duration="8" complete="0" expand="true">
+                <task id="91" name="recheck risks" meeting="false" start="2016-10-30" duration="1" complete="0" expand="true"/>
+                <task id="92" name="interim tasks from elaboration 2" meeting="false" start="2016-10-30" duration="8" complete="0" expand="true"/>
+            </task>
+            <task id="13" name="Construction 1" meeting="false" start="2016-11-07" duration="19" complete="0" expand="true">
+                <task id="155" name="plan phase" meeting="false" start="2016-11-07" duration="1" complete="0" expand="true"/>
+                <task id="93" name="interim tasks from elaboration 2" meeting="false" start="2016-11-07" duration="7" complete="0" expand="true"/>
+                <task id="111" name="Ruby coding style" meeting="false" start="2016-11-07" duration="2" complete="0" expand="true"/>
+                <task id="121" name="Federation CSP" meeting="false" start="2016-11-07" duration="15" complete="0" expand="true">
+                    <task id="124" name="System test: Federation" meeting="false" start="2016-11-13" duration="1" complete="0" expand="true"/>
+                    <task id="123" name="System test: DIM extension" meeting="false" start="2016-11-15" duration="1" complete="0" expand="true"/>
+                    <task id="125" name="System test: Autonomy" meeting="false" start="2016-11-17" duration="1" complete="0" expand="true"/>
+                    <task id="126" name="System test: Message routing" meeting="false" start="2016-11-18" duration="1" complete="0" expand="true"/>
+                    <task id="128" name="implementation federation" meeting="false" start="2016-11-07" duration="7" complete="0" expand="true"/>
+                    <task id="130" name="Ignore update reflections" meeting="false" start="2016-11-13" duration="1" complete="0" expand="true"/>
+                    <task id="101" name="log when subnode unreachable" meeting="false" start="2016-11-13" duration="1" complete="0" expand="true"/>
+                    <task id="105" name="Fix CSP in WebUI" meeting="false" start="2016-11-14" duration="1" complete="0" expand="true"/>
+                    <task id="104" name="Fix case handling on foreign node" meeting="false" start="2016-11-15" duration="1" complete="0" expand="true"/>
+                    <task id="94" name="extend acl session check" meeting="false" start="2016-11-09" duration="1" complete="0" expand="true"/>
+                    <task id="100" name="refactor csp" meeting="false" start="2016-11-14" duration="8" complete="0" expand="true"/>
+                    <task id="106" name="Warn when neighbor node unreachable" meeting="false" start="2016-11-15" duration="1" complete="0" expand="true"/>
+                    <task id="118" name="Add model ownership" meeting="false" start="2016-11-15" duration="6" complete="0" expand="true"/>
+                    <task id="116" name="Merge updates intelligently" meeting="false" start="2016-11-15" duration="6" complete="0" expand="true"/>
+                </task>
+                <task id="110" name="Message routing" meeting="false" start="2016-11-16" duration="4" complete="0" expand="true">
+                    <task id="103" name="UI:Correctly close Case" meeting="false" start="2016-11-16" duration="1" complete="0" expand="true"/>
+                    <task id="102" name="Sending InvokeCommandRequest from Webui foreign node" meeting="false" start="2016-11-16" duration="1" complete="0" expand="true"/>
+                    <task id="138" name="implementation" meeting="false" start="2016-11-16" duration="4" complete="0" expand="true"/>
+                </task>
+                <task id="115" name="Ping/pong heartbeating" meeting="false" start="2016-11-23" duration="3" complete="0" expand="true"/>
+                <task id="107" name="Draw activity diagram for Downstream engine" meeting="false" start="2016-11-20" duration="1" complete="0" expand="true"/>
+                <task id="113" name="Draw uncommon topoligies" meeting="false" start="2016-11-20" duration="1" complete="0" expand="true"/>
+                <task id="117" name="Spec" meeting="false" start="2016-11-07" duration="14" complete="0" expand="true"/>
+                <task id="114" name="tag runnable master" meeting="false" start="2016-11-20" duration="1" complete="0" expand="true"/>
+            </task>
+            <task id="14" name="Construction 2" meeting="false" start="2016-11-21" duration="17" complete="0" expand="true">
+                <task id="152" name="plan phase" meeting="false" start="2016-11-21" duration="1" complete="0" expand="true"/>
+                <task id="139" name="HA" meeting="false" start="2016-11-21" duration="14" complete="0" expand="true">
+                    <task id="146" name="React on go-passive/go-active events" meeting="false" start="2016-11-21" duration="7" complete="0" expand="true"/>
+                    <task id="147" name="Draw BStar state machine diagram" meeting="false" start="2016-11-21" duration="1" complete="0" expand="true"/>
+                    <task id="148" name="System test: High availability" meeting="false" start="2016-11-22" duration="13" complete="0" expand="true"/>
+                </task>
+                <task id="140" name="Persistence synchronization" meeting="false" start="2016-11-28" duration="10" complete="0" expand="true">
+                    <task id="149" name="System test: Persistence synchronization" meeting="false" start="2016-11-28" duration="10" complete="0" expand="true"/>
+                    <task id="151" name="implementation" meeting="false" start="2016-11-28" duration="7" complete="0" expand="true"/>
+                </task>
+            </task>
+            <task id="16" name="Transition" meeting="false" start="2016-12-18" duration="6" complete="0" expand="true">
+                <task id="159" name="Refine document" meeting="false" start="2016-12-18" duration="1" complete="0" expand="true"/>
+                <task id="160" name="write abstract" meeting="false" start="2016-12-18" duration="1" complete="0" expand="true"/>
+                <task id="161" name="proof reading" meeting="false" start="2016-12-22" duration="1" complete="0" expand="true"/>
+                <task id="162" name="print document" meeting="false" start="2016-12-22" duration="1" complete="0" expand="true"/>
+                <task id="163" name="final upload" meeting="false" start="2016-12-23" duration="1" complete="0" expand="true"/>
+            </task>
+        </task>
+    </tasks>
+    <resources/>
+    <allocations/>
+    <vacations/>
+    <previous/>
+    <roles roleset-name="Default"/>
+</project>

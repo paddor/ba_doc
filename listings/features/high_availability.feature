@@ -1,5 +1,9 @@
 Feature: High availability
-	TODO
+	In order to achieve high availability
+	As a Roadster federation node
+	I need to be able to define a node pair primary and backup,
+	communicate with my peer node,
+	and failover on crash
 
 	Background:
 		Given two peer nodes P1 (primary) and P2 (backup)

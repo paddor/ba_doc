@@ -4,11 +4,15 @@ This chapter describes the approach taken by the students to fulfill the
 requirements. An introductory overview of all changes in retrospect is given in
 \autoref{sec:approach:overview}.
 
-Prototypes developed as proof-of-concepts are explained in \autoref{sec:approach:prototypes}.
-% TODO: testing
-% TODO: features
+Prototypes developed as proof-of-concepts are explained in
+\autoref{sec:approach:prototypes}.
 
-Possible variants as well as the final choices are explained here.
+The \autoref{sec:approach:testing} shows the comprehensive testing
+infrastructure set up to test all contributions.
+
+The exact approach taken to develop every feature can be found in
+\autoref{sec:approach:federation} and the following sections.
+
 
 \section{Overview}\label{sec:approach:overview}
 Numerous changes throughout Roadster's three architectural layers have been
@@ -21,7 +25,6 @@ With the exception of the tests, almost all of these changes took place within
 Roadster's \sh{lib} directory.
 
 \subsection{Reactor layer}
-% TODO * actor layer: new actors, fed sockets, encryption, codecs (moved down and added authentication feature), messageauthenticator
 The following actor classes have been added to allow a hierarchical inter-node
 communication with a supernode, subnodes, and a HA peer node:
 \begin{description}
@@ -41,7 +44,6 @@ The new class \sh{Roadster::Actors::MessageAuthenticator} performs the actual
 process of generating and verifiying cryptographic signatures.
 
 \subsection{Messaging layer}
-% TODO * messaging layer: new handlers, new protocols (FCP, BSP), new messages, "@node",
 The following new protocols have been added:
 \begin{description}
 	\item [\sh{Roadster::Messaging::FCP}] The Federation Communication
@@ -72,7 +74,6 @@ Communication Protocol.
 
 
 \subsection{Engine layer}
-% TODO * engine layer: new engines (Upstream, Downstream, BStar), Host extensions (#find_node), CSPMethods, MessageAuthentication, SupernodeSelector, SubnodesSelector, Domain::Model::Node
 The following engine classes have been added:
 \begin{description}
 	\item [\sh{Roadster::Engines::Upstream}]
@@ -81,7 +82,7 @@ The following engine classes have been added:
 		providing the lower layers with cryptographic keys to enable
 		secure communications.
 
-		IF the supernode is configured to be a \gls{HA} cluster,
+		If the supernode is configured to be a \gls{HA} cluster,
 		this engine helps initiating a failover when necessary.
 
 	\item [\sh{Roadster::Engines::Downstream}]
@@ -101,31 +102,25 @@ The following engine classes have been added:
 
 Common CSP functionality has been extracted into the mix-in \sh{Roadster::Engines::CSPMethods}.
 
-% TODO * testing env, specs (~150 -> ~900)
-
 
 \section{Prototypes}\label{sec:approach:prototypes}
 As a way of getting familiar with the Roadster code base, as well as to prove
 the concepts worked out during the first elaboration iteration, two prototypes have
-been developed during the second elaboration phase. Andy Rohr, as the
+been developed during the coming elaboration iterations. Andy Rohr, as the
 main author of Roadster, was immensely helpful by giving an introduction to
 the code base early on.  Although quite overwhelming, the first impression was
 that the code is clean, makes good use of abstractions and has loosely coupled
 classes.
 
-% TODO: describe approach of getting more familiar with Roadster, during prototyping
-
 The two prototypes, namely the inter-node communication and the high availability
-mechanism, have been developed with "cheap, quick, and dirty" in mind. This
-allows silent experimentation and allows a failed approach to be discarded as
-cheaply as possible.
-The approach to these two prototypes are described briefly in the next sections.
+mechanism, have been developed with the idea of "cheap, quick, and dirty" in mind. This
+allows experimentation and minimizes the cost of failure.
+The approach to these two prototypes are described briefly in the next two sections.
 
 
 \subsection{Inter-node communication}
 The idea of this prototype is to achieve rudimentary communication between two
 Roadster nodes.
-% TODO general idea of prototype
 
 To do so, two new actors need to be added for the communication with neighboring nodes of the
 federation.  Since COMM actors are used to communicate with systems outside of
@@ -152,7 +147,17 @@ API of this protocol (\sh{Roadster::Messaging::FCP::API::Supernode}) provides
 the ability to send messages of the aforementioned message type to all direct
 subnodes via the COMM.DOWNSTREAM actor's PUB \zmq socket.
 
-The final version of the FCP protocol includes means to route arbitrary
+Running multiple instances of Roadster was fairly simple.
+To be able to store the supernode instance's \zmq endpoint somewhere and have
+it available to the subnode instance, a new domain model class
+\sh{Roadster::Domain::Model::Node} has been defined. The endpoint information
+is its only property.
+
+This worked as expected. The reception of the periodic test messages sent by
+the supernode's COMM.DOWNSTREAM actor are immediately logged on the subnode's
+console.
+
+\paragraph{Evolution} The final version of the FCP protocol includes means to route arbitrary
 messages through a federation of nodes to its destination actor, as well as
 message types for ping/pong heartbeating. \autoref{sec:approach:msg-routing}
 and \autoref{sec:approach:hb} go into more detail.
@@ -175,10 +180,25 @@ supernode with multiple subnodes will act as the server in CSP terminology.
 
 
 \subsection{High availability}
-% TODO: standalone tests
+As suggested by the task description in \autoref{app:task-description}, the
+\gls{bstar} has been implemented as two standalone Ruby scripts: One for the
+server process, and one for the client process. \gls{cztop} is used as the \zmq
+Ruby language binding.
+
+All the client does is periodically send a request to its currently selected
+server process along with an increasing number, which the active server simply
+echoes. In case no response from the server is received within a certain amount
+of time, the client destroys its socket and registers a new one to connect it
+to the other server.
+
+Manual tests have shown that it works as expected and reliably. The two server
+processes (primary and backup) can be started in any order, immediately start
+communicating with each other and determine the one to become active. Killing
+the currently active server makes the client to switch and re-send its pending
+request to the passive server, which then immediately takes over.
 
 
-\section{Testing}
+\section{Testing}\label{sec:approach:testing}
 This section describes the test methods used to check units, the integration of
 multiple components, as well as the behavior of new contributions across the
 entire framework.  All test results are described in \autoref{ch:res}.
@@ -186,21 +206,55 @@ entire framework.  All test results are described in \autoref{ch:res}.
 The following subsections describe in detail how testing is performed.
 
 \subsection{Unit tests}
-To ensure the correctness of the implementations, unit tests are written using
+To ensure the correctness of the implementations, unit tests are written using the test framework
 RSpec. 100\% coverage of the students' contributions can be achieved by
 adhering to \gls{TDD}, or more specifically, \gls{BDD}. RSpec offers itself as
-a very valuable testing tool providing very expressive assertion and mocking
-facilities, as well as more advanced features such as testing spies which have
-proven to be a perfect use case for Ruby's dynamic binding (a.k.a \emph{duck typing}
-\footnote{\url{https://en.wikipedia.org/wiki/Duck_typing}}).
+a valuable testing tool providing expressive assertion and mocking
+facilities, as well as more advanced features such as testing spies\footnote{\url{https://github.com/rspec/rspec-mocks\#test-spies}} which
+are a perfect use case for Ruby's dynamic binding, a.k.a \emph{duck typing}.\footnote{\url{https://en.wikipedia.org/wiki/Duck_typing}}
 
 Naturally, this also simplifies refactoring the code without the risk of
-breaking functionality unnoticed. Unit tests reside under the \sh{spec}
+breaking functionality going unnoticed. Unit tests reside under the \sh{spec}
 directory of Roadster's code base.
 
+An example of a typical unit test is shown in \autoref{lst:testing:unit}.
+
 % TODO RSpec extension
-% TODO typical test example
+
+\begin{listing}
+	\begin{minted}[bgcolor=bg]{Ruby}
+module Roadster
+  describe Actors::BStar do
+    subject { described_class.new messaging_class }
+    let(:messaging_class) { double 'messaging handler class', new: messaging }
+    let(:messaging) do
+      instance_spy Messaging::Handlers::BStar, name: 'messaging_handler_name'
+    end
+
+    describe '#publish_message' do
+      let(:msg) { Messaging::Messages::Base.new 'sender', 'receiver' }
+      it 'publishes message to remote HA peer' do
+        expect(subject).to receive(:emit_message).with(:bstar_pub, msg)
+        subject.publish_message msg
+      end
+    end
+
+    describe '#register_ha_sockets' do
+      # [...]
+    end
+  end
+end
+	\end{minted}
+	\caption{Example of two unit tests in RSpec.}
+	\label{lst:testing:unit}
+\end{listing}
+
+
 % TODO speccing only public methods and side effects of private methods
+
+% TODO * testing env, specs (~150 -> ~900)
+
+
 
 \subsection{Integration tests}
 Integration tests verify the interaction between the individual components.
@@ -268,7 +322,7 @@ a fake adapter is used. It continually fakes the actions of a fictional robot.
 
 	\item [Fake adapter:]\hfill\\
 		A fake implementation of a fictional \gls{PLC}, namely a robot
-		that that changes its position randomly in a 2D coordinate
+		that that changes its position randomly in a two-dimensional coordinate
 		system serves the purpose of getting external sensor data.
 		Using Roadster's guards it will also generate cases as soon as
 		it moves out of a predefined, virtual bounding box. This robot
@@ -398,7 +452,7 @@ in~\autoref{lst:testing:docker:directory-structure}.
 			|   `-- ...
 			`-- ...
 	\end{minted}
-	\caption{Directory structure of system tests within Docker container}
+	\caption{Directory structure of system tests within Docker container.}
 	\label{lst:testing:docker:directory-structure}
 \end{listing}
 
@@ -407,7 +461,7 @@ The federation used for system tests is build as follows:
 \begin{figure}[]
 	\center
 	\includegraphics[width=0.5\textwidth]{img/logical_federation_setup.pdf}
-	\caption{Logical federation topology used in system tests}
+	\caption{Logical federation topology used in system tests.}
 	\label{lst:testing:topo:logic}
 \end{figure}
 
@@ -428,7 +482,7 @@ devices.
 \begin{figure}[]
 	\center
 	\includegraphics[width=\textwidth]{img/physical_network_mininet.pdf}
-	\caption{Physical federation topology used in system tests}
+	\caption{Physical federation topology used in system tests.}
 	\label{lst:testing:topo:logic}
 \end{figure}
 
@@ -477,54 +531,71 @@ This was about an hour's work.
 
 
 %----------------------------------------------------------------------------
+\pagebreak
 \section{Federation}\label{sec:approach:federation}
-% TODO: big picture
-A Roadster federation is illustrated in \autoref{fig:federation}. Adding federation
-functionality to Roadster involves the following aspects:
-\begin{itemize}
-	\item A \gls{DSL} to be able to define a federation (including the role of each node)
-	\item Message routing
-	\item Heartbeating
-	\item DIM synchronization
-\end{itemize}
+Running multiple Roadster nodes can be useful to aggregate information from
+several field devices, especially if they cannot be connected to the same node,
+possibly because of physical distance. Such a federation of autonomously
+running nodes can then aggregate information in the root node, which can then
+provide it to higher level client systems. Also, the root node's web UI shall
+serve as a centralized point of access to the federation and offer an overview
+of it to operational and technical personnel.
 
+A Roadster federation consisting of a root node and two subnodes is illustrated
+in \autoref{fig:federation}.
 \begin{figure}[]
 	\includegraphics[width=\textwidth]{img/federation_protocol.pdf}
-	\caption{Federation between a supernode and two subnodes}
+	\caption{Federation between a supernode and two subnodes.}
 	\label{fig:federation}
 \end{figure}
 
+Adding federation functionality to Roadster involves the following aspects:
+\begin{itemize}
+	\item Means to declare a federation
+	\item Message routing
+	\item Heartbeating
+	\item Inter-node CSP
+\end{itemize}
+
 \subsection{Federation definition}
-% TODO: topolofy_conf.rb rename to federation.rb?
 The federation topology has to be defined somewhere. This can be done using a
-\gls{DSL} and then put into a static file (e.g. \sh{topology_conf.rb}) shared
+\gls{DSL} and then put into a static file shared
 on all nodes of a Roadster federation. Each actor could then read the file at
 startup, just like it is done for other configuration pieces of a Roadster node.
-\autoref{lst:dsl:topo:no-ha} shows how such a configuration snippet might look.
 
-% TODO: FIXME text isn't correct anymore
-To let the actors of a node know which node they belong to, an additoinal line
-has to be added to the specific configuration file (\sh{conf.rb}), e.g.
-% FIXME: root node could be called nodes.northpole (avoids ambiguity with the
-% root element of the DIM)
-\rb{conf.system_id = "nodes.root"}. Using that information, the topology
-created using the DSL can be walked like a tree to find the correct node and
-important information like its neighbor nodes.
+\autoref{lst:dsl:topo:no-ha} shows how such a configuration might look.
 
-A HA node pair could be one DIM object which has one name but two IP addresses
-(primary and backup, in that order). Direct subnodes can use that information
-to connect to the correct supernode during normal operation and also
-when the primary node is unavailable. The respective DSL snippet is shown in
-\autoref{lst:dsl:topo:with-ha}.
-
-Not every node in a federation has the same role: Some are only connected with other
-nodes, some directly communicate with field devices. To define different node roles, a
-syntax as shown in \autoref{lst:dsl:topo:with-roles} is possible.
-
-% TODO node-specific config file
+To allow the actors of a node to deduce which node they belong to, it is
+necessary to provide an additional configuration, e.g. \sh{conf.local_node}.
+This option then can be set in the node-specific configuration file as shown in
+\autoref{lst:conf:root}.
 
 \begin{listing}
-	% TODO: update to declarative form
+	\begin{minted}[bgcolor=bg]{Ruby}
+# Roadster application configuration
+module Roadster
+
+  conf.local_node = 'root'
+
+  conf.log_level = ::Logger::Severity::INFO
+  conf.pid_file  = File.join conf.root, 'log', 'root.pid'
+  conf.log_file  = File.join conf.root, 'log', 'root.log'
+  conf.data_path = File.join conf.root, 'data.root'
+
+  conf.webserver_port = 3010
+  conf.environment = :development
+end
+	\end{minted}
+	\caption{Node-specific configuration of the node 'root'.}
+	\label{lst:conf:root}
+\end{listing}
+
+Not every node in a federation is the same: Each one has its own set of field devices (if any).
+The configured name of the local node can be used in conjunction with the
+federation topology definition to deduce important information such as neighboring
+nodes and the exact set of adapters to load on the local node.
+
+\begin{listing}
 	\begin{minted}[bgcolor=bg]{Ruby}
 module Conf::Federation
   def self.conf
@@ -532,8 +603,7 @@ module Conf::Federation
       primary_endpoints \
         router: 'tcp://0.0.0.0:20000',
         pull:   'tcp://0.0.0.0:20001',
-        pub:    'tcp://0.0.0.0:20002',
-        ha_pub: 'tcp://0.0.0.0:20003'
+        pub:    'tcp://0.0.0.0:20002'
 
       adapters do
         adapter :foobar do
@@ -579,189 +649,231 @@ module Conf::Federation
   end
 end
 	\end{minted}
-	\caption{Federation DSL example without HA}
+	\caption{Federation DSL example without HA.}
 	\label{lst:dsl:topo:no-ha}
 \end{listing}
 
-\begin{listing}
-	\begin{minted}[bgcolor=bg]{Ruby}
-module Conf::Federation
-  def self.conf
-    proc do
-      primary_endpoints \
-        router: 'tcp://0.0.0.0:20000',
-        pull:   'tcp://0.0.0.0:20001',
-        pub:    'tcp://0.0.0.0:20002',
-        ha_pub: 'tcp://0.0.0.0:20003'
 
-      backup_endpoints \
-        router: 'tcp://0.0.0.0:20010',
-        pull:   'tcp://0.0.0.0:20011',
-        pub:    'tcp://0.0.0.0:20012',
-        ha_pub: 'tcp://0.0.0.0:20013'
-
-      adapters do
-        # telnet server for client systems (fake OPC-UA HA interface)
-        adapter :telnet do
-          label           'Telnet'
-          desc            'Telnet Server'
-          adapter_class   Roadster::Adapters::TelnetServer
-
-          peer :server do
-            label   'LTA'
-            desc    'LTA'
-            uri     "tcp://0.0.0.0:#{Roadster.conf.telnet_server_port}"
-          end
-        end
-      end
-
-      node :s1 do
-        # [...]
-      end
-    end
-  end
-end
-	\end{minted}
-	\caption{Federation DSL example with HA}
-	\label{lst:dsl:topo:with-ha}
-\end{listing}
-
-% ############
-% # within ba-roadster-app's lib/domain/domain.rb file:
-% #
-\begin{listing}
-	\begin{minted}[bgcolor=bg]{Ruby}
-module Roadster
-  module Domain::Model
-
-    build do
-      label 'BA Roadster App'
-      desc  'Sample application for P. Wenger and M. Schuler at HSR.'
-
-      load_conf ::Conf::Federation
-      load_conf ::Conf::AccessControl
-      load_conf ::Conf::Navigation
-    end
-
-  end # Domain::Model
-end # Roadster
-	\end{minted}
-	\caption{Federation DSL example with HA and roles}
-	\label{lst:dsl:topo:with-roles}
-\end{listing}
-
+\subsubsection{Inter-node sockets}
+To provide all functionality used by any of Roadster's messaging protocols, the
+new actors from the prototype are completed according to the illustration in
+\autoref{fig:federation}. As a result, the COMM.DOWNSTREAM actor registers a
+ROUTER, a PULL, and a PUB socket, whereas the COMM.UPSTREAM actor registers a
+DEALER, a PUSH, and a SUB socket.
 
 \subsection{Message routing}\label{sec:approach:msg-routing}
 Messages need to be sent from an actor on one node to an actor on another node.
 The best place to put this logic is the CORE actor which already does this for
-messages exchanged within a node. It needs to be extended to know about nodes
-and their actors, not only actors on the current node. Then messages can be
-passed around hop-by-hop.
+messages exchanged within a node. The existing mechanism needs to be extended to take other nodes
+into consideration as well. Then messages can be passed around hop-by-hop.
 
-In case a message is sent in \emph{Dialog} mode, this implicates Russian doll
-routing: At every hop, a new dialog is started which expects an immediate
-response, which will subsequently be passed back and complete the open dialogs.
+Message routing shall be stateless, following the well-known and battle proved
+example of routing in \gls{IP}. This means that even a message sent in
+\emph{Dialog} mode shall not leave pending resources acquired on nodes other
+than the source and the destination node.
 
-% TODO: goes hand in hand with cryptographic signing, needed for end-to-end security anyway since on transport level it's only secure hop by hop
 
-% TODO: Thoughts
-% ==============
-%
-% * sender is origin node
-%   - as of now, sender is always last hop
-% * receiver is destination node
-%   - as of now, receiver is always next hop
-% * stateless routing (not actually matrjoshka-like)
-% * message BLOB itself stays exactly the same from source to destination node
-% * message envelopes are not serialized anymore (was a smell anyway, since they were replaced on the receiving side)
-% * Core looks up next hop, and only next hop
-%   - if next hop can't be determined, discard message
-% * transport options
-%   - a hash, modified on each hop
-%   - serialized as ZMTP metadata
-%     - as additional ZMQ frame (always present, even intra-node communication)
-%   - contains:
-%     - next hop node name so ROUTER socket in Downstream knows where to send to
-%     - (no other trusted data, or data that survives longer than one hop, as it's not signed)
-%
-% TODO: stateless routing
-% TODO: TTL not needed, because trees are acyclic
-% TODO: security tag (why not hash node path)
-% TODO: ZMTP metadata ABNF
+The \sh{Roadster::Messaging::Messages::Base} class has been extended to accept
+not only a destination actor as recipient, but also a node. The simplest way
+possible, which also happens to be very convenient when writing protocol code,
+is to follow the email example, e.g. \sh{actor@node}. The \sh{node} is actually
+the full path of a node, starting from the root node. As an example, a message
+sent to the CORE actor of the node \sh{root.s1}, the recipient shall be
+\sh{core@root.s1}.
 
-% TODO: why not ZMTP 3.0 heartbeating:
-% 1) ZMTP 3.1 is in DRAFT state
-% 2) silent disconnect, not useful
-% 3) intended for detection of stale TCP connections/blocked processes
-% 4) only between two sockets
-%
-% application heartbeating is better:
-% `Downstream->Core->Downstream->Upstream->Core->Upstream->Downstream`
-% (includes both Cores)
+If the recipient node is not specified, the local node shall be inserted
+automatically upon sending. The same applies to the source node. This is to
+ensure that legacy code unaware of the federation feature still works as expected.
+
+Any message that is to be routed shall be sent to the CORE first, which was
+already the case before this bachelor thesis. What the CORE now does, is
+inspect the message's recipient: If it's destined to the local node, it is
+handled as always. Only if the destination node is a remote node, the new
+routing logic in \sh{Roadster::Messaging::FCP::Core} comes into action.
+
+Routing within a hierarchical topology is very easy, especially when the
+recipient's full path within the hierarchy is part of the message. If the
+recipient node's path is not a prefix of the local node, the next hop has to be
+the supernode. Otherwise, it has to be one of the subnodes, which is determined easily,
+being simply the path one component longer than the one of the local node.
+
+Due to the hierarchical property of Roadster federations, network loops are
+definitely not present. This simplifies the routing mechanism further, because
+no means of limiting a message's lifetime is necessary, as it is in \gls{IP} in
+the form of a time-to-live field. IP needs this mechanisms because network
+topologies can change at any time, even creating loops, which could then result
+in a packet circulating indefinitely.
+
+Any wrong recipient set in the message results in the message being discarded
+immediately by the ROUTER socket if it is not aware of a corresponding remote socket.
+
+ The complete code for this routing algorithm is illustrated in
+ \autoref{lst:approach:msg-routing}.
+
+
+\begin{listing}[H]
+	\begin{minted}[bgcolor=bg]{Ruby}
+class Core < BaseAPI
+  def initialize(messaging)
+    super
+    @subnode_regex = /^#{Regexp.escape local_node}\.\w+/
+    @supernode = local_node.split('.')[ 0 .. -2 ].join('.')
+  end
+
+  # Forward message using messaging layer. Either to local actor or to
+  # remote node.
+  #
+  def forward_message(msg)
+    if local_node == msg.receiver_node
+      # local delivery
+      msg.add_envelope msg.receiver
+    else
+      set_next_hop msg
+    end
+
+    messaging.forward_message msg
+  end
+
+  private
+
+  # Lookup and set next hop(s) of message using "string based"                                                                                                             # routing. It's either forwarded to the supernode or one of the
+  # subnodes.                                                                                                                                                              #
+  # @param msg [Messaging::Messages::Base] the message to prepare for                                                                                                      #   the next two hops to another node
+  #                                                                                                                                                                        def set_next_hop(msg)                                                                                                                                                      if subnode = msg.receiver_node[ @subnode_regex ]
+      # forward to/via subnode
+      msg.add_envelope "comm.upstream@#{subnode}"      # second hop
+      msg.add_envelope "comm.downstream@#{local_node}" # first hop
+    else
+      # forward via supernode
+      msg.add_envelope "comm.downstream@#{@supernode}" # second hop
+      msg.add_envelope "comm.upstream@#{local_node}"   # first hop
+    end
+  end
+end
+	\end{minted}
+	\caption{Message routing algorithm.}
+	\label{lst:approach:msg-routing}
+\end{listing}
 
 
 \subsubsection{Example}
 When a user of the root node's web UI wants to change a value on a field device
-connected to the root node's subordinate node, a command is sent from the
-browser to the web UI's COMM actor. From there it is sent via the CORE actor out
-on the DOWNSTREAM actor to the subordinate node. There it is routed
-via the CORE actor to the correct COMM actor, where the command can actually be
-executed on the field device.
+connected to the root node's subnode, a command is sent from the browser to the
+root node's COMM.WEBUI actor. From there it is sent to the CORE actor, which
+routes it via the DOWNSTREAM actor to the subnode. There it is relayed by the
+COMM.UPSTREAM actor to the the CORE actor, which then routes it locally to the
+correct COMM actor, which in turn executes the command on on the field device.
 
 \subsubsection{Heartbeating}\label{sec:approach:hb}
-% TODO supernode pings subnodes, subnodes send back pong
-* ping/pong with sequence number to match pongs to pings
-  why not dialog? => ping is one-to-many via PUB socket
+To avoid filling a PUSH socket in case the supernode is unavailable, and also
+just to keep an up-to-date view of neighboring node's liveliness, heartbeating
+is performed between a supernode and its subnodes.
+
+
+Two new message types have been defined:
+\begin{itemize}
+	\item \sh{Roadster::Messaging::FCP::Messages::Ping}
+	\item \sh{Roadster::Messaging::FCP::Messages::Pong}
+\end{itemize}
+
+Two-way heartbeating (ping/pong) is used, where the supernode periodically
+sends a Ping message to all its direct
+subnodes. This is done via the COMM.DOWNSTREAM's PUB socket (one-to-many).
+Every subnode then replies with a Pong
+message, done via the COMM.UPSTREAM's DEALER socket (one-to-one).
+
+Each received Pong message proves to the supernode that the respective subnode
+is responsive. Of course, this also applies to the Ping message: Receiving a
+Ping message tells the subnode that its supernode is responsive.
+
+The implementation actually sends a sequence number with every Ping message,
+which is then echoed as part of the Pong message. This makes it possible to
+recognize the situation of a much delayed Pong message, including the
+calculation of the exact delay (spanning multiple Ping periods).
+
+Why are Pings not sent in the \emph{Dialog} mode? Dialog messages are not
+suitable for one-to-many communications.
+
+The \gls{ZMTP} version 3.1, as supported by recent versions of \zmq, actually
+contains a heartbeating feature. But ZMTP 3.1 is not stable yet as of this
+writing, and in case a remote socket becomes unresponsive, the connection is
+silently disconnected, which is not very useful to keep track of neighboring
+nodes' liveliness. Its intended use is to detect stale TCP connections and thus
+release possibly blocked processes.
+
+For the aforementioned reasons, application heartbeating is performed.
+
+Due to the message routing being used for the Pong message, the a full cycle of
+Ping/Pong involves the following actors, starting with the Ping message:
+\begin{enumerate}
+	\item COMM.DOWNSTREAM of the supernode
+	\item COMM.UPSTREAM  of the subnode
+	\item COMM.CORE of the subnode
+	\item COMM.UPSTREAM of the subnode
+	\item COMM.DOWNSTREAM of the supernode
+	\item COMM.CORE of the supernode
+	\item COMM.DOWNSTREAM of the supernode
+\end{enumerate}
+
+This is good because it means both CORE actors of any supernode-subnode pair
+are involved. In case, for some reason, the CORE actor is unresponsive, Ping
+messages are not simply echoed by the COMM.UPSTREAM actor, which is the desired
+behavior.
 
 
 \subsection{Inter-node CSP}
-The DIM has to be replicated across a hierarchical federation of nodes.
-% TODO: more/better
+The DIM has to be replicated across a hierarchical federation of nodes, as the
+DIM is the essential data structure representing the overall state of a
+Roadster federation.
 
-The new actors' responsibility is the inter-node synchronization of the DIM,
-similarly to what is happening in the existing \gls{CSP} within a single node.
-To do so, they simply subscribe to DIM updates within a node just like any
-other COMM actor does.  Then they replicate any subsequent updates over the network
-to the neighbors (supernode, and subnodes).
-
-\paragraph{Socket recycling}
-% TODO: move somewhere else, maybe directly to NFRs
-The aim is to use these three socket pairs in a protocol agnostic fashion. This
-should be possible because of Roadster's layered software architecture,
-completely separating protocols from the actual sockets used. What counts is
-each socket's ability and who it is talking to. In case these two things are shared
-among several protocols (which should be the case, e.g. for persistence
-replication), sockets shall be reused.
+One of the new actors' responsibility is the replication of updates to the DIM,
+similar to how the \gls{CSP} works within a single node.  To do so, both the
+COMM.UPSTREAM and COMM.DOWNSTREAM actor simply subscribe to DIM updates within
+a node just like any other COMM actor does.  Then they replicate any subsequent
+updates over the network to the neighboring nodes. The existing three socket
+pairs are used, since they are protocol agnostic thanks to Roadster's layered
+architecture.
 
 \paragraph{Replication is bidirectional}
-It is worth noting that it is possible that both neighboring nodes will have performed
-modifications to parts of the DIM while they were
-disconnected. Thus, the initial exchange of delta information, as well as the
-subsequent propagation of modifications to the DIM go both ways.
+It is possible that two sibling nodes will have performed modifications to the
+DIM while they were disconnected from their common supernode. Thus, the initial
+exchange of snapshots, as well as the subsequent propagation of modifications
+to the DIM has to be bidirectional.
 
 \paragraph{CAP theorem}
-% TODO: move somewhere else
 The CAP theorem \cite{wp:cap} states that it is impossible for a distributed
 computer system to simultaneously provide consistency, availability, and
 network partition tolerance. In the face of a network partition, one has to
 chose between availability and consistency. Because subsystems of a Roadster
 federation must be autonomous, the obvious choice is availability. Eventual
-consistency is guaranteed by restricting write access to the owning node, and
-recovering from a network partition when communication is restored is done by
-simply reinitiating the DIM replication process.
+consistency is achieved when recovering from a network partition by simply
+reinitiating the DIM replication process.
 
 \subsubsection{Object ownership}
 The concept of ownership has to be introduced. Every object within the DIM
 shall belong to a particular node. Modifications to the objects shall be done via
-that node, and only that node, so the node is the source of truth for all modifications for the
-objects it owns. For that, every object in the DIM has to have a reference
-(i.e. an attribute \rb{@owner}) to the object representing its owner node, which is part of
+that node, and only that node, so the node is the authorative instance for all modifications of its own objects.
+For that, every object in the DIM has to have a reference
+to the object representing its owner node, which is part of
 the configuration that is loaded from the static configuration loaded by every
 actor at initialization.
 
 Some objects like parameters (described in \autoref{sec:scope:persistence})
 will apply to a whole federation and will thus be owned by the root node.
 Examples of these are UI user credentials.
+
+To avoid having to store an additional reference to a node object in every DIM
+object, the process of finding its owning node can be simplified by rearranging
+the objects. Making all objects direct or indirect children of the owning node
+means that determining their owning node is merely a traversing of the tree up
+to the first node object.
+
+As a result, the existing domain model class \sh{Roadster::Domain::Model::Root}
+has been eliminated. Instead, the root node's
+\sh{Roadster::Domain::Model::Node} object takes its place in the DIM. As a
+consequence, the whole configuration of adapters, field devices, aggregates,
+and such now belong to the root node. Of course, the same goes for any subnodes
+and their configuration.
 
 \subsubsection{Degree of replication}
 There are several variants when it comes to what exactly of the DIM should be replicated:
@@ -771,12 +883,6 @@ Synchronize on subtree only, which means a node only knows the DIM part of
 itself. The big disadvantage is that it will not have a copy of the rest of the
 DIM, which can be useful to inspect variables on neighboring nodes, especially
 when they're unreachable.
-% FIXME: This wouldn't even work in more-than-2-level setups, because only the
-% northpole knows the complete DIM. So subnodes and subsubnodes all would have
-% to directly connect to the northpole, which isn't the idea of a federation.
-
-% FIXME: Also, there is no single subtree for a node's objects; there are some
-% in root.adapters, some in root.objects, itself in root.nodes, ...
 
 \paragraph{Variant 2: Sync complete tree}\label{par:approach:dim:var2}
 Always sync on complete tree, which means getting the snapshot from the
@@ -798,7 +904,7 @@ The \gls{CSP} has to work as an intra-node protocol (within a node, which is
 the legacy behavior), as well as an inter-node protocol (within a federation).
 That means \gls{CSP}-related server functionality has to be present in the CORE
 engine, as well as in the DOWNSTREAM engine. CSP-related client functionality has
-to be present in all COMM existing engines, the UPSTREAM engine, \emph{as well
+to be present in all existing COMM engines, the UPSTREAM engine, \emph{as well
 as the DOWNSTREAM engine}, since it also acts as a CSP-client to the CORE engine on
 the same node.
 
@@ -807,26 +913,41 @@ is extracted into its own reusable module, which is then mixed into all
 relevant actors. The \emph{Template Method} design pattern is used to handle
 the common case of handling a received
 \rb{Roadster::Messaging::CSP::Messages::ModelUpdate} message. The hook methods,
-called by the template method, are then implemented (or their default
-implementations extended) in each particular class.
+called by the template method, are then implemented 
+in each particular class where necessary. Where no special behvior is needed,
+the mixed-in methods are left unchanged.
 
 \subsubsection{Ignoring update reflections}
 Because of the way the \gls{CSP} works, modifications to the \gls{DIM} pushed
-to the supernode have to be published back to all subnodes (just like the CORE
-actor publishes modifications to back to all actors). That means the update is
+to the supernode have to be published back to all subnodes, just like the CORE
+actor publishes modifications to back to all local actors. That means the update is
 also reflected back to the subnode on which the update originated. A subnode's
-UPSTREAM actor has to recognize this situation and discard update in question
+UPSTREAM actor has to recognize this situation and discard the update in question
 immediately.
 
-\subsubsection{Bootstrapping}
-% TODDO: translate
-Durch den Neustart eines Nodes wird seine interne Versionsnummer wieder bei 0 beginnen,
-was dazu führt das seine Updates von anderen Nodes discarded wird bis er die nötige
-Versionsnummer von vor dem Neustart erreicht. Um diesem Problem entgegen zu wirken
-wurde ein Monotonic mechanism erstellt, welches erlaubt das bei einem Snapshot auch die
-eigene Versionsnummer überschrieben werden kann, insofern die eigene Version im Snapshot höher
-ist als die eigene. Deshalb wird bei einem Neustart proactively ein Snapshot vom Supernode oder
-vom Subnode verlangt.
+This is easily achieved by comparing the version number, because a reflected
+update always has a version number $\leqslant$ the local version number.
+
+\subsubsection{Version monotonizing}
+In case a node has to be rebooted due to whatever reason, its version numbers
+start over at zero.
+This leads to the situation where its domain model updates sent to neighboring
+nodes are discarded as being outdated, until they reach their previous value.
+This is why snapshots from neighboring nodes are initially requested to
+instantly increase the version numbers to their previous value.
+
+The implementation is straight-forward. When applaying a snapshot --- as well as regular
+updates --- a mere monotonical increase of the version number is enforced by
+taking the maximum of the two, no matter if the increase was caused by local or
+an foreign snapshot.
+
+\paragraph{Bootstrapping}
+When starting an entire federation of nodes, and each node initializes foreign
+node versions to zero, the very first update or snapshot from that node would
+be recognized as outdated and thus discarded. This is why all
+\sh{Roadster::Domain::Model::Node} instances representing foreign nodes are
+initialized to version -1, so the very first update ($\geqslant 0$) is always
+applied.
 % TODO: supernode implementation braucht dieses Funktion auch - weil
 
 \begin{figure}[]
@@ -850,31 +971,16 @@ vom Subnode verlangt.
 Beim Start eines Nodes werden die foreign update Versionsnummern auf -1 gesetzt, so
 dass der erste Snapshot nicht discarded ist.
 
-% TODO: requesting snapshot, jumping version to keep it monotonic
-% TODO: initialize foreign node versions to -1 so their first snapshot isn't discarded
-
+\subsection{Access control}
+% TODO: DIM access control
 
 \subsection{Remote case management}
 % TODO gem 'simple_states' failed and thus was dropped, reduced complexity
 % TODO how to write your own FSM
 
 
-\subsection{Access control}
-% TODO: DIM access control
-% cryptographic signing
-% =====================
-% * no high-level canonicalizing needed, signing can happen on byte-level (BLOB of message)
-%   - because BLOB doesn't change from origin to destination
-% * signature as one a transport option: :signature
-% * intra-node: no signing needed
-%   - but we need to be able to tell whether a message came from outside or not
-%     (not possible right now, but can be done: additional parameter inter_node = true on #on_recv)
-% * inter-node: discard message *immediately* if signature isn't correct
-%   - don't even decode message, it could be dangerous with Ruby marshalling
-
 %----------------------------------------------------------------------------
 \section{High availability}\label{sec:approach:ha}
-% TODO: big picture
 If Roadster is going to be run in a federation, measures need to be taken to
 mitigate the risk of failure, since many nodes are more likely to fail than a
 single node. Availability shall be ensured by
@@ -883,7 +989,8 @@ of the topology, or at root level), in the form of a
 fully functional backup node in addition to the primary one.
 
 Run together in a hot-standby cluster, the passive node's responsibility is to
-take over in case the active one goes down.
+take over in case the active one fails to deliver its service.
+
 
 
 \subsection{Defining reliability}
@@ -1013,7 +1120,7 @@ is illustrated in \autoref{fig:ml:ha}.
 
 \begin{figure}[]
 	\includegraphics[width=\textwidth]{img/ML-HA_bstar.pdf}
-	\caption{Schema of HA cluster and a higher level client}
+	\caption{Schema of HA cluster and a higher level client.}
 	\label{fig:ml:ha}
 \end{figure}
 
@@ -1024,10 +1131,67 @@ is illustrated in \autoref{fig:ml:ha}.
 \end{figure}
 
 \subsubsection{Socket types}
-The sockets used by both HA peers to send and receive heartbeats/state
-information is a PUB-SUB pair each. This is useful to avoid queues filling up
-in case of an actual failure. PUB sockets simply drop messages when there are
+The sockets used by both HA peers to send and receive heartbeats and state
+updates is a PUB-SUB pair each. Using PUB-SUB sockets makes sense to avoid queues filling up
+in case of an actual failure, which PUSH-PULL sockets would do. PUB sockets simply drop messages when there are
 no SUB sockets connected, which is the desired effect.
+
+
+\subsubsection{Configuration}
+The DSL has been extended to support an additional property called
+\sh{backup_endpoints}. Furthermore, the hashmaps stored in the properties for
+the primary and backup endpoints simply contain another endpoint each: The ones
+used by the COMM.BSTAR actors. This is illustrated in \autoref{lst:dsl:topo:with-ha}.
+Using this information, direct subnodes of a HA-node can determine the correct
+supernode, as well as know the other node's endpoints in case the currently
+active HA peer fails.
+
+
+
+\begin{listing}
+	\begin{minted}[bgcolor=bg]{Ruby}
+module Conf::Federation
+  def self.conf
+    proc do
+      primary_endpoints \
+        router: 'tcp://0.0.0.0:20000',
+        pull:   'tcp://0.0.0.0:20001',
+        pub:    'tcp://0.0.0.0:20002',
+        ha_pub: 'tcp://0.0.0.0:20003'
+
+      backup_endpoints \
+        router: 'tcp://0.0.0.0:20010',
+        pull:   'tcp://0.0.0.0:20011',
+        pub:    'tcp://0.0.0.0:20012',
+        ha_pub: 'tcp://0.0.0.0:20013'
+
+      adapters do
+        # telnet server for client systems (fake OPC-UA HA interface)
+        adapter :telnet do
+          label           'Telnet'
+          desc            'Telnet Server'
+          adapter_class   Roadster::Adapters::TelnetServer
+
+          peer :server do
+            label   'LTA'
+            desc    'LTA'
+            uri     "tcp://0.0.0.0:#{Roadster.conf.telnet_server_port}"
+          end
+        end
+      end
+
+      node :s1 do
+        # [...]
+      end
+    end
+  end
+end
+	\end{minted}
+	\caption{Federation DSL example with HA.}
+	\label{lst:dsl:topo:with-ha}
+\end{listing}
+
+
 
 \subsubsection{OPC UA}
 One of the non-functional goals demanded the HA solution be developed with
@@ -1192,16 +1356,16 @@ A highly unlikely, but dangerous corner case \emph{could} lead to the
 split-brain syndrome. The following steps would be required to happen:
 
 \begin{enumerate}
-	\item the backup node is currently the active one
+	\item The backup node is currently the active one
 
-	\item then the dedicated link fails, which means no heartbeats are
+	\item Then the dedicated link fails, which means no heartbeats are
 		exchanged anymore
 
-	\item a new client tries to connect or an existing one is temporarily
+	\item A new client tries to connect or an existing one is temporarily
 		gone and tries to reconnect
 \end{enumerate}
 
-Since clients most likely try to contact the primary node first, this could
+Since clients try to contact the primary node first, this could
 lead to dreaded the split-brain syndrome. The primary node does not hear any
 life signs from the backup node (the rightfully active peer), and client
 requests count as votes. This means it will promote itself to the active peer,
@@ -1345,6 +1509,7 @@ No definite choice has been made yet. The client seems to favor the polling vari
 % TODO: choose a persistence synchronization variant
 
 \section{Encryption}\label{sec:approach:encryption}
+% TODO: entropy measurement
 % TODO: big picture
 It is fairly easy to enable transport security to secure the communication
 between \zmq sockets over an unsecure network.
@@ -1367,7 +1532,7 @@ performed by the UPSTREAM actor.
 
 \begin{listing}
 	\inputminted[bgcolor=bg]{Ruby}{listings/auth/fednf.rb}
-	\caption{Enabling CURVE mechanism on the client}
+	\caption{Enabling CURVE mechanism on the client.}
 	\label{lst:auth:fednf}
 \end{listing}
 
@@ -1424,7 +1589,7 @@ as it is done inside the DOWNSTREAM actor.
 
 \begin{listing}
 	\inputminted[bgcolor=bg]{Ruby}{listings/auth/fedsf.rb}
-	\caption{Enabling CURVE mechanism on the server to perform client authentication}
+	\caption{Enabling CURVE mechanism on the server to perform client authentication.}
 	\label{lst:auth:fedsf}
 \end{listing}
 
@@ -1497,13 +1662,100 @@ compromising everything.
 % Serial correlation coefficient is 0.310227 (totally uncorrelated = 0.0).
 % ```
 
+
+\subsection{End-to-end security}
+Encrypting and authenticating network traffic is good, but it only secures the
+communication between two neighboring nodes. Messages could travel via multiple
+hops to reach their destination node. To provide end-to-end security for such
+messages, they need to be authenticated as well, using cryptographic
+signatures.
+
+The challenge here is to decide on what to sign. Ruby objects are serialized
+into \glspl{BLOB}, which is perfectly suitable as input for a \gls{MAC} algorithm.
+This is possible because the message's on-wire
+representation doesn't change from origin to destination.
+
+The codecs implemented in Roadster, which serialize a message into the an
+on-wire representation, are part of the messaging layer. This fact makes it
+hard to adapt the existing codecs to add authentication. The codecs should be
+the final authority before the message is sent via a socket, and should be the
+first to inspect an arriving message. The advantage is that a forged,
+unauthentic message can (and must) be discarded immediately, without even
+decoding it.  Because Ruby marshalling allows the serialization and
+deserialization of almost any object, merely decoding a message could be
+dangerous, as described by the Ruby documentation itself on \cite[Security
+considerations]{rb:doc:marshal}.  For this reason, the codecs need to be moved
+from the messaging layer down to the reactor layer.
+
+
+\subsubsection{Implementation}
+The codecs have been adapted to sign \emph{tag} and authenticate messages using
+an authenticator object, an instance of the
+new class\\\sh{Roadster::Actors::MessageAuthenticator}. It offers the two
+instance methods \mintinline[bgcolor=bg]{Text};#tag; and \mintinline[bgcolor=bg]{Text};#authenticate!;.
+Codecs --- which are stateless, only offering \sh{.encode} and \sh{.decode}
+class methods --- are passed the authenticator object.
+
+The resulting MAC \emph{security tag} is stored in an additional \zmq frame
+before the message BLOB itself. Thus, the codec version (sent in the first
+frame of every message) has been updated to represent the incompatible change.
+It is important that the new frame is only used as a MAC and not any other
+information, as the authenticity of any other information cannot be verified.
+
+Intra-node messages do not have to be authenticated, whereas inter-node
+messages have to be. This requires some logic to be present in the codecs
+to only use the authenticator on inter-node sockets. To reduce
+code complexity, and also because codecs have no knowledge about sockets, the
+\emph{Null Object} design pattern has been used. When a socket is passed a
+message to be sent, or when receiving a message, the appropriate authenticator
+object is passed, which is either an instance of
+\sh{Roadster::Actors::MessageAuthenticator} for inter-node sockets, or
+\sh{Roadster::Actors::MessageAuthenticator::Null} for intra-node sockets.
+
+
 \section{OPC UA Interface: High availability}\label{sec:approach:opc-ua}
-The OPC UA standard seems pretty complicated. And given that the requirement
-is not concrete yet, no possible solution has been worked out yet.
+Some client systems interact with Roadster over the standardized \gls{opc-ua}
+interface. According to the standard in \cite[6.4.2 Server Redundancy,
+p.~94]{opc-ua:behavior:server-redundancy}, there are multiple ways to ensure
+interoperability when running the root node as a \gls{HA} cluster. The variant
+which comes closest to the \gls{HA} mechanism favored in the original task description is
+\emph{Non-transparent server Redundancy}, where the client system is aware of
+the hot-standby setup. Specifically, it also has to be aware of the failover
+mode. Described failover modes in the standard are \emph{Cold}, \emph{Warm},
+\emph{Hot} and \emph{HotPlusMirrored}. The mode \emph{Warm} describes the
+favored failover mode best, quoting \cite[6.4.2.4.4 Server Failover Modes,
+p.~98]{opc-ua:behavior:server-redundancy}:
 
-In case it is non-transparent server redundancy, \cite[6.4.2.4 Non-transparent
-Redundancy, p.~96]{opc-ua:behavior:server-redundancy} describes the exact
-behavior.
 
-% TODO study standard
-% TODO use Andy's gem (it "should be a simple thing")
+\begin{quote}
+``Warm Failover mode is where the backup Server(s) can be active, but cannot
+connect to actual data points (typically, a system where the underlying devices
+are limited to a single connection). Underlying devices, such as PLCs, may have
+limited resources that permit a single Server connection. Therefore, only a
+single Server will be able to consume data. The ServiceLevel Variable defined
+in Part 5 indicates the ability of the Server to provide its data to the
+Client.''
+\end{quote}
+
+The concept to induce a failover in a \gls{HA} cluster (limited to a
+Roadster federation only, excluding client systems) as part of the
+COMM.UPSTREAM actor's responsibilities can actually be implemented in any other
+actor, e.g. an adapter facing client systems. All the adapter on the passive
+node has to do is send a vote to the COMM.BSTAR actor in case the client system
+tries to connect and request a service. The following code would be sufficient:
+
+\begin{listing}[H]
+  \begin{minted}[bgcolor=bg]{Ruby}
+msg = Messaging::BSP::Messages::Vote.new 'comm.opcua', 'comm.bstar'
+route_message msg
+  \end{minted}
+  \caption{OPC-UA adapter: How to send a vote to the BSTAR actor.}
+  \label{lst:approach:opc-ua}
+\end{listing}
+
+mindclue GmbH actually offers an adapter implementing the \gls{opc-ua}
+interface, wrapped into a Ruby software package. Unfortunately, an
+incompatibility in the package's dependencies, makes its use impossible at the
+moment. Instead, an implementation of a simple Telnet server is planned. The
+server shall recognize the command \sh{VOTE!}, and perform the required steps to
+relay the vote to the COMM.BSTAR actor.

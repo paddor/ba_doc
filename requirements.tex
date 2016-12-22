@@ -152,8 +152,12 @@ This is formally specified in \autoref{lst:feature:federation:cmdrouting}.
 \end{listing}
 
 \section{High availability}
-Roadster must be able to run in certain high availability setups. Achieving
-this is done by adding redundant Roadster nodes.
+Some Roadster nodes have different requirements regarding availability. In a
+federation of a root node and two subnodes, the root node is responsible to
+aggregate information and orchestrate control of both subnodes. If it fails or
+needs to be upgraded, access to the two subnodes might be limited temporarily,
+or the service quality provided to client systems could decrease. Thus,
+Roadster needs to be able to run certain nodes in a redundant setup.
 
 The following additional federation topologies must be supported:
 \begin{description}

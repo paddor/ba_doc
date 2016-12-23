@@ -27,7 +27,7 @@ All functional, required features have been implemented, as shown in \autoref{ta
     \bf \color{red!50}\xmark & \color{red!50}\xmark & \color{green!65!black}\cmark & OPC-UA (optional) \\
     \hline
   \end{tabular} \\
-  \caption{Systen tests results}
+  \caption{System tests results}
   \label{tab:systemtestresults}
 \end{table}
 
@@ -81,13 +81,13 @@ GmbH, have been achieved.
 	\hline
 	\bf Number of new branches & 14 \\
 	\hline
-	\bf Number of new unit-tests & 803 \\
+	\bf Number of new unit tests & 803 \\
 	\hline
 	\bf Number of features & 7 \\
 	\hline
 	\bf Number of scenarios & 15 \\
 	\hline
-	\bf Number of system-tests & 104 \\
+	\bf Number of system tests & 104 \\
     \hline
   \end{tabular} \\
   \caption{Programming statistics}
@@ -95,14 +95,35 @@ GmbH, have been achieved.
 \end{table}
 %TODO cztop, federation, federation_csp, message_routing, ping_pong, webui_csp_fix, case_handling_fix, model_ownership, profiling, optimizations, msgpack_codec, node_as_root, high_availability, encryption
 \subsection{Metrics}
-% TODO  * number of new classes
-% TODO  * flog/reek/rubocop/flay/metric_fu... metrics
-% TODO short description ...
-% ABC metric Assignments, Branches, Conditions. An otherway for countig something like LoC. Lower values means the code is short and easily to read.
-The follow listing shows the calculated ABC metric values. Higher means more complex code. It is an modern approach to LoC or Function Point.
+Code contributions of this bachelor thesis have been statically analyzed.
+RuboCop's lint feature does not show any "offenses" according to the common Ruby style \cite{rb:style-guide}.
+Our contributions are by far less complex than some existing classes and methods in Roadster.
+
+The \autoref{lst:metrics:flay} shows the \gls{ABC} metrics calculated using
+\emph{flay}\footnote{\url{http://ruby.sadi.st/Ruby_Sadist.html}} for all Ruby source
+code files in Roadster's \sh{lib} directory, whose ABC metric is $\geqslant
+16$. ABC is a modern alternative to LoC or Function Point metrics.  Higher
+means more complex code. Meta-programming is treated as very complex, and since
+Roadster makes use of it to enable different protocol APIs in messaging
+handlers, the files of these handler definitions are ranked highest.
+
+The results of a second static code analyzing tool from the same authors,
+\emph{flog}, are listed in \autoref{lst:metrics:flog}. Again
+
+The class \sh{Roadster::Engines::BStar} is ranked high because of its \mintinline[bgcolor=bg]{Text};#fsm; method,
+which contains the full finite state machine in the form of
+conditions. The \emph{state} software design pattern could be leveraged to
+reduce the complexity. But since it is contained within one private method, it has not
+been deemed necessary.
+
+In general, newly contributed classes exhibit lower cyclomatic complexity
+measurements than most existing classes in Roadster, especially implementations
+of standardized industry protocols such as IEC
+60870-5-104\footnote{\url{https://en.wikipedia.org/wiki/IEC_60870-5\#IEC_60870-5-104}}.
+
+
 \begin{listing}[H]
 	\begin{minted}[bgcolor=bg]{text}
-mschuler@mschuler-vb:/tmp/roadster/lib$ flay  -s .
 Total score (lower is better) = 2162
 
   225.00: ./roadster/messaging/handlers/webui.rb
@@ -144,15 +165,61 @@ Total score (lower is better) = 2162
    16.00: ./roadster/messaging/protocols/cmp/messages.rb
    16.00: ./roadster/actors/comm.rb
 	\end{minted}
-	\caption{flay result}
-	\label{lst:metrics:flay:result}
+	\caption{Static code analysis result from \emph{flay}}
+	\label{lst:metrics:flay}
+\end{listing}
+
+\begin{listing}[H]
+	\begin{minted}[bgcolor=bg]{text}
+8872.5: flog total
+ 271.3: main total
+ 207.0: Roadster::Engines::Core total
+ 201.2: Roadster::Engines::TcEventJournalDb total
+ 175.3: Roadster::Application total
+ 151.7: Roadster::Adapters::Protocols::OpcXmlDa::Client total
+ 141.3: Roadster::Actors::Base total
+ 125.3: Roadster::Engines::Upstream total
+ 119.1: Roadster::Adapters::Protocols::IEC104::ControllingStation total
+ 119.1: Roadster::Adapters::ModbusTCPClient total
+ 110.7: Roadster::Engines::TcTimeseriesDb total
+ 101.5: Roadster::Engines::BStar total
+ 100.9: Roadster::Cli total
+  98.9: Roadster::Engines::Downstream total
+# [...] clipped
+  13.8: Roadster::Messaging::Handlers::Upstream total
+  13.8: Roadster::Adapters::Protocols::Modbus::PDU::WriteMultipleRegistersRequest total
+  13.3: Roadster::Messaging::CMP::API::Proxy total
+  13.3: Roadster::Engines::Federation::SubnodesSelector total
+  13.0: Roadster::Messaging::USP::API::Proxy total
+  12.9: Roadster::Actors::Storage total
+  12.5: Roadster::Logger total
+  12.5: Roadster::Domain::Model::ReferenceBase total
+  12.5: Roadster::Messaging::Handlers::Comm total
+  12.0: Roadster::Actors::Comm total
+  11.9: Roadster::Messaging::PDP::API::Parameters::Server total
+  11.9: Roadster::Messaging::PCP::API::Server total
+  11.8: Roadster::Adapters::Protocols::Soap::Server total
+  11.8: Roadster::Adapters::Protocols::IEC104::InfoObjects::COI total
+  11.5: Roadster total
+  11.2: Roadster::Console total
+  11.0: Roadster::Messaging::Handlers::Base total
+  10.6: Roadster::Messaging::CSP::API::Proxy total
+  10.6: Roadster::Engines::WebUI total
+  10.3: Roadster::Actors::BStar total
+  10.3: Roadster::Domain::Model::Session total
+  10.0: Roadster::Messaging::CSP::API::Server total
+   9.9: Roadster::Messaging::FCP::API::Core total
+   9.9: Roadster::Actors::MessageAuthenticator total
+	\end{minted}
+	\caption{Static code analysis result from \emph{flog}}
+	\label{lst:metrics:flay}
 \end{listing}
 
 \subsection{Collaboration statistics}
 \autoref{tab:collaborationstatistics} shows the collaboration statistics.
 \begin{table}[H]
   \centering
-  \begin{tabular}{|m{60mm}|m{10mm}|}
+  \begin{tabular}{|m{60mm}|m{20mm}|}
 	\hline
 	\bf Slack messages with the projectpartner & 3700 \\
 	\hline

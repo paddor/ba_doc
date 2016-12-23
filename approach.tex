@@ -451,7 +451,7 @@ The system tests are run on the GitLab server after each construction
 iteration. To do so, the Python scripts set up a virtual network and then start
 the appropriate Roadster instances. Some features require a link to fail or a
 node to fail, which can be achieved at arbitrary times through Mininet commands or
-simply kiling Roadster instances wherever needed. The generated log data is
+simply killing Roadster instances wherever needed. The generated log data is
 evaluated later to verify that the behavior for each defined feature is
 correct.
 
@@ -596,7 +596,7 @@ approach to implement encryption in \autoref{sec:approach:encryption}.
 Measurements have shown (\autoref{lst:ent:plain}) that the information
 efficiency of unencrypted network traffic of Roadster amounts to $\sim$67\%.
 The \sh{ent} tool has been used to perform this measurement before implementing
-the calculation in the system tests themselves to reduce external depenencies.
+the calculation in the system tests themselves to reduce external dependencies.
 
 \begin{listing}
 	\begin{minted}[bgcolor=bg]{Text}
@@ -1078,7 +1078,7 @@ nodes are discarded as being outdated, until they reach their previous value.
 This is why snapshots from neighboring nodes are initially requested to
 instantly increase the version numbers to their previous value.
 
-The implementation is straight-forward. When applaying a snapshot --- as well as regular
+The implementation is straight-forward. When applying a snapshot --- as well as regular
 updates --- a mere monotonical increase of the version number is enforced by
 taking the maximum of the two, no matter if the increase was caused by local or
 an foreign snapshot.
@@ -1107,7 +1107,7 @@ relevant actors. The \emph{Template Method} design pattern is used to handle
 the common case of handling a received
 \sh{Roadster::Messaging::CSP::Messages::ModelUpdate} message. The hook methods,
 called by the template method, are then implemented
-in each particular class where necessary. Where no special behvior is needed,
+in each particular class where necessary. Where no special behavior is needed,
 the mixed-in methods are left unchanged.
 
 \subsubsection{Summary}
@@ -1143,7 +1143,7 @@ simulated field device across a supernode to another subnode is illustrated in
 \subsection{Remote case management}
 As defined by the access control restriction in the previous section, a case
 can only be closed on the owning node of the case. Therefore, the command
-for closeing the case must be sent to the owner node. To check the authorization
+for closing the case must be sent to the owner node. To check the authorization
 on the owner node, the sender node's ACL configuration --- part of the DIM --- is used, because only
 the sender node has the appropriate session saved.
 % TODO gem 'simple_states' failed and thus was dropped, reduced complexity
@@ -1569,7 +1569,7 @@ Going active encompasses the following actions, grouped by actor:
 		\end{itemize}
 	\item COMM.UPSTREAM:
 		\begin{itemize}
-			\item Enable pushing of model udpates to the supernode via the PUSH socket
+			\item Enable pushing of model updates to the supernode via the PUSH socket
 		\end{itemize}
 	\item COMM.*:
 		\begin{itemize}
@@ -1630,7 +1630,7 @@ so the outage is visible to operational personnel in one of the web UIs.
 To generate an alarm case it is possible to set a guard which observes
 a variable in the DIM and when the variable changes and the appropriate 
 condition is met the guard will automatically generate a defined alarm case.
-Only core actors can have guard, the feature is disabled on the ohter actors,
+Only core actors can have guard, the feature is disabled on the other actors,
 therefore it is important to publish the DIM update to the core otherwise
 it will never generate an alarm case.
 

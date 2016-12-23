@@ -40,8 +40,12 @@
 
 \section{Limitations}
 % TODO identify potential limitations and weaknesses of the product
-% limitation: to followed HA nodes in a layer aren't possible (middle layer with HA and supernode with HA) the problem is the diagonal approach (upstream)
-% solution: share data over the bstar sockets and don't use the upstream with the diagonal approach
+Two HA setups in a multi layer aren't possible if they are connected to each other. As long there is no
+layer between it will never work. The problem is the diagonal approach of the communcation
+between primary and backup node in a HA peer setup. Upstream of the primary 
+node has to talk to two Downstream Nodes (backup and the other HA peer setup).
+The reason is the limitation of the socket.
+Solution => share data over the bstar sockets and don't use the upstream with the diagonal approach
 % weakness: message packages can be identified and if someone would capture the traffic it would be possible to assign the payload to the right
 % message type. => solution: filled it with padding...
 %  
@@ -64,6 +68,13 @@ plain Ruby objects.
 \subsubsection{Message routing}
 % TODO: would have been easier if CORE had inter-node sockets itself, but: 
 % seperation of concern would be injured and the core would be come a big fat monolythic class
+Would have been easier if CORE had inter-node sockets itself, but: 
+\begin{itemize}
+	\item seperation of concern would be injured
+	\item the core would be come a big monolythic class
+	\item maintainability decreases
+	\item UNIX philosophy is broken: "Do one thing, and do it well."
+\end{itemize}
 
 \subsection{HA}
 A HA cluster has to be complete (both nodes running) during initialization.
@@ -87,6 +98,9 @@ environments, possibly replacing higher-level systems described in
 \subsection{High availability}
 % TODO: opportunity: Only go active with enough votes
 % bstar extension: not done because KISS
+One of the main reason to include a treshold number for voting could be to
+prevent split-brain. Split-brain is on some circumstance possible and with this
+extra feature the possibility of such a failure would be minimized.
 
 \subsection{Rolling upgrades}
 % OPTIMIZE move to Discussion

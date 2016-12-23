@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="roadster" company="" webLink="http://" view-date="2016-09-11" view-index="0" gantt-divider-location="851" resource-divider-location="300" version="2.8.1" locale="en_US">
+<?xml version="1.0" encoding="UTF-8"?><project name="roadster" company="" webLink="http://" view-date="2016-09-18" view-index="0" gantt-divider-location="766" resource-divider-location="300" version="2.8.1" locale="en_US">
     <description/>
     <view zooming-state="default:4" id="gantt-chart">
-        <field id="tpd3" name="Name" width="359" order="0"/>
-        <field id="tpd4" name="Begin date" width="237" order="1"/>
-        <field id="tpd5" name="End date" width="236" order="2"/>
+        <field id="tpd3" name="Name" width="322" order="0"/>
+        <field id="tpd4" name="Begin date" width="213" order="1"/>
+        <field id="tpd5" name="End date" width="212" order="2"/>
     </view>
     <view id="resource-table">
         <field id="0" name="Name" width="210" order="0"/>
@@ -121,6 +121,18 @@
                 <task id="140" name="Persistence synchronization" meeting="false" start="2016-11-28" duration="10" complete="0" expand="true">
                     <task id="149" name="System test: Persistence synchronization" meeting="false" start="2016-11-28" duration="10" complete="0" expand="true"/>
                     <task id="151" name="implementation" meeting="false" start="2016-11-28" duration="7" complete="0" expand="true"/>
+                </task>
+            </task>
+            <task id="164" name="Construction 3" meeting="false" start="2016-12-04" duration="14" complete="0" expand="true">
+                <task id="166" name="Encryption" meeting="false" start="2016-12-04" duration="8" complete="0" expand="true">
+                    <task id="172" name="System-Tests" meeting="false" start="2016-12-05" duration="3" complete="0" expand="true"/>
+                    <task id="174" name="Socket configuration" meeting="false" start="2016-12-05" duration="5" complete="0" expand="true"/>
+                    <task id="182" name="Implementation" meeting="false" start="2016-12-04" duration="8" complete="0" expand="true"/>
+                </task>
+                <task id="168" name="OPC-UA" meeting="false" start="2016-12-12" duration="6" complete="0" expand="true">
+                    <task id="170" name="System-Tests" meeting="false" start="2016-12-12" duration="2" complete="0" expand="true"/>
+                    <task id="184" name="Implementation" meeting="false" start="2016-12-12" duration="4" complete="0" expand="true"/>
+                    <task id="183" name="Refine doc" meeting="false" start="2016-12-12" duration="6" complete="0" expand="true"/>
                 </task>
             </task>
             <task id="16" name="Transition" meeting="false" start="2016-12-18" duration="6" complete="0" expand="true">

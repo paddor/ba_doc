@@ -86,6 +86,16 @@ environments, possibly replacing higher-level systems described in
 \section{Ideas for Improvement}
 \subsection{High availability}
 % TODO: opportunity: Only go active with enough votes
+% bstar extension: not done because KISS
+
+\subsection{Rolling upgrades}
+% OPTIMIZE move to Discussion
+An obvious side benefit of this comes into play with upgrades. Using the HA
+cluster capability it is possible to perform rolling upgrades, meaning one HA
+peer can be upgraded while the other one stays in service. After a successful
+upgrade, Roadster on the active peer can be stopped, upgraded, and restarted as
+the passive peer.
+
 
 \subsubsection{Thoughtful heartbeating}\label{sec:discussion:imp:ha:hb}
 The BSTAR actor currently happily exchanges heartbeats with the BSTAR actor

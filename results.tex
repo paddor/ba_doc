@@ -68,20 +68,123 @@
 
 
 \section{Programming statistics}
-% TODO LoC -/+ ? roadster = 18749++/8063--  ba-roadster-app = 461++/364--
-% TODO number of commits/loc roadster = 579 ba-roadster-app = 26
 
-* %
+\autoref{tab:programmingstatistics} shows the programming statistics.
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|m{50mm}|m{30mm}|}
+   \hline
+	\bf Ruby LoC before BA & 7161 \\
+	\hline
+	\bf Ruby LoC after BA  & 9123 \\
+	\hline
+	\bf Ruby LoC & 1962 \\
+	\hline
+	\bf New Ruby comments & 1468 \\
+	\hline
+	\bf New Ruby files & 23 \\
+	\hline
+	\bf Python LoC & 684 \\
+	\hline
+	\bf New Python files & 14 \\
+	\hline
+	\bf Number of commits in 
+		\newline roadster repository & 579 \\
+	\hline
+	\bf Number of commits in 
+		\newline ba-roadster-app repository & 26 \\
+	\hline
+	\bf Number of line changes 
+		\newline roadster repository & 18749{\color{green!70} ++} / 8063{\color{red!70} -{}-} \\
+	\hline
+	\bf Number of line changes 
+		\newline ba-roadster-app repository & 61{\color{green!70} ++} / 364{\color{red!70} -{}-} \\
+	\hline
+	\bf Number of new branches & 14 \\
+	\hline
+	\bf Number of new unit-tests & 803 \\
+	\hline
+	\bf Number of features & 7 \\
+	\hline
+	\bf Number of scenarios & 15 \\
+	\hline
+	\bf Number of system-tests & 104 \\
+    \hline
+  \end{tabular} \\
+  \caption{Programming statistics}
+  \label{tab:programmingstatistics}
+\end{table}
+%TODO cztop, federation, federation_csp, message_routing, ping_pong, webui_csp_fix, case_handling_fix, model_ownership, profiling, optimizations, msgpack_codec, node_as_root, high_availability, encryption
 \subsection{Metrics}
 % TODO  * number of new classes
-% TODO  * LOC
 % TODO  * flog/reek/rubocop/flay/metric_fu... metrics
-% TODO  * number of commits, branches
+% TODO short description ...
+\begin{listing}[H]
+	\begin{minted}[bgcolor=bg]{text}
+mschuler@mschuler-vb:/tmp/roadster/lib$ flay  -s .
+Total score (lower is better) = 2162
+
+  225.00: ./roadster/messaging/handlers/webui.rb
+  172.00: ./roadster/messaging/handlers/core.rb
+   95.00: ./roadster/messaging/handlers/bstar.rb
+   90.00: ./roadster/engines/modules/report/eventjournal.html.erb
+   88.00: ./roadster/messaging/handlers/storage.rb
+   85.00: ./roadster/messaging/handlers/downstream.rb
+   77.00: ./roadster/messaging/handlers/upstream.rb
+   77.00: ./roadster/messaging/handlers/comm.rb
+   72.00: ./roadster/adapters/protocols/iec104/info_objects/point_information.rb
+   72.00: ./roadster/engines/core.rb
+   70.00: ./roadster/messaging/protocols/csp/api.rb
+   68.00: ./roadster/messaging/messages/base.rb
+   64.00: ./roadster/engines/modules/database/tc_eventjournal_db.rb
+   57.00: ./roadster/adapters/protocols/modbus/pdu/write_multiple_registers.rb
+   57.00: ./roadster/adapters/protocols/modbus/pdu/read_holding_registers.rb
+   57.00: ./roadster/actors/downstream.rb
+   56.00: ./roadster/engines/modules/domain/host/host.rb
+   54.00: ./roadster/messaging/protocols/pcp/api.rb
+   54.00: ./roadster/engines/modules/domain/model/case.rb
+   52.00: ./roadster/engines/comm.rb
+   51.00: ./roadster/messaging/handlers/logging.rb
+   38.00: ./roadster/messaging/protocols/usp/api.rb
+   38.00: ./roadster/messaging/protocols/smp/api.rb
+   38.00: ./roadster/actors/upstream.rb
+   36.00: ./roadster/engines/modules/database/tc_base_db.rb
+   35.00: ./roadster/actors/core.rb
+   35.00: ./roadster/actors/storage.rb
+   32.00: ./roadster/messaging/protocols/pdp/messages.rb
+   32.00: ./roadster/messaging/protocols/smp/messages.rb
+   32.00: ./roadster/messaging/protocols/pdp/api_timeseries.rb
+   22.00: ./roadster/adapters/protocols/iec104/info_objects/info_object_70.rb
+   22.00: ./roadster/adapters/protocols/iec104/info_objects/info_object_100.rb
+   20.00: ./roadster/engines/webui.rb
+   19.00: ./roadster/messaging/protocols/pdp/api_parameters.rb
+   19.00: ./roadster/messaging/protocols/usp/messages.rb
+   19.00: ./roadster/messaging/protocols/pcp/messages.rb
+   16.00: ./roadster/messaging/protocols/cmp/messages.rb
+   16.00: ./roadster/actors/comm.rb
+	\end{minted}
+	\caption{flay result}
+	\label{lst:metrics:flay:result}
+\end{listing}
+
+\subsection{Collaboration statistics}
+\autoref{tab:collaborationstatistics} shows the collaboration statistics.
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|m{60mm}|m{10mm}|}
+	\hline
+	\bf Slack messages with the projectpartner & 3700 \\
+	\hline
+	\bf Slack messages with the client & 1300 \\
+	\hline
+	\bf Median time per issue  & 8.68 hours \\
+	\hline
+	\bf Median time per task & 3.55 hours \\
+    \hline
+  \end{tabular} \\
+  \caption{Collaboration statistics}
+  \label{tab:collaborationstatistics}
+\end{table}
+
 % TODO  * test examples
-% TODO  * Git branches: cztop, federation, federation_csp, message_routing, ping_pong, webui_csp_fix, case_handling_fix, model_ownership, profiling, optimizations, msgpack_codec, node_as_root, high_availability, encryption
-
-% TODO * slack messages  1300 message im General chat / 3700 message im private chat
-% TODO * time per ticket, time per step (checkbox) (maybe in Project plan)
-
 % TODO test results (red/green)
-% TODO number of new test examples

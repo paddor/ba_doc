@@ -1,63 +1,157 @@
 % vim: ft=tex
 \chapter{Discussion}
-% TODO something like a SWOT analysis here (strengths, weaknesses, opportunities, threats)
-% TODO general advice: be concise, brief, and specific
-% TODO: modifications to the same DIM objects from different actors at the same time => one update will be lost, but consistency is still guaranteed
+This chapter analyzes the outcome of this bachelor thesis in review.
+Value added is documented in \autoref{sec:disc:value-added}. Limitations are
+discussed in \autoref{sec:disc:lim}.
 
-% TODO: maintainability (SOLID principles, composition over inheritance)
-% TODO: additional goal: security of SCADA applications
-% TODO: additional personal goal: how fallacies of distributed computing are handled
+\section{General}
+General aspects are discussed in this section.
+
+\subsection{Value Added}\label{sec:disc:value-added}
+Actual value added for mindclue GmbH is a much more capable Roadster framework.
+The capability to run a Roadster application on multiple, inter-connected nodes
+can make considerable distinction on the market, since Roadster can now itself
+be run as a higher-level system (see \autoref{sec:scope:sys-integration})
+aggregating information from lower-level
+systems.
+
+The autonomy of a Roadster nodes is a valuable trait of this solution. State
+exchange is graceful, meaning it tolerates temporary network partitions.
+
+Network communication between Roadster nodes is secure. Traffic is not only
+encrypted, but also authenticated using modern, patent-free, high-security,
+high-speed cryptography \cite{zmq:curvezmq}.
+
+The existing test suites of Roadster have been greatly extended. The isolation
+of existing unit tests has been increased by leveraging more of RSpec's
+features.
+The new container-based system test infrastructure can be leveraged for
+close-to-reality testing of new features before they are deployed to production
+systems.
+
+Maintainability has been kept the same or even improved. Certain duplicated
+code (like the handling of model updates in the CORE and COMM engines) has been extracted to a
+common mix-in. Certain closely-coupled methods (like the ones in
+\sh{Roadster::Domain::Host} concerning model updates) have been extracted to a
+new highly cohesive class. The suboptimally placed codecs have
+been moved closer to where message serialization and deserialization is used,
+which allowed for end-to-end message authentication.
+
+Performance has been maintained. In certain cases where both regular
+expressions and basic string functions could be used, benchmarks have been
+performed and the faster solution has been chosen for the implementation. An
+example is shown in \autoref{lst:perf:string}.
+\begin{listing}[]
+  \begin{minted}[bgcolor=bg]{Ruby}
+# @return [String] the receiver node
+def receiver_node
+  # NOTE: This is the same as the line below, but faster.
+  i = @receiver.rindex('@') and @receiver[ i+1, @receiver.length-i-1 ]
+  # @receiver[ /@(.*)/, 1 ]
+end
+  \end{minted}
+  \caption{Example of an optimized String handling method.}
+  \label{lst:perf:string}
+\end{listing}
 
 
-% performance improvements
-%   * circumvent scrypt in test suite
-%   * avoid regex, use bare strings if possible (s[s.rindex('@')+1..-1]
 %   * test suite with profiling activated
-% * future feature: DIM visibility: :federation, :node, :actor
-%   - useful for supernode's last_seen (:node), currently an ivar in engine
-%   - current choice of HA supernode's endpoints (:node)
-% * when closing cases, the flag "all_cases" could fuck up
-%   - especially with multiple nodes
-%   - with single node: race condition, reply could contain a case (now closed) that was not shown in the UI => what to do?
-%   - proposal: remove flag, always just send array of case IDs
-% * maybe: model updates are sent to UI before authentication (TODO: tell Manu)
-% * ideas:
-%   - crystal for performance
-%   - msgpack for safety, show benchmarks
-%   - broadcast messages, signing, domain model level signature so snapshots can be relayed
-% * IDEA for DEPLOYMENT
-%   * 1 git repo per deployment
-%   * keygen phase: on each node, gen key and git commit in fedrb file
-%   * `roadster keygen FILE`
-% * analysis of encrypted traffic is still possible (see CURVE zmq)
-% * cleartext ZMTP commands
-% * talk about factories (MsgPack packer/unpacker) and hook methods, template method
 
-% TODO sign config file: => trash
 
-\section{Value Added}
-% TODO what's better than before
+\subsection{Limitations}\label{sec:disc:lim}
+\paragraph{Static topology}
+A Roadster federation topology is static. It cannot be dynamically updated at
+this point. Adding new nodes to an existing federation means having to restart
+the other nodes after updating their configuration.
 
-\section{Limitations}
-% TODO identify potential limitations and weaknesses of the product
-Two HA setups in a multi layer aren't possible if they are connected to each other. As long there is no
-layer between it will never work. The problem is the diagonal approach of the communcation
-between primary and backup node in a HA peer setup. Upstream of the primary 
-node has to talk to two Downstream Nodes (backup and the other HA peer setup).
-The reason is the limitation of the socket.
-Solution => share data over the bstar sockets and don't use the upstream with the diagonal approach
-% weakness: message packages can be identified and if someone would capture the traffic it would be possible to assign the payload to the right
-% message type. => solution: filled it with padding...
-%  
-Limitations imposed by the design and implementation of the new features are
-discussed here.
+\paragraph{High availability}
+A HA node currently cannot have any kind of supernode, which is considered an
+uncommon topology, but still is a limitation. More about this in \autoref{sec:disc:ha}.
 
-\subsection{Federation}
-\subsubsection{DIM replication}
+
+\paragraph{Persistence replication}
+Message traffic towards root node sums up because of persistence
+replication. This should not be a problem because of \zmq's brilliant
+message batching, so the real limit only given by the inter-node network links.
+
+
+\subsection{Ideas}
+\subsubsection{Message serialization performance}
+MessagePack\footnote{\url{http://msgpack.org}} could be used instead of Ruby
+Marshalling to serialize messages. It is known to be very fast, very small, and
+would increase interoperability because MessagePack is available for in all
+common programming languages. Furthermore, security would be improved too,
+because MessagePack does not allow the serialization of arbitrary Ruby objects.
+Benchmarking showed that using MessagePack would allow a considerable
+performance increase, as shown in \autoref{lst:bm:msgpack}.
+\begin{listing}[]
+  \begin{minted}[bgcolor=bg]{Text}
+#####  ENCODING  #####
+Warming up --------------------------------------
+                RUBY     8.109k i/100ms
+             MSGPACK    12.742k i/100ms
+Calculating -------------------------------------
+                RUBY     84.962k (± 3.5%) i/s -    429.777k in   5.064866s
+             MSGPACK    137.498k (± 3.7%) i/s -    688.068k in   5.011320s
+
+Comparison:
+             MSGPACK:   137497.8 i/s
+                RUBY:    84962.0 i/s - 1.62x  slower
+
+
+
+#####  DECODING  #####
+Warming up --------------------------------------
+                RUBY     9.612k i/100ms
+             MSGPACK    12.665k i/100ms
+Calculating -------------------------------------
+                RUBY    102.331k (± 4.5%) i/s -    519.048k in   5.082607s
+             MSGPACK    130.003k (± 5.1%) i/s -    658.580k in   5.079560s
+
+Comparison:
+             MSGPACK:   130002.5 i/s
+                RUBY:   102330.9 i/s - 1.27x  slower
+  \end{minted}
+  \caption{Benchmark comparison between Ruby Marshalling and MsgPack serialization.}
+  \label{lst:bm:msgpack}
+\end{listing}
+
+\subsubsection{Miscellaneous}
+Here is an Unordered list of ideas:
+\begin{itemize}
+	\item Switch to Moneta\footnote{\url{https://github.com/minad/moneta}} for a unified key-value store interface in Ruby, then eventually away from \gls{tc} to something more modern and maintained, like LMDB\footnote{\url{http://lmdb.tech/doc/}}, which is super fast and crash-proof.
+	\item TIPC: High performance cluster communication protocol, suitable because Roadster nodes are Linux and there are direct links to peers (required for TIPC)
+	\item Key management in a DB (instead of files), with GUI to accept new clients
+	\item Dynamic node topology (maybe via DSL-file in Etcd, or DIM-only, or Zookeeper)
+	\item Fast compression for messages, like LZ4\footnote{\url{https://github.com/lz4/lz4}} or Snappy\footnote{\url{https://github.com/google/snappy}}, which could be interesting for Roadster nodes connected via a cellular data network
+\end{itemize}
+
+
+
+% -------------------------------------------------------------------------
+\section{By feature}
+
+\subsection{Messaging}
+\subsubsection{Broadcast messages}
+Broadcast messages could be useful, especially when it comes to inter-node CSP.
+Instead of having the protocol (or even the engine, as of now) decide where to
+relay a domain model update to ensure a consistent state across all actors and
+nodes, this kind of broadcast messaging could be offered by Roadster's
+messaging routing itself. However, care would have to be taken to avoid
+accidental message storms.
+
+Message routing would have been a lot easier to implement if CORE had inter-node sockets itself, but:
+\begin{itemize}
+	\item Seperation of concerns would suffer
+	\item The CORE actor could become a big monolithic class, if done wrong
+	\item Maintainability would decrease
+	\item Unix philosophy would be violated: ``Do one thing, and do it well.''
+\end{itemize}
+
+\subsubsection{Inter-node CSP}
 Eventual consistency is guaranteed even in situations where multiple actors
 modify the same DIM objects at roughly the same time. However, some updates
 might get lost. In those cases, the last writer wins.
-
 
 Subtree synchronization has not been implemented, as deemed as not necessary at
 this moment. Replication performance is by far sufficient, with messages being
@@ -65,107 +159,216 @@ sent and received within 1 -- 3 milliseconds, and the space requirements of a
 complete DIM was observed to be very small so far, being just a small number of
 plain Ruby objects.
 
-\subsubsection{Message routing}
-% TODO: would have been easier if CORE had inter-node sockets itself, but: 
-% seperation of concern would be injured and the core would be come a big fat monolythic class
-Would have been easier if CORE had inter-node sockets itself, but: 
-\begin{itemize}
-	\item seperation of concern would be injured
-	\item the core would be come a big monolythic class
-	\item maintainability decreases
-	\item UNIX philosophy is broken: "Do one thing, and do it well."
-\end{itemize}
+\subsection{DIM}
+\paragraph{Visibility}
+A feature to define the visibility on a domain model object basis could be
+useful when information needs to be shared across actors, but not across nodes.
+A new visibility property could accept the values \rb{:federation}, \rb{:node}, and \rb{:actor} to define the desired visibility.
+One case where this feature would have been useful is the current choice of the
+supernode HA peer currently communicated with. In the current version, this is
+simply an instance variable in the COMM.UPSTREAM engine.
 
-\subsection{HA}
+\paragraph{Object level signatures}
+In certain situations, such as when requesting a snapshot of the domain model,
+foreign objects could be sent by a neighboring node that is not actually the owner
+of said objects. This means that it is impossible to prove that those objects
+actually originated from their owning node. A mechanism implemented so as to
+simply skip the end-to-end authenticity checks when applying snapshots would be
+exploitable. A possible solution would be object level signatures, stored as a
+property within the property itself. Any node who receives a domain model
+update, whether direct (updates) or "replayed" (snapshots) could verify the
+signature of each object update. This would require a canonicalized
+representation of the object's (signed) contents to use as input for the
+signing algorithm, similar to the W3C recommendation for XML
+Canonicalization.\footnote{\url{https://www.w3.org/TR/xml-exc-c14n/}}
+
+\paragraph{CSP refactoring}
+After having worked a considerable amount of time on \gls{CSP} related
+features, the impression is that it could be refactored. Initially described in
+an issue\footnote{\url{https://github.com/thewesch/ba-roadster-doc/issues/80}}
+on GitHub, it seems that too much CSP-related logic is implemented in the
+engine layer. The students' opinion is that the new module
+\sh{Roadster::Engines::CSPMethods} would not be needed if more CSP-related
+functionality would be implemented directly in the protocol APIs within the
+messaging layer.
+
+\subsection{High availability}\label{sec:disc:ha}
 A HA cluster has to be complete (both nodes running) during initialization.
 Otherwise, only primary node can start to serve requests; the backup node will not
 do this.
 
-% TODO refactoring ideas: HANode < Node
-%  => root object in config
 
-\subsection{Persistence replication}
-Message traffic towards root node sums up because of persistence
-replication. This should not be a problem because of \zmq's brilliant
-message batching, so the real limit only given by the inter-node network links.
+A HA cluster currently cannot have any kind of supernode right now, because
+COMM.UPSTREAM's DEALER socket cannot decide which node receives a message sent.
+This should not be a significant limitation as of right now, but in case a
+future versio should ever have this capability, there are two solutions:
 
-\section{Business Benefits}
-Using the new federation capability, Roadster can be deployed in larger
-environments, possibly replacing higher-level systems described in
-\autoref{sec:scope:sys-integration}.
+\begin{enumerate}
+	\item ROUTER-ROUTER communication between supernode and subnodes.
+	\item Refactor
+\end{enumerate}
 
-\section{Ideas for Improvement}
-\subsection{High availability}
-% TODO: opportunity: Only go active with enough votes
-% bstar extension: not done because KISS
-One of the main reason to include a treshold number for voting could be to
-prevent split-brain. Split-brain is on some circumstance possible and with this
-extra feature the possibility of such a failure would be minimized.
+Proposal for the refactoring solution:
+\begin{itemize}
+\item Rename COMM.BSTAR into COMM.SIDESTREAM
+\item Publish domain model updates over the "horizontal" PUB socket as well (just like from COMM.DOWNSTREAM does)
+\item Add DEALER socket (DEALER-DEALER communication works)
+\item PUSH/PULL socket is not needed because passive does not perform any modifications to DIM
+\item The primary always \sh{bind()}s, the backup node always \sh{connect()}s
+\end{itemize}
 
-\subsection{Rolling upgrades}
-% OPTIMIZE move to Discussion
-An obvious side benefit of this comes into play with upgrades. Using the HA
-cluster capability it is possible to perform rolling upgrades, meaning one HA
+Benefits would include:
+\begin{itemize}
+\item The actors COMM.UPSTREAM and COMM.DOWNSTREAM are back to a single responsibility only.
+\item The COMM.UPSTREAM actor does not even have to be started on HA nodes.
+\item The COMM.DOWNSTREAM actor only needs to be started with subnodes actually present.
+\item The COMM.DOWNSTREAM actor would never need to discard and re-register its inter-node sockets because the set of allowed subnodes (public keys) would be constant.
+\end{itemize}
+
+\subsubsection{Binary Star Extension}
+A possible optimization to the \gls{bstar} is to go active with enough votes,
+even if the currently active HA peer is still responsive. This would help in
+the situation where only the active HA peer is disconnected from subnodes due
+to a network partition.
+
+\subsubsection{Rolling upgrades}
+An obvious side benefit of the high availability feature comes into play with
+upgrades. Using the HA cluster feature it is possible to perform upgrades
+without downtime, sometimes referred to as \emph{rolling upgrades}.  One HA
 peer can be upgraded while the other one stays in service. After a successful
-upgrade, Roadster on the active peer can be stopped, upgraded, and restarted as
-the passive peer.
+upgrade, Roadster on the active HA peer can be stopped, upgraded, and restarted
+as the passive HA peer.
 
 
 \subsubsection{Thoughtful heartbeating}\label{sec:discussion:imp:ha:hb}
-The BSTAR actor currently happily exchanges heartbeats with the BSTAR actor
+The COMM.BSTAR actor currently happily exchanges heartbeats with the COMM.BSTAR actor
 running on the other HA peer, even in case all actors but CORE are dead. The
-CORE actor's health is periodically checked using the PING/PONG mechanism as
+CORE actor's health is periodically checked using the ping/pong mechanism as
 described in \autoref{sec:approach:ha:hb}.
 
-In a subsequent version of Roadster, the CORE actor could relay those PING
-requests to the other actors and only respond with a PONG in case the other
-actors all have responded with PONG. This mechanism would make the node only
+In a subsequent version of Roadster, the CORE actor could relay those Ping
+requests to the other actors and only respond with a Pong in case the other
+actors all have responded with Pong. This mechanism would make the node only
 signal life signs in case all actors are healthy.
 
 \subsubsection{HA within a node}
 Building upon the previous idea, unhealthy actors could be killed and respawned
 by the CORE actor.  Microrebooting unhealthy components without an attempt at
-any sophisticated recovery would make Roadster belong to the \emph{crash-only} kind of fault-tolerant software.
+any sophisticated recovery would make Roadster belong to the \emph{crash-only}
+kind of fault-tolerant software.
 
 \subsubsection{Manual failover}\label{sec:discussion:ha:manual-failover}
 A manually induced failover could be useful in some cases, e.g. when a
 component fails that does not provoke an automatic failover.
 
-Providing a less brutal way of inducing a failover than to turn off the
+Providing a less brutal way of inducing a failover than to simply shut down the
 currently active HA peer could be interesting in a future version.
 
-\subsubsection{Unplanned topologies}
-% TODO
-HA cluster can't have supernode right now, because upstream's DEALER socket
-can't decide which node receives a message sent.
-% Solution 1: ROUTER-ROUTER communication between node and subnodes.
-% Solution 2: Refactor:
-%   - rename Engines::BStar into Engines::Sidestream
-%   - publish CSP updates over PUB socket as well (just like from Downstream->Upstream)
-%   - add DEALER socket (DEALER-DEALER communication works)
-%   - PUSH/PULL socket not needed because passive won't change DIM
-%   - primary always binds, backup always connects
-%   - => Upstream/Downstream are back to a single responsibility only
-%   - => Upstream does not even have to be started on HA nodes
-%   - => Downstream only needs to be started with subnodes
 
-\subsection{Miscellaneous}
-% TODO check IEEE abstract.. we need a refrence from IEEE as a idea for future features
-http://ieeexplore.ieee.org/abstract/document/1541189/ Dynamic distributed computing would allow a Roadster federation to grow without to restart each of then nodes.
-http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7190458 When a roadster have to calculate a high amount of data, it could be outsourced to other nodes which have free cpu.
-Therefore would be a Data Mining Algorithm a good solution.
 
-Unordered list of ideas:
+\subsection{Security}
+
+\paragraph{Traffic analysis}
+CURVE \zmq encrypts and authenticates network traffic, but traffic analysis
+attacks are still possible. To mitigate this, messages would have to be padded
+with random amounts of data, and spurious dummy messages would have to be
+passed around.
+
+\paragraph{Connection lifetime}
+In addition to that, no more than $2^{64} - 1$ ZMTP commands (roughly equaling to
+messages) must be sent per connection. After that, a wraparound of the nonce
+could happen. Granted, this is a rather astronomic limitation.
+
+\paragraph{Signed configurations}
+During the interim presentation, the suggestion of signing the Roadster configuration files has come up.
+Unfortunately this would not increase security, as an attacker who has already
+gained access to the system could simply change Roadster's (interpreted) source
+code to disable any authenticity checks of said configuration files.
+
+
+\section{Miscellaneous}
+In case a Roadster node ever has to calculate a huge amount of data, this
+process could be outsourced to other nodes having a small load. As described in
+\cite{ieee:data-mining}, this could be useful for data mining applications,
+leveraging the execution power of many actors.
+
+
+% --------------------------------------------------------------------
+\section{Review of additional goals}
+The additional goals mentioned in \autoref{sec:scope:add-goals} have been kept
+in mind and achieved. Namely:
 \begin{itemize}
-	\item switch to Moneta for a unified key-value store interface, then eventually away from \gls{tc} to something more modern and maintained, like LMDB (it is super fast and crash-proof)
-	\item TIPC: high performance cluster communication protocol, suitable because Roadster nodes are Linux and there are direct links to peers (required for TIPC)
-	\item key management in a DB (instead of files), with GUI to accept new clients
-	\item dynamic node topology (maybe via DSL-file in Etcd, or DIM-only, or Zookeeper)
-	\item other method for data serialization (like MessagePack), would allow adding other programming languages to the cluster
-	\item fast compression for messages, like LZ4 or Snappy
-	\item SERVER/CLIENT sockets from ZMQ 4.2 for simplified message routing
-	\item Ruby \rb{Integer} class instead of \rb{Fixnum}
-	\item (use more symbols instead of strings, e.g. to refer to a certain actor)
-	\item \sh{ZMQ_RECONNECT_IVL} and \sh{ZMQ_RECONNECT_IVL_MAX} especially for mobile clients
+	\item Security concerns of SCADA applications
+	\item Fallacies of distributed computing
 \end{itemize}
 
+\subsection{Security concerns of SCADA applications}
+As documented and discussed before, the security of Roadster as a SCADA
+application is guaranteed even across insecure networks. Security through
+obscurity has not been practiced. No matter if the network of a particular
+Roadster installation is or is not connected to the internet, security of
+inter-node sockets is ensured using modern cryptography.
+
+Thus, this additional goal has been achieved.
+
+\subsection{Fallacies of distributed computing}
+Roadster's federation feature has been developed with the well-known fallacies
+of distributed computing in mind. The following list briefly describes how each
+fallacy is dealt with:
+
+\begin{description}
+	\item [The network is reliable.] \hfill\\
+		Handled by \zmq. All transport details are completely
+		abstracted away. Intricacies of network protocols are handled
+		gracefully by \zmq.
+
+	\item [Latency is zero.] \hfill\\
+		Latency does literally not matter in the actor model. Messages
+		sent to an actor are queued by \zmq if necessary, and
+		then processed by the actor one by one. No assumptions on the
+		order or actual timings of message delivery have been made.
+
+	\item [Bandwidth is infinite.] \hfill\\
+		Handled by \zmq's brilliant batching mechanism as described in \autoref{ch:zmq}.
+		Messages of the \gls{RMP} are generally pretty small at this
+		point. Using MessagePack and/or a compression library would
+		help if message sizes ever cause bottlenecks.
+
+	\item [The network is secure.] \hfill\\
+		Handled by \zmq's CURVE security mechanism which uses strong
+		cryptography, as described earlier in this chapter, as well as
+		in \autoref{sec:approach:encryption}.
+
+	\item [Topology does not change.] \hfill\\
+		Roadster's topology is static through its configuration. In
+		case the network topology changes and endpoints need to be
+		adapted, this must be done in the configuration, followed by a
+		restart of the Roadster instance.
+
+		Temporary network partitions caused by changes in the network
+		topology are handled gracefully by \zmq and Roadster's autonomy
+		feature.
+
+	\item [There is one administrator.] \hfill\\
+		This is outside the scope of this bachelor thesis, as
+		particular deployments were not the concern. When deploying
+		Roadster in a new network, it is advised to determine a single
+		administrator responsible for the network to avoid unnecessary
+		overhead.
+
+	\item [Transport cost is zero.] \hfill\\
+		Again, latency does not matter. More computation and space
+		efficient serialization techniques are available if necessary.
+		Expensive network equipment to increase reliability or security
+		of Roadster applications is not needed.
+
+	\item [The network is homogeneous.] \hfill\\
+		This is handled by \zmq to some degree, as \zmq is available on
+		many platforms and all common programming languages. To further
+		improve interoperability when needed, good replacements for
+		Ruby Marshalling are available. As an extreme example,
+		different Roadster actors could then be written in different
+		programming languages in the future. Protocol incompatibilities
+		are handled brutally in Roadster: If a received message
+		contains a wrong protocol version, it is immediately discarded.
+\end{description}

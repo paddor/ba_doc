@@ -1,11 +1,9 @@
 % vim: ft=tex
 \chapter{Results}\label{ch:res}
-% TODO what are the results (without discussing them)
-% TODO test results to verify our approach and implementations go here too
+This chapter documents the final results.
 
-% TODO move to the right position
-\section{System test}
-\autoref{tab:systemtestresults} shows the system test results.
+\section{System tests}
+All functional, required features have been implemented, as shown in \autoref{tab:systemtestresults}.
 \begin{table}[H]
   \centering
   \begin{tabular}{|m{5mm}|m{5mm}|m{5mm}|m{50mm}|}
@@ -34,36 +32,14 @@
 \end{table}
 
 \section{Unit tests}
-% TODO link to `rake` output, also as secret gist
-
-% TODO coverage increase
+All new contributions are 100\% covered by unit tests.
 
 \section{Integration tests}
-% TODO: already existent, refactored into scopes
+Existing integration tests have been refactored.
 
-\section{Port}\label{sec:res:port}
-% TODO explain results here
-
-
-\section{Federation}\label{sec:res:cluster}
-% TODO explain results here
-% TODO message passing speed
-% TODO msgs/s
-
-\section{High Availability}\label{sec:res:ha}
-% TODO explain results here
-
-% TODO (personal goal) byproduct: cztop-patterns
-
-\section{Persistence synchronization}\label{sec:res:psync}
-% TODO explain results here
-
-\section{Encryption}\label{sec:res:security}
-% TODO explain results here
-
-\section{OPC UA Interface: High availability}\label{sec:res:opc-ua}
-% TODO explain results here
-
+\section{Non-functional requirements}
+All non-functional requirements, including the Ruby style desired by mindclue
+GmbH, have been achieved.
 
 
 \section{Programming statistics}
@@ -73,9 +49,9 @@
   \centering
   \begin{tabular}{|m{50mm}|m{30mm}|}
    \hline
-	\bf Ruby LoC before BA & 7161 \\
+	\bf Ruby LoC before & 7161 \\
 	\hline
-	\bf Ruby LoC after BA  & 9123 \\
+	\bf Ruby LoC after & 9123 \\
 	\hline
 	\bf Ruby LoC & 1962 \\
 	\hline

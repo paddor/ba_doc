@@ -69,7 +69,7 @@ The following new protocols have been added:
 		Following the \emph{Interface segregation
 		principle}\footnote{\url{https://en.wikipedia.org/wiki/Interface_segregation_principle}},
 		separate API endpoints different components have been created.
-		These include the different hearbeating roles for supernodes
+		These include the different heartbeating roles for supernodes
 		and subnodes, as well as different routing aspects required by
 		the CORE actor and edge (inter-node communication) actors.
 
@@ -576,7 +576,7 @@ are persisted.
 
 \paragraph{Encrypted network traffic}
 To verify that the inter-node traffic is encrypted, it is captured too. The entropy is then calculated
-based on that traffic dump of the exchanged messages. The minimum for the entropy efficency is set
+based on that traffic dump of the exchanged messages. The minimum for the entropy efficiency is set
 above 95\%. It does not approach 100\% because \gls{ZMTP} control
 commands are sent unencrypted, as defined in \cite[High-level
 Grammar]{zmq:curvezmq}.
@@ -1963,7 +1963,7 @@ store is a class in CZMQ called \cpp{zcertstore}, represented through
 \rb{CZTop::CertStore} in CZTop.} The certificate store in turn looks up the
 certificates on disk by the public key in question.
 
-There is also the possibility of providing an already instanciated certificate
+There is also the possibility of providing an already instantiated certificate
 store to the authentication handler. This is useful because a certificate store
 allows the insertion of certificates (public keys) in-memory, avoiding the need
 to load certificates from disk. This greatly simplifies the key distribution.
